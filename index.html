@@ -2,18 +2,34 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Animal Heroes</title>
+  <title>Learc</title> <!-- ← game title -->
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="manifest" href="manifest.webmanifest" />
+
+  <!-- ① import-map tells the browser where to fetch Firebase ESM bundles -->
+  <script type="importmap">
+  {
+    "imports": {
+      "firebase/app":
+        "https://www.gstatic.com/firebasejs/11.9.0/firebase-app.js",
+      "firebase/auth":
+        "https://www.gstatic.com/firebasejs/11.9.0/firebase-auth.js",
+      "firebase/firestore":
+        "https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js"
+    }
+  }
+  </script>
+
+  <!-- ② your main module bootstraps Firebase & the router -->
   <script type="module">
-    import './scripts/main.js';           // boots Firebase
+    import './scripts/main.js';           // boots Firebase, exports db/auth
     import { initRouter } from './scripts/router.js';
     import './scripts/scenes/title.js';   // registers “title” route
-    // later: import other scene modules here
-    initRouter();                         // finally start the router
+
+    initRouter();                         // kick-off routing
   </script>
 </head>
 <body>
-  <div id="app"></div>
+  <div id="app"></div> <!-- router swaps scenes into this -->
 </body>
 </html>
