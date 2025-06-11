@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Animal Heroes</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <script type="module">
+    import './scripts/main.js';           // boots Firebase
+    import { initRouter } from './scripts/router.js';
+    import './scripts/scenes/title.js';   // registers “title” route
+    // later: import other scene modules here
+    initRouter();                         // finally start the router
+  </script>
+</head>
+<body>
+  <div id="app"></div>
+</body>
+</html>
