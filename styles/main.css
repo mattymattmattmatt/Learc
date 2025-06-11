@@ -1,0 +1,78 @@
+:root {
+  /* brand colours – tweak freely */
+  --brand-bg: #111827;             /* near-black */
+  --brand-accent: #38bdf8;        /* cyan-blue highlight */
+  --brand-text: #f9fafb;          /* very light grey */
+  --brand-surface: #1f2937;       /* card / textbox background */
+  --radius: 0.75rem;
+  --transition: 200ms ease;
+}
+
+/* full-bleed hero background */
+body {
+  min-height: 100vh;
+  margin: 0;
+  display: grid;
+  place-items: center;            /* centres the #app card */
+  background: var(--brand-bg) url('/assets/img/bg-title.webp') center / cover fixed;
+  color: var(--brand-text);
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+/* card that holds the title UI */
+#app > .title-card {
+  width: 90%;
+  max-width: 420px;
+  background: rgba(31, 41, 55, 0.9); /* translucent glassy feel */
+  padding: 2rem 2.25rem;
+  border-radius: var(--radius);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+  text-align: center;
+  backdrop-filter: blur(6px);
+}
+
+/* big game logo text */
+.title-card h1 {
+  margin: 0 0 1.25rem;
+  font-size: clamp(2rem, 6vw, 3rem);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--brand-accent);
+}
+
+/* stylish textbox */
+.title-card input[type="text"] {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--brand-surface);
+  color: var(--brand-text);
+  transition: box-shadow var(--transition);
+}
+.title-card input[type="text"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--brand-accent);
+}
+
+/* primary CTA button */
+.title-card button {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.9rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--brand-accent);
+  color: #0f172a;
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition);
+}
+.title-card button:hover {
+  background: #7dd3fc;
+}
+.title-card button:active {
+  transform: scale(0.97);
+}
