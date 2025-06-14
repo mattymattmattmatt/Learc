@@ -1,0 +1,175 @@
+[
+  /* ───────────── LAND ───────────── */
+  {
+    "id": "fertle",
+    "name": "Fertle",
+    "habitat": "land",
+    "power": "Shoots fireballs from mouth",
+    "sprite": "char_fertle.webp"
+  },
+  {
+    "id": "fygar",
+    "name": "Fygar",
+    "habitat": "land",
+    "power": "Super-speed sprinter",
+    "sprite": "char_fygar.webp"
+  },
+  {
+    "id": "waterwolf",
+    "name": "Waterwolf",
+    "habitat": "land",
+    "power": "Controls and bends water",
+    "sprite": "char_waterwolf.webp"
+  },
+  {
+    "id": "chomper",
+    "name": "Chomper",
+    "habitat": "land",
+    "power": "Ultra-hard bite attack",
+    "sprite": "char_chomper.webp"
+  },
+  {
+    "id": "fixie",
+    "name": "Fixie",
+    "habitat": "land",
+    "power": "Creates/shoots ice shards",
+    "sprite": "char_fixie.webp"
+  },
+  {
+    "id": "chunky",
+    "name": "Chunky",
+    "habitat": "land",
+    "power": "Elite vine-swinger",
+    "sprite": "char_chunky.webp"
+  },
+  {
+    "id": "skyjumper",
+    "name": "Skyjumper",
+    "habitat": "land",
+    "power": "Super-high jumping",
+    "sprite": "char_skyjumper.webp"
+  },
+  {
+    "id": "cliggy",
+    "name": "Cliggy",
+    "habitat": "land",
+    "power": "Shoots explosive eggs",
+    "sprite": "char_cliggy.webp"
+  },
+
+  /* ───────────── SEA ───────────── */
+  {
+    "id": "peeta-heater",
+    "name": "Peeta Heater",
+    "habitat": "sea",
+    "power": "Unleashes scalding heat-waves",
+    "sprite": "char_peeta-heater.webp"
+  },
+  {
+    "id": "snapper",
+    "name": "Snapper",
+    "habitat": "sea",
+    "power": "Crab-claw mega-snap",
+    "sprite": "char_snapper.webp"
+  },
+  {
+    "id": "swack",
+    "name": "Swack",
+    "habitat": "sea",
+    "power": "Fin-whack knockout",
+    "sprite": "char_swack.webp"
+  },
+  {
+    "id": "zappo",
+    "name": "Zappo",
+    "habitat": "sea",
+    "power": "Electro-sting strike",
+    "sprite": "char_zappo.webp"
+  },
+  {
+    "id": "yelp",
+    "name": "Yelp",
+    "habitat": "sea",
+    "power": "Ear-splitting sonic roar",
+    "sprite": "char_yelp.webp"
+  },
+  {
+    "id": "sixter",
+    "name": "Sixter",
+    "habitat": "sea",
+    "power": "Toxic cloud / poison",
+    "sprite": "char_sixter.webp"
+  },
+  {
+    "id": "chocker",
+    "name": "Chocker",
+    "habitat": "sea",
+    "power": "Constriction chokehold",
+    "sprite": "char_chocker.webp"
+  },
+  {
+    "id": "gus",
+    "name": "Gus",
+    "habitat": "sea",
+    "power": "Menacing stare that stuns",
+    "sprite": "char_gus.webp"
+  },
+
+  /* ───────────── SKY ───────────── */
+  {
+    "id": "bo",
+    "name": "Bo",
+    "habitat": "sky",
+    "power": "Fires rainbow beams",
+    "sprite": "char_bo.webp"
+  },
+  {
+    "id": "roger-dodger",
+    "name": "Roger Dodger",
+    "habitat": "sky",
+    "power": "Ultra-fast dodge manoeuvre",
+    "sprite": "char_roger-dodger.webp"
+  },
+  {
+    "id": "yellogen",
+    "name": "Yellogen",
+    "habitat": "sky",
+    "power": "Ear-splitting squawk",
+    "sprite": "char_yellogen.webp"
+  },
+  {
+    "id": "whipper",
+    "name": "Whipper",
+    "habitat": "sky",
+    "power": "Wing-powered wind push",
+    "sprite": "char_whipper.webp"
+  },
+  {
+    "id": "diver",
+    "name": "Diver",
+    "habitat": "sky",
+    "power": "Rainbow dive-bomb strike",
+    "sprite": "char_diver.webp"
+  },
+  {
+    "id": "stinger",
+    "name": "Stinger",
+    "habitat": "sky",
+    "power": "High-speed stinger jab",
+    "sprite": "char_stinger.webp"
+  },
+  {
+    "id": "flick",
+    "name": "Flick",
+    "habitat": "sky",
+    "power": "Precision stick throw",
+    "sprite": "char_flick.webp"
+  },
+  {
+    "id": "creeper",
+    "name": "Creeper",
+    "habitat": "sky",
+    "power": "Paralysing stare beam",
+    "sprite": "char_creeper.webp"
+  }
+]

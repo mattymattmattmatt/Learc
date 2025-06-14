@@ -2,11 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Learc</title> <!-- ← game title -->
+  <title>Learc</title>
+
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="/assets/ui/favicon.ico" />
 
-  <!-- ① import-map tells the browser where to fetch Firebase ESM bundles -->
+  <!-- Global styles -->
+  <link rel="stylesheet" href="/styles/main.css" />
+
+  <!-- ── import-map: point bare Firebase ESM imports to CDN ────────── -->
   <script type="importmap">
   {
     "imports": {
@@ -20,16 +25,18 @@
   }
   </script>
 
-  <!-- ② your main module bootstraps Firebase & the router -->
+  <!-- ── Boot Firebase, router and first scene ─────────────────────── -->
   <script type="module">
-    import './scripts/main.js';           // boots Firebase, exports db/auth
+    import './scripts/main.js';              // exports auth & db
     import { initRouter } from './scripts/router.js';
-    import './scripts/scenes/title.js';   // registers “title” route
+    import './scripts/scenes/title.js';      // registers "title" route
 
-    initRouter();                         // kick-off routing
+    initRouter();                            // start hash-router
   </script>
 </head>
+
 <body>
-  <div id="app"></div> <!-- router swaps scenes into this -->
+  <!-- All scenes get swapped into this single mount point -->
+  <div id="app"></div>
 </body>
 </html>
