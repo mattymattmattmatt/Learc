@@ -4,7 +4,7 @@ import { loadSave, saveProgress } from '../save.js';
 let heroesCache = null;
 async function getHeroes() {
   if (heroesCache) return heroesCache;
-  const res = await fetch('../data/characters.json');
+  const res = await fetch('scripts/data/characters.json');
   heroesCache = await res.json();
   return heroesCache;
 }
