@@ -17,13 +17,16 @@
 
 /*────────────────  Page background  ───────────────────*/
 body {
-  min-height: 100vh;
-  margin: 0;
+  /* full-screen background */
+  background: #111827                             /* fallback colour */
+              url('../assets/img/bg-title.webp')  /* ← new file */
+              center / cover no-repeat fixed;
+  color: var(--brand-text);
   display: grid;
   place-items: center;
-  background: var(--brand-bg)
-              url('/assets/img/bg-title.webp') center / cover;
-  color: var(--brand-text);
+  min-height: 100vh;
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
 }
 
 /*────────────────  Title card  ────────────────────────*/

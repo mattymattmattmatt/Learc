@@ -6,12 +6,10 @@
 
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" href="/assets/ui/favicon.ico" />
+  <link rel="icon" href="assets/ui/favicon.ico" />
 
-  <!-- Global styles -->
-  <link rel="stylesheet" href="/styles/main.css" />
+  <link rel="stylesheet" href="styles/main.css" />
 
-  <!-- ── import-map: point bare Firebase ESM imports to CDN ────────── -->
   <script type="importmap">
   {
     "imports": {
@@ -25,18 +23,14 @@
   }
   </script>
 
-  <!-- ── Boot Firebase, router and first scene ─────────────────────── -->
   <script type="module">
-    import './scripts/main.js';              // exports auth & db
+    import './scripts/main.js';
     import { initRouter } from './scripts/router.js';
-    import './scripts/scenes/title.js';      // registers "title" route
-
-    initRouter();                            // start hash-router
+    import './scripts/scenes/title.js';
+    initRouter();
   </script>
 </head>
-
 <body>
-  <!-- All scenes get swapped into this single mount point -->
   <div id="app"></div>
 </body>
 </html>
