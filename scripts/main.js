@@ -15,8 +15,8 @@ const firebaseConfig = {
 
 // boot Firebase once ─────────────────────────────────────────────
 const app  = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db   = getFirestore(app);   // will use later for saves
+export const auth = getAuth(app);
+export const db   = getFirestore(app);
 
 // sign the player in anonymously, then run the game loader
 signInAnonymously(auth)
