@@ -1,5 +1,4 @@
 [
-  /* ───────────── LAND ───────────── */
   {
     "id": "fertle",
     "name": "Fertle",
@@ -56,8 +55,6 @@
     "power": "Shoots explosive eggs",
     "sprite": "char_cliggy.webp"
   },
-
-  /* ───────────── SEA ───────────── */
   {
     "id": "peeta-heater",
     "name": "Peeta Heater",
@@ -114,8 +111,6 @@
     "power": "Menacing stare that stuns",
     "sprite": "char_gus.webp"
   },
-
-  /* ───────────── SKY ───────────── */
   {
     "id": "bo",
     "name": "Bo",
