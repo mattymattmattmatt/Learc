@@ -1,16 +1,22 @@
+/* scripts/scenes/title.js
+   ----------------------------------------------------------
+   Title / character-select scene for Learc
+   --------------------------------------------------------*/
+
 import { registerRoute } from '../router.js';
 import { loadSave, saveProgress } from '../save.js';
 
-/* ─── tiny cache so we don’t re-fetch on each render ─── */
+/* ─── fetch & cache hero data ───────────────────────────── */
 let heroesCache = null;
 async function getHeroes() {
   if (heroesCache) return heroesCache;
   const res = await fetch('scripts/data/characters.json');
+  if (!res.ok) throw new Error('Failed to load characters.json');
   heroesCache = await res.json();
   return heroesCache;
 }
 
-/* ─── build 2×4 thumb grid for the requested habitat ─── */
+/* ─── build 2×4 gallery for a given habitat ─────────────── */
 function gridFor(list, habitat) {
   return list
     .filter(h => h.habitat === habitat)
@@ -24,6 +30,23 @@ function gridFor(list, habitat) {
     .join('');
 }
 
+/* ─── auto-scale so the card always fits 100 % viewport ── */
+function fitCard() {
+  const card = document.querySelector('.title-card');
+  if (!card) return;
+
+  const DESIGN_W = 500;  // must match CSS max-width
+  const DESIGN_H = 350;  // must match CSS max-height
+
+  const scaleW = (window.innerWidth  * 0.97) / DESIGN_W;
+  const scaleH = (window.innerHeight * 0.97) / DESIGN_H;
+  const scale  = Math.min(scaleW, scaleH, 1);   // never upscale >1
+
+  card.style.transformOrigin = 'center center';
+  card.style.transform = `scale(${scale})`;
+}
+
+/* ─── main render fn ────────────────────────────────────── */
 async function render(container) {
   const heroes = await getHeroes();
 
@@ -41,34 +64,39 @@ async function render(container) {
         ${gridFor(heroes, 'land')}
       </div>
 
-      <!-- hero name + power live here -->
       <div id="heroInfo"></div>
 
-      <input id="nameBox"
-             type="text"
-             maxlength="16"
-             placeholder="Enter adventurer name" />
+      <input id="nameBox" type="text"
+             maxlength="16" placeholder="Enter adventurer name" />
 
       <button id="playBtn" disabled>Start Journey</button>
     </div>
   `;
 
-  /* ─── tab switching ─── */
+  /* scale once content exists */
+  fitCard();
+
+  /* re-scale on resize / orientation change */
+  window.addEventListener('resize',           fitCard);
+  window.addEventListener('orientationchange',fitCard);
+
+  /* ─── tab switching ─────────────────── */
   container.querySelectorAll('.tab').forEach(btn => {
     btn.onclick = () => {
       container.querySelector('.tab.active')?.classList.remove('active');
       btn.classList.add('active');
+
       container.querySelector('#gallery').innerHTML =
         gridFor(heroes, btn.dataset.tab);
 
-      /* reset selection when changing tabs */
+      /* reset selection & info */
       selectedHero = null;
       playBtn.disabled = true;
       heroInfo.textContent = '';
     };
   });
 
-  /* ─── hero selection ─── */
+  /* ─── hero selection ────────────────── */
   let selectedHero = null;
   const playBtn  = container.querySelector('#playBtn');
   const heroInfo = container.querySelector('#heroInfo');
@@ -77,13 +105,13 @@ async function render(container) {
     const img = e.target.closest('.hero-thumb');
     if (!img) return;
 
-    /* visual highlight */
+    /* visual feedback */
     container
       .querySelectorAll('.hero-thumb.selected')
       .forEach(i => i.classList.remove('selected'));
     img.classList.add('selected');
 
-    /* enable button + show info */
+    /* enable button & show info */
     selectedHero = img.dataset.id;
     playBtn.disabled = false;
 
@@ -91,18 +119,19 @@ async function render(container) {
     heroInfo.textContent = `${hero.name} — ${hero.power}`;
   });
 
-  /* ─── start button ─── */
+  /* ─── start button ──────────────────── */
   playBtn.onclick = async () => {
     const username = container.querySelector('#nameBox').value.trim();
     if (!username) return container.querySelector('#nameBox').focus();
 
     await loadSave(username);
     await saveProgress(username, { hero: selectedHero });
-    location.hash = 'AU-01';              // first playable episode
+    location.hash = 'AU-01';        // first playable episode
   };
 
   container.querySelector('#nameBox').focus();
 }
 
+/* register & export for router */
 registerRoute('title', render);
 export default render;
