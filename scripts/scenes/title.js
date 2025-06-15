@@ -1,6 +1,5 @@
 /* scripts/scenes/title.js
-   Title / character-select scene for Learc
-   --------------------------------------- */
+   Title / character-select scene with audio cue  */
 
 import { registerRoute } from '../router.js';
 import { loadSave, saveProgress } from '../save.js';
@@ -15,7 +14,7 @@ async function getHeroes() {
   return heroesCache;
 }
 
-/* ─── build 2×4 gallery for a habitat ────────────────── */
+/* ─── build 2×4 gallery block ───────────────────────── */
 function gridFor(list, habitat) {
   return list
     .filter(h => h.habitat === habitat)
@@ -29,23 +28,31 @@ function gridFor(list, habitat) {
     .join('');
 }
 
-/* ─── auto-scale card to always fit viewport ─────────── */
+/* ─── scale title-card to fit viewport ──────────────── */
 function fitCard() {
   const card = document.querySelector('.title-card');
   if (!card) return;
-
-  const DESIGN_W = 500;   /* same as CSS max-width  */
-  const DESIGN_H = 350;   /* same as CSS max-height */
-
-  const scaleW = (innerWidth  * 0.97) / DESIGN_W;
-  const scaleH = (innerHeight * 0.97) / DESIGN_H;
-  const scale  = Math.min(scaleW, scaleH, 1);
-
-  card.style.transformOrigin = 'center center';
-  card.style.transform       = `scale(${scale})`;
+  const DESIGN_W = 500, DESIGN_H = 350;
+  const s = Math.min((innerWidth*0.97)/DESIGN_W,
+                     (innerHeight*0.97)/DESIGN_H, 1);
+  card.style.transform           = `scale(${s})`;
+  card.style.transformOrigin     = 'center center';
 }
 
-/* ─── main scene renderer ────────────────────────────── */
+/* keep a single Audio instance */
+let currentAudio = null;
+function playEntranceJingle(heroId) {
+  /* stop previous */
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+
+  /* build path: assets/audio/<id>_entrance.wav */
+  const src = `assets/audio/${heroId}_entrance.wav`;
+  currentAudio = new Audio(src);
+  currentAudio.volume = 0.9;          // tweak as needed
+  currentAudio.play().catch(console.error);
+}
+
+/* ─── main renderer ─────────────────────────────────── */
 async function render(container) {
   const heroes = await getHeroes();
 
@@ -73,12 +80,12 @@ async function render(container) {
     </div>
   `;
 
-  /* scale now that DOM exists */
+  /* scale once DOM exists */
   fitCard();
-  addEventListener('resize',           fitCard);
-  addEventListener('orientationchange',fitCard);
+  addEventListener('resize', fitCard);
+  addEventListener('orientationchange', fitCard);
 
-  /* ─── tab switching ─────────────────────────── */
+  /* ─── tab logic ───────────────────────── */
   container.querySelectorAll('.tab').forEach(btn => {
     btn.onclick = () => {
       container.querySelector('.tab.active')?.classList.remove('active');
@@ -92,7 +99,7 @@ async function render(container) {
     };
   });
 
-  /* ─── hero selection ────────────────────────── */
+  /* ─── hero selection ──────────────────── */
   let selectedHero = null;
   const playBtn  = container.querySelector('#playBtn');
   const heroInfo = container.querySelector('#heroInfo');
@@ -111,9 +118,12 @@ async function render(container) {
 
     const hero = heroes.find(h => h.id === selectedHero);
     heroInfo.textContent = `${hero.name} — ${hero.power}`;
+
+    /* play jingle */
+    playEntranceJingle(selectedHero);
   });
 
-  /* ─── start button ───────────────────────────── */
+  /* ─── start button ────────────────────── */
   playBtn.onclick = async () => {
     const username = container.querySelector('#nameBox').value.trim();
     if (!username) return container.querySelector('#nameBox').focus();
@@ -124,7 +134,7 @@ async function render(container) {
 
   container.querySelector('#nameBox').focus();
 
-  /* ─── Full-screen toggle ─────────────────────── */
+  /* ─── Full-screen toggle ───────────────── */
   const fsBtn = container.querySelector('#fsBtn');
   if (!document.fullscreenEnabled) fsBtn.style.display = 'none';
 
@@ -144,6 +154,6 @@ async function render(container) {
   });
 }
 
-/* register route */
+/* register with router */
 registerRoute('title', render);
 export default render;
