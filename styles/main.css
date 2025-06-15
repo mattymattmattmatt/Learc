@@ -1,10 +1,9 @@
 /*────────── 1  Reset & root tokens ─────────────────────*/
 *,
 *::before,
-*::after { box-sizing: border-box; }
+*::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* Brand colours */
   --brand-bg:        #111827;
   --brand-surface:   #1f2937;
   --brand-accent:    #38bdf8;
@@ -16,7 +15,7 @@
   font-family: "Inter", system-ui, sans-serif;
 }
 
-/*────────── 2  Landscape-only overlay ─────────────────*/
+/*────────── 2  Orientation gate ───────────────────────*/
 @media (orientation: portrait) {
   body::before {
     content: 'Rotate your device ↻';
@@ -26,59 +25,74 @@
     place-items: center;
     background: #0f172a;
     color: var(--brand-text);
-    font-size: 1.4rem;
+    font-size: 5vw;
+    text-align: center;
     z-index: 9999;
   }
-  #app { visibility: hidden; }   /* hide UI behind overlay */
+  #app { visibility: hidden; }
 }
 
-/*────────── 3  Full-screen background & centering ─────*/
+/*────────── 3  Viewport-filling layout ────────────────*/
+html, body { height: 100%; }
+
 body {
-  display: grid;
-  place-items: center;
-  min-height: 100vh;
-  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background:
     var(--brand-bg)
     url('../assets/img/bg-title.webp') center / cover no-repeat;
   color: var(--brand-text);
+  overflow: hidden;                /* prevent any scroll */
 }
 
-/*────────── 4  Title card ─────────────────────────────*/
+/*────────── 4  Title card dimension rules ─────────────*/
 #app > .title-card {
-  width: 90%;
-  max-width: 420px;
-  background: rgba(31, 41, 55, 0.9);
-  padding: 2rem 2.25rem;
+  width: 95vw;
+  max-width: 500px;
+  height: 95vh;                    /* consume almost entire height */
+  max-height: 350px;               /* prevent overly tall on tablets */
+  background: rgba(31,41,55,0.9);
   border-radius: var(--radius);
-  text-align: center;
   box-shadow: 0 8px 20px rgba(0,0,0,0.35);
   backdrop-filter: blur(6px);
+
+  display: flex;
+  flex-direction: column;
+  padding: 1.2rem 1.4rem;
 }
 
+/* reduce top padding on very small screens */
+@media (max-height: 300px) {
+  #app > .title-card { padding: 0.6rem; }
+}
+
+/*────────── 5  Header / logo ──────────────────────────*/
 .title-card h1 {
-  margin: 0 0 1.25rem;
-  font-size: clamp(2rem, 6vw, 3rem);
+  flex: 0 0 auto;
+  text-align: center;
+  font-size: clamp(1.5rem, 5.5vw, 2.5rem);
   letter-spacing: 0.05em;
-  text-transform: uppercase;
+  margin-bottom: 0.5rem;
   color: var(--brand-accent);
 }
 
-/*────────── 5  Tabs ───────────────────────────────────*/
+/*────────── 6  Tabs (fixed height row) ───────────────*/
 .tabs {
+  flex: 0 0 32px;
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
   justify-content: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .tabs .tab {
   flex: 1 1 0;
-  padding: 0.4rem 0.7rem;
   border: none;
   border-radius: var(--radius);
   background: var(--brand-surface);
   color: var(--brand-text);
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   transition: background var(--transition);
@@ -89,14 +103,15 @@ body {
   color: #0f172a;
 }
 
-/*────────── 6  2×4 gallery grid ───────────────────────*/
+/*────────── 7  2×4 Gallery (fixed box) ───────────────*/
 .gallery {
+  flex: 0 0 auto;
+  width: 100%;
+  aspect-ratio: 4 / 2;
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 4 cols */
-  grid-auto-rows: 1fr;                   /* equal rows */
-  gap: 0.65rem;
-  margin-bottom: 0.8rem;
-  aspect-ratio: 4 / 2;                   /* keep area landscape */
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 1fr;
+  gap: 0.45rem;
 }
 
 .hero-thumb {
@@ -108,32 +123,34 @@ body {
   cursor: pointer;
   transition: transform var(--transition), border-color var(--transition);
 }
-.hero-thumb:hover {
-  transform: translateY(-4px);
-}
+.hero-thumb:hover { transform: translateY(-3px); }
 .hero-thumb.selected {
   border-color: var(--brand-accent);
   box-shadow: 0 0 0 2px var(--brand-accent);
 }
 
-/*────────── 7  Hero info read-out ─────────────────────*/
+/*────────── 8  Info line ─────────────────────────────*/
 #heroInfo {
-  min-height: 2.6rem;      /* reserve space pre-selection */
-  margin: 0.3rem 0 0.9rem;
-  font-size: 0.9rem;
+  flex: 0 0 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
   color: var(--brand-accent);
+  text-align: center;
 }
 
-/*────────── 8  Input & primary button ─────────────────*/
+/*────────── 9  Input + button (fixed row heights) ───*/
 .title-card input[type="text"] {
+  flex: 0 0 38px;
   width: 100%;
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
+  padding: 0 0.8rem;
   border: none;
   border-radius: var(--radius);
   background: var(--brand-surface);
   color: var(--brand-text);
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.4rem;
+  font-size: 1rem;
   transition: box-shadow var(--transition);
 }
 .title-card input[type="text"]:focus {
@@ -142,24 +159,17 @@ body {
 }
 
 .title-card button {
+  flex: 0 0 40px;
   width: 100%;
-  padding: 0.9rem 1rem;
-  font-size: 1rem;
-  font-weight: 600;
   border: none;
   border-radius: var(--radius);
   background: var(--brand-accent);
   color: #0f172a;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
   transition: background var(--transition), transform var(--transition);
 }
-.title-card button:disabled {
-  opacity: 0.3;
-  cursor: default;
-}
-.title-card button:hover:not(:disabled) {
-  background: var(--brand-accent-hi);
-}
-.title-card button:active:not(:disabled) {
-  transform: scale(0.97);
-}
+.title-card button:disabled   { opacity: 0.3; cursor: default; }
+.title-card button:hover:not(:disabled) { background: var(--brand-accent-hi); }
+.title-card button:active:not(:disabled){ transform: scale(0.97); }
