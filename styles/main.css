@@ -60,6 +60,7 @@ body {
   display: flex;
   flex-direction: column;
   padding: 1.2rem 1.4rem;
+  transform-origin: center center;   /* NEW: scale from the centre */
 }
 
 /* reduce top padding on very small screens */
