@@ -1,12 +1,11 @@
 /* scripts/scenes/title.js
-   ----------------------------------------------------------
    Title / character-select scene for Learc
-   --------------------------------------------------------*/
+   --------------------------------------- */
 
 import { registerRoute } from '../router.js';
 import { loadSave, saveProgress } from '../save.js';
 
-/* ─── fetch & cache hero data ───────────────────────────── */
+/* ─── load + cache hero data ─────────────────────────── */
 let heroesCache = null;
 async function getHeroes() {
   if (heroesCache) return heroesCache;
@@ -16,7 +15,7 @@ async function getHeroes() {
   return heroesCache;
 }
 
-/* ─── build 2×4 gallery for a given habitat ─────────────── */
+/* ─── build 2×4 gallery for a habitat ────────────────── */
 function gridFor(list, habitat) {
   return list
     .filter(h => h.habitat === habitat)
@@ -30,29 +29,30 @@ function gridFor(list, habitat) {
     .join('');
 }
 
-/* ─── auto-scale so the card always fits 100 % viewport ── */
+/* ─── auto-scale card to always fit viewport ─────────── */
 function fitCard() {
   const card = document.querySelector('.title-card');
   if (!card) return;
 
-  const DESIGN_W = 500;  // must match CSS max-width
-  const DESIGN_H = 350;  // must match CSS max-height
+  const DESIGN_W = 500;   /* same as CSS max-width  */
+  const DESIGN_H = 350;   /* same as CSS max-height */
 
-  const scaleW = (window.innerWidth  * 0.97) / DESIGN_W;
-  const scaleH = (window.innerHeight * 0.97) / DESIGN_H;
-  const scale  = Math.min(scaleW, scaleH, 1);   // never upscale >1
+  const scaleW = (innerWidth  * 0.97) / DESIGN_W;
+  const scaleH = (innerHeight * 0.97) / DESIGN_H;
+  const scale  = Math.min(scaleW, scaleH, 1);
 
   card.style.transformOrigin = 'center center';
-  card.style.transform = `scale(${scale})`;
+  card.style.transform       = `scale(${scale})`;
 }
 
-/* ─── main render fn ────────────────────────────────────── */
+/* ─── main scene renderer ────────────────────────────── */
 async function render(container) {
   const heroes = await getHeroes();
 
   container.innerHTML = `
     <div class="title-card">
       <h1>Learc</h1>
+      <button id="fsBtn" class="fs-btn" title="Toggle full-screen">🔲</button>
 
       <div class="tabs">
         <button data-tab="land" class="tab active">Land</button>
@@ -73,30 +73,26 @@ async function render(container) {
     </div>
   `;
 
-  /* scale once content exists */
+  /* scale now that DOM exists */
   fitCard();
+  addEventListener('resize',           fitCard);
+  addEventListener('orientationchange',fitCard);
 
-  /* re-scale on resize / orientation change */
-  window.addEventListener('resize',           fitCard);
-  window.addEventListener('orientationchange',fitCard);
-
-  /* ─── tab switching ─────────────────── */
+  /* ─── tab switching ─────────────────────────── */
   container.querySelectorAll('.tab').forEach(btn => {
     btn.onclick = () => {
       container.querySelector('.tab.active')?.classList.remove('active');
       btn.classList.add('active');
-
       container.querySelector('#gallery').innerHTML =
         gridFor(heroes, btn.dataset.tab);
 
-      /* reset selection & info */
       selectedHero = null;
       playBtn.disabled = true;
       heroInfo.textContent = '';
     };
   });
 
-  /* ─── hero selection ────────────────── */
+  /* ─── hero selection ────────────────────────── */
   let selectedHero = null;
   const playBtn  = container.querySelector('#playBtn');
   const heroInfo = container.querySelector('#heroInfo');
@@ -105,13 +101,11 @@ async function render(container) {
     const img = e.target.closest('.hero-thumb');
     if (!img) return;
 
-    /* visual feedback */
     container
       .querySelectorAll('.hero-thumb.selected')
       .forEach(i => i.classList.remove('selected'));
     img.classList.add('selected');
 
-    /* enable button & show info */
     selectedHero = img.dataset.id;
     playBtn.disabled = false;
 
@@ -119,19 +113,37 @@ async function render(container) {
     heroInfo.textContent = `${hero.name} — ${hero.power}`;
   });
 
-  /* ─── start button ──────────────────── */
+  /* ─── start button ───────────────────────────── */
   playBtn.onclick = async () => {
     const username = container.querySelector('#nameBox').value.trim();
     if (!username) return container.querySelector('#nameBox').focus();
-
     await loadSave(username);
     await saveProgress(username, { hero: selectedHero });
-    location.hash = 'AU-01';        // first playable episode
+    location.hash = 'AU-01';
   };
 
   container.querySelector('#nameBox').focus();
+
+  /* ─── Full-screen toggle ─────────────────────── */
+  const fsBtn = container.querySelector('#fsBtn');
+  if (!document.fullscreenEnabled) fsBtn.style.display = 'none';
+
+  fsBtn.onclick = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (err) {
+      console.warn('Fullscreen not available:', err);
+    }
+  };
+  document.addEventListener('fullscreenchange', () => {
+    fsBtn.textContent = document.fullscreenElement ? '⤢' : '🔲';
+  });
 }
 
-/* register & export for router */
+/* register route */
 registerRoute('title', render);
 export default render;
