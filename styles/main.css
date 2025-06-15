@@ -1,35 +1,50 @@
-/*────────────────  Reset & root tokens ────────────────*/
+/*────────── 1  Reset & root tokens ─────────────────────*/
 *,
 *::before,
 *::after { box-sizing: border-box; }
 
 :root {
-  /* brand colours */
-  --brand-bg:        #111827;   /* near-black */
-  --brand-surface:   #1f2937;   /* card / textbox bg */
-  --brand-accent:    #38bdf8;   /* cyan highlight */
-  --brand-accent-hi: #7dd3fc;   /* lighter hover */
-  --brand-text:      #f9fafb;   /* very light grey */
-  --radius:          0.75rem;
-  --transition:      200ms ease;
+  /* Brand colours */
+  --brand-bg:        #111827;
+  --brand-surface:   #1f2937;
+  --brand-accent:    #38bdf8;
+  --brand-accent-hi: #7dd3fc;
+  --brand-text:      #f9fafb;
+
+  --radius:     0.75rem;
+  --transition: 200ms ease;
   font-family: "Inter", system-ui, sans-serif;
 }
 
-/*────────────────  Page background  ───────────────────*/
+/*────────── 2  Landscape-only overlay ─────────────────*/
+@media (orientation: portrait) {
+  body::before {
+    content: 'Rotate your device ↻';
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: #0f172a;
+    color: var(--brand-text);
+    font-size: 1.4rem;
+    z-index: 9999;
+  }
+  #app { visibility: hidden; }   /* hide UI behind overlay */
+}
+
+/*────────── 3  Full-screen background & centering ─────*/
 body {
-  /* full-screen background */
-  background: #111827                             /* fallback colour */
-              url('../assets/img/bg-title.webp')  /* ← new file */
-              center / cover no-repeat fixed;
-  color: var(--brand-text);
   display: grid;
   place-items: center;
   min-height: 100vh;
   margin: 0;
-  font-family: "Inter", system-ui, sans-serif;
+  background:
+    var(--brand-bg)
+    url('../assets/img/bg-title.webp') center / cover no-repeat;
+  color: var(--brand-text);
 }
 
-/*────────────────  Title card  ────────────────────────*/
+/*────────── 4  Title card ─────────────────────────────*/
 #app > .title-card {
   width: 90%;
   max-width: 420px;
@@ -37,7 +52,7 @@ body {
   padding: 2rem 2.25rem;
   border-radius: var(--radius);
   text-align: center;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
   backdrop-filter: blur(6px);
 }
 
@@ -49,7 +64,7 @@ body {
   color: var(--brand-accent);
 }
 
-/*────────────────  Tabs  ──────────────────────────────*/
+/*────────── 5  Tabs ───────────────────────────────────*/
 .tabs {
   display: flex;
   gap: 0.5rem;
@@ -64,45 +79,52 @@ body {
   border-radius: var(--radius);
   background: var(--brand-surface);
   color: var(--brand-text);
-  cursor: pointer;
   font-weight: 600;
+  cursor: pointer;
   transition: background var(--transition);
 }
-
 .tabs .tab.active,
 .tabs .tab:hover {
   background: var(--brand-accent);
   color: #0f172a;
 }
 
-/*────────────────  Character gallery  ─────────────────*/
+/*────────── 6  2×4 gallery grid ───────────────────────*/
 .gallery {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  grid-template-columns: repeat(4, 1fr); /* 4 cols */
+  grid-auto-rows: 1fr;                   /* equal rows */
   gap: 0.65rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
+  aspect-ratio: 4 / 2;                   /* keep area landscape */
 }
 
 .hero-thumb {
   width: 100%;
-  aspect-ratio: 1/1;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
   border-radius: var(--radius);
-  cursor: pointer;
   border: 2px solid transparent;
+  cursor: pointer;
   transition: transform var(--transition), border-color var(--transition);
 }
-
 .hero-thumb:hover {
   transform: translateY(-4px);
 }
-
 .hero-thumb.selected {
   border-color: var(--brand-accent);
   box-shadow: 0 0 0 2px var(--brand-accent);
 }
 
-/*────────────────  Input + button  ───────────────────*/
+/*────────── 7  Hero info read-out ─────────────────────*/
+#heroInfo {
+  min-height: 2.6rem;      /* reserve space pre-selection */
+  margin: 0.3rem 0 0.9rem;
+  font-size: 0.9rem;
+  color: var(--brand-accent);
+}
+
+/*────────── 8  Input & primary button ─────────────────*/
 .title-card input[type="text"] {
   width: 100%;
   padding: 0.75rem 1rem;
@@ -114,7 +136,6 @@ body {
   margin-bottom: 0.8rem;
   transition: box-shadow var(--transition);
 }
-
 .title-card input[type="text"]:focus {
   outline: none;
   box-shadow: 0 0 0 3px var(--brand-accent);
@@ -132,16 +153,13 @@ body {
   cursor: pointer;
   transition: background var(--transition), transform var(--transition);
 }
-
 .title-card button:disabled {
   opacity: 0.3;
   cursor: default;
 }
-
 .title-card button:hover:not(:disabled) {
   background: var(--brand-accent-hi);
 }
-
 .title-card button:active:not(:disabled) {
   transform: scale(0.97);
 }
