@@ -8,8 +8,10 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/ui/favicon.ico" />
 
+  <!-- global styles -->
   <link rel="stylesheet" href="styles/main.css" />
 
+  <!-- import-map: MUST end with </script> -->
   <script type="importmap">
   {
     "imports": {
@@ -21,14 +23,18 @@
         "https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js"
     }
   }
-  <script type="module">
-  import './scripts/main.js';
-  import { initRouter } from './scripts/router.js';
-  import './scripts/scenes/title.js';
+  </script>
 
-  initRouter();
-</script>
+  <!-- main module -->
+  <script type="module">
+    import './scripts/main.js';
+    import { initRouter } from './scripts/router.js';
+    import './scripts/scenes/title.js';
+
+    initRouter();
+  </script>
 </head>
+
 <body>
   <div id="app"></div>
 </body>
