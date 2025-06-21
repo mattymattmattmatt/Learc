@@ -1,23 +1,27 @@
 /* scripts/scenes/intro.js
    -------------------------------------------
    King introduction → yes/no → name prompt
-   Uses assets/img/king_intro.gif (200×200 GIF)
+   Uses 200×200 GIF at assets/img/king_intro.gif
+   Auto-scales card (max-height 420px)
    ------------------------------------------- */
 
 import { registerRoute } from '../router.js';
 import { loadSave, saveProgress } from '../save.js';
 
-/* ─── helper: scale .title-card to viewport ─── */
+/* ─── helper: scale .title-card to viewport ──────────── */
 function fitCard() {
   const card = document.querySelector('.title-card');
   if (!card) return;
-  const s = Math.min((innerWidth * 0.95) / 500,
-                     (innerHeight * 0.95) / 350, 1);
-  card.style.transform = `scale(${s})`;
+  const scale = Math.min(
+    (innerWidth  * 0.95) / 500,   // width reference
+    (innerHeight * 0.95) / 420,   // height reference (matches CSS)
+    1
+  );
+  card.style.transform       = `scale(${scale})`;
   card.style.transformOrigin = 'center';
 }
 
-/* ─── scene render ─────────────────────────── */
+/* ─── scene render ───────────────────────────────────── */
 function render(container) {
   container.innerHTML = `
     <div class="title-card">
@@ -45,7 +49,7 @@ function render(container) {
   );
 }
 
-/* ─── handle Yes / No choice ───────────────── */
+/* ─── handle Yes / No choice ────────────────────────── */
 function handleChoice(ans, container) {
   if (ans === 'no') {
     location.hash = 'gameover';
@@ -79,7 +83,7 @@ function handleChoice(ans, container) {
   };
 }
 
-/* ─── name prompt & save ───────────────────── */
+/* ─── name prompt & save ────────────────────────────── */
 function promptName(card) {
   card.innerHTML += `
     <input id="nameBox" type="text" maxlength="16"
@@ -107,10 +111,11 @@ function promptName(card) {
     fitCard();
 
     card.querySelector('#toPuzzle').onclick = () => {
-      location.hash = 'AU-01';   // first map/puzzle scene
+      location.hash = 'AU-01';          // first map/puzzle scene
     };
   };
 }
 
+/* ─── register with router ──────────────────────────── */
 registerRoute('intro', render);
 export default render;
