@@ -4,14 +4,16 @@
 *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
+  /* palette */
   --brand-bg:        #111827;
   --brand-surface:   #1f2937;
   --brand-accent:    #38bdf8;
   --brand-accent-hi: #7dd3fc;
   --brand-text:      #f9fafb;
 
-  --radius:     0.75rem;
-  --transition: 200ms ease;
+  --radius:          0.75rem;
+  --transition:      200ms ease;
+
   font-family: "Inter", system-ui, sans-serif;
 }
 
@@ -42,10 +44,10 @@ body {
     var(--brand-bg)
     url('../assets/img/bg-title.webp') center / cover no-repeat;
   color: var(--brand-text);
-  overflow: hidden;                /* never scroll */
+  overflow: hidden;          /* no scrolling ever */
 }
 
-/*──────────────── 4 Generic title-card shell ──────────*/
+/*──────────────── 4 Title-card shell ──────────────────*/
 #app > .title-card {
   position: relative;
   width: 95vw;
@@ -62,26 +64,36 @@ body {
   padding: 1.2rem 1.4rem;
 }
 @media (max-height: 300px){
-  #app > .title-card{ padding:0.6rem; }
+  #app > .title-card { padding: 0.6rem; }
 }
 
-.title-card h1 {
-  flex: 0 0 auto;
-  text-align: center;
-  font-size: clamp(1.5rem, 5.5vw, 2.5rem);
-  letter-spacing: 0.05em;
-  margin-bottom: 0.6rem;
-  color: var(--brand-accent);
-}
-
-/* minimal variant (just a button or two) */
+/* variant for single-button layouts */
 .title-only {
   justify-content: center;
   align-items: center;
   gap: 1rem;
 }
 
-/*──────────────── 5 Universal big-button style ─────────*/
+/*──────── 4a Heading style (Cinzel) ───────────────────*/
+.title-card h1 {
+  flex: 0 0 auto;
+  text-align: center;
+  font-family: "Cinzel", serif;
+  font-size: clamp(1.5rem, 5.5vw, 2.5rem);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.6rem;
+  color: var(--brand-accent);
+}
+
+/* body copy helper */
+.body-text {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  text-align: center;
+  margin-bottom: 0.9rem;
+}
+
+/*──────────────── 5 Big-button style ──────────────────*/
 .big-btn {
   width: 100%;
   max-width: 240px;
@@ -96,9 +108,17 @@ body {
   cursor: pointer;
   transition: background var(--transition), transform var(--transition);
 }
-.big-btn:hover         { background: var(--brand-accent-hi); }
-.big-btn:active        { transform: scale(0.97); }
-.big-btn:disabled      { opacity: 0.35; cursor: default; }
+.big-btn:hover:not(:disabled){ background: var(--brand-accent-hi); }
+.big-btn:active:not(:disabled){ transform: scale(0.97); }
+.big-btn:disabled           { opacity: 0.35; cursor: default; }
+
+/* centre vertical button stacks */
+.btn-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
 
 /*──────────────── 6 Full-screen toggle icon ───────────*/
 .fs-btn {
@@ -112,5 +132,3 @@ body {
   transition: opacity 150ms ease;
 }
 .fs-btn:hover { opacity: 0.7; }
-
-/*────────────── End of main.css ───────────────────────*/

@@ -1,7 +1,7 @@
 import { registerRoute } from '../router.js';
 import { loadSave, saveProgress } from '../save.js';
 
-/* utility – keeps the card scaled */
+/* scale helper (same math as before) */
 function fitCard() {
   const card = document.querySelector('.title-card');
   if (!card) return;
@@ -14,13 +14,15 @@ function fitCard() {
 function render(container) {
   container.innerHTML = `
     <div class="title-card">
-      <img src="assets/img/king_intro.png" alt="King" style="width:160px;margin:auto">
-      <p id="introText">
-        “Greetings, traveler! I am the king of far-off Liitokala.
-        I’ve journeyed here because I heard you could help…”
+      <img src="assets/img/king_intro.png" alt="King"
+           style="width:160px;margin:0 auto 0.6rem">
+
+      <p id="introText" class="body-text">
+        “Greetings, traveller! I am the King of distant Liitokala.
+        I have heard tales of your skill…”
       </p>
 
-      <div id="choiceBtns">
+      <div id="choiceBtns" class="btn-group">
         <button class="big-btn" data-ans="yes">Yes, I’ll help</button>
         <button class="big-btn" data-ans="no">No, sorry</button>
       </div>
@@ -42,57 +44,62 @@ function handleChoice(ans, container) {
     return;
   }
 
-  const textEl = container.querySelector('#introText');
+  /* build the 'thank you + story + name?' prompt */
   const card   = container.querySelector('.title-card');
+  const textEl = container.querySelector('#introText');
   container.querySelector('#choiceBtns').remove();
 
-  const story = [
-    'Our royal treasury was plundered in the night.',
-    'Thirty chest-loads of gold were whisked away across the globe.',
-    'Will you embark on a quest to restore our realm’s honor?'
+  const script = [
+    '“Thank you, brave soul! Your aid means the world to me.”',
+    '“Last night, our treasury was plundered and thirty chests of gold were scattered across the globe.”',
+    '“Before you set out to reclaim them… what shall I call you?”'
   ];
-  let idx = 0;
+  let line = 0;
 
   const nextBtn = document.createElement('button');
   nextBtn.className = 'big-btn';
-  nextBtn.textContent = 'Next';
+  nextBtn.textContent = 'Next ➔';
   card.appendChild(nextBtn);
 
   nextBtn.onclick = () => {
-    idx++;
-    if (idx < story.length) {
-      textEl.textContent = story[idx];
+    line++;
+    if (line < script.length) {
+      textEl.textContent = script[line];
       return;
     }
-    /* story finished → ask player name */
+    /* reached name prompt */
     nextBtn.remove();
-    card.innerHTML += `
-      <input id="nameBox" type="text" maxlength="16"
-             placeholder="Enter your explorer name">
-      <button id="saveName" class="big-btn">Begin the Adventure</button>
+    showNamePrompt(card);
+  };
+}
+
+function showNamePrompt(card) {
+  card.innerHTML += `
+    <input id="nameBox" type="text" maxlength="16"
+           placeholder="Enter your explorer name">
+    <button id="saveName" class="big-btn">Begin the Adventure</button>
+  `;
+  fitCard();
+
+  card.querySelector('#saveName').onclick = async () => {
+    const name = card.querySelector('#nameBox').value.trim();
+    if (!name) return;
+
+    await loadSave(name);
+    await saveProgress(name, { hero: null });
+
+    /* personalised send-off */
+    card.innerHTML = `
+      <img src="assets/img/king_intro.png" alt="King"
+           style="width:160px;margin:0 auto 0.6rem">
+      <p class="body-text">
+        “Wonderful, <b>${name}</b>! May fortune guide you.”</p>
+      <button id="toPuzzle" class="big-btn">Next ➔</button>
     `;
     fitCard();
 
-    card.querySelector('#saveName').onclick = async () => {
-      const name = card.querySelector('#nameBox').value.trim();
-      if (!name) return;
-
-      await loadSave(name);
-      await saveProgress(name, { hero: null });   // no pet yet
-
-      /* King thanks the player personally */
-      card.innerHTML = `
-        <img src="assets/img/king_intro.png" alt="King" style="width:160px;margin:auto">
-        <p style="margin-top:1rem">
-          “Wonderful, <b>${name}</b>! Your courage brings me hope. Let us begin!”
-        </p>
-        <button id="toPuzzle" class="big-btn" style="margin-top:1rem">Next ➔</button>
-      `;
-      fitCard();
-
-      card.querySelector('#toPuzzle').onclick = () => {
-        location.hash = 'AU-01';   // first map-puzzle scene (placeholder)
-      };
+    card.querySelector('#toPuzzle').onclick = () => {
+      location.hash = 'AU-01';   // first map/puzzle
     };
   };
 }
