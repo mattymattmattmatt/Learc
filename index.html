@@ -1,20 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
   <meta charset="utf-8" />
   <title>Learc</title>
 
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" href="assets/ui/favicon.ico" />
+  <link rel="icon"  href="assets/ui/favicon.ico" />
 
-  <!-- global stylesheet -->
-  <link rel="stylesheet" href="styles/main.css" />
-  <!-- Fonts -->
+  <!-- Typography -->
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&display=swap"
-      rel="stylesheet">
-  <!-- import-map for Firebase ESM bundles -->
+        rel="stylesheet" />
+
+  <!-- Global stylesheet -->
+  <link rel="stylesheet" href="styles/main.css" />
+
+  <!-- Import-map for Firebase (CDN ESM) -->
   <script type="importmap">
   {
     "imports": {
@@ -28,21 +29,27 @@
   }
   </script>
 
-  <!-- bootstrap Firebase, router, and all scenes -->
+  <!-- Boot sequence -->
   <script type="module">
+    /* core */
     import './scripts/main.js';
-    import { initRouter } from './scripts/router.js';
+    import { initRouter }     from './scripts/router.js';
+    import { initFullscreen } from './scripts/fullscreen.js';
 
+    /* scenes */
     import './scripts/scenes/title.js';
     import './scripts/scenes/intro.js';
     import './scripts/scenes/gameover.js';
-    // later:  import './scripts/scenes/AU-01.js';
+    // import './scripts/scenes/AU-01.js';   // first puzzle scene (stub)
 
-    initRouter();
+    /* enable helpers & router */
+    initFullscreen();    // unlocks auto-fullscreen after first tap
+    initRouter();        // hash-based navigation
   </script>
 </head>
 
 <body>
+  <!-- Router swaps scenes into this mount point -->
   <div id="app"></div>
 </body>
 </html>
