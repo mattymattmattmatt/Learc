@@ -3,27 +3,26 @@ import { registerRoute } from '../router.js';
 function render(container) {
   container.innerHTML = `
     <div class="title-card title-only">
-      <button id="startBtn" class="big-btn">Start Game</button>
+      <h1 style="color:#e11d48;margin-bottom:1rem">Game Over</h1>
+      <button id="restart" class="big-btn">Back to Title</button>
     </div>
   `;
-
   fitCard();
   addEventListener('resize', fitCard);
   addEventListener('orientationchange', fitCard);
 
-  container.querySelector('#startBtn').onclick = () => {
-    location.hash = 'intro';
+  container.querySelector('#restart').onclick = () => {
+    location.hash = 'title';
   };
 }
 
-/* re-use the existing scaler */
 function fitCard() {
   const card = document.querySelector('.title-card');
   if (!card) return;
-  const s = Math.min((innerWidth*0.95)/500, (innerHeight*0.95)/300, 1);
+  const s = Math.min((innerWidth*0.95)/400, (innerHeight*0.95)/250, 1);
   card.style.transform = `scale(${s})`;
   card.style.transformOrigin = 'center center';
 }
 
-registerRoute('title', render);
+registerRoute('gameover', render);
 export default render;

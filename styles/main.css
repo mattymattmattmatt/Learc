@@ -1,4 +1,4 @@
-/*────────── 1  Reset & tokens ──────────────────────────*/
+/*──────────────── 1 Reset & design tokens ─────────────*/
 *,
 *::before,
 *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -9,12 +9,13 @@
   --brand-accent:    #38bdf8;
   --brand-accent-hi: #7dd3fc;
   --brand-text:      #f9fafb;
-  --radius:          0.75rem;
-  --transition:      200ms ease;
+
+  --radius:     0.75rem;
+  --transition: 200ms ease;
   font-family: "Inter", system-ui, sans-serif;
 }
 
-/*────────── 2  Portrait overlay ───────────────────────*/
+/*──────────────── 2 Portrait overlay ──────────────────*/
 @media (orientation: portrait) {
   body::before {
     content: 'Rotate your device ↻';
@@ -31,7 +32,7 @@
   #app { visibility: hidden; }
 }
 
-/*────────── 3  Viewport & background ──────────────────*/
+/*──────────────── 3 Viewport & background ─────────────*/
 html, body { height: 100%; }
 body {
   display: flex;
@@ -41,10 +42,10 @@ body {
     var(--brand-bg)
     url('../assets/img/bg-title.webp') center / cover no-repeat;
   color: var(--brand-text);
-  overflow: hidden;
+  overflow: hidden;                /* never scroll */
 }
 
-/*────────── 4  Title card ─────────────────────────────*/
+/*──────────────── 4 Generic title-card shell ──────────*/
 #app > .title-card {
   position: relative;
   width: 95vw;
@@ -53,16 +54,15 @@ body {
   max-height: 350px;
   background: rgba(31,41,55,0.9);
   border-radius: var(--radius);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
   backdrop-filter: blur(6px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
 
   display: flex;
   flex-direction: column;
   padding: 1.2rem 1.4rem;
 }
-
-@media (max-height: 300px) {
-  #app > .title-card { padding: 0.6rem; }
+@media (max-height: 300px){
+  #app > .title-card{ padding:0.6rem; }
 }
 
 .title-card h1 {
@@ -70,11 +70,37 @@ body {
   text-align: center;
   font-size: clamp(1.5rem, 5.5vw, 2.5rem);
   letter-spacing: 0.05em;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.6rem;
   color: var(--brand-accent);
 }
 
-/*────────── 5  Full-screen button ─────────────────────*/
+/* minimal variant (just a button or two) */
+.title-only {
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+/*──────────────── 5 Universal big-button style ─────────*/
+.big-btn {
+  width: 100%;
+  max-width: 240px;
+  margin: 0.35rem auto;
+  padding: 0.8rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--brand-accent);
+  color: #0f172a;
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition);
+}
+.big-btn:hover         { background: var(--brand-accent-hi); }
+.big-btn:active        { transform: scale(0.97); }
+.big-btn:disabled      { opacity: 0.35; cursor: default; }
+
+/*──────────────── 6 Full-screen toggle icon ───────────*/
 .fs-btn {
   position: absolute;
   top: 0.6rem; right: 0.6rem;
@@ -87,97 +113,4 @@ body {
 }
 .fs-btn:hover { opacity: 0.7; }
 
-/*────────── 6  Tabs ───────────────────────────────────*/
-.tabs {
-  flex: 0 0 32px;
-  display: flex;
-  gap: 0.4rem;
-  justify-content: center;
-  margin-bottom: 0.5rem;
-}
-.tabs .tab {
-  flex: 1 1 0;
-  border: none;
-  border-radius: var(--radius);
-  background: var(--brand-surface);
-  color: var(--brand-text);
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background var(--transition);
-}
-.tabs .tab.active,
-.tabs .tab:hover {
-  background: var(--brand-accent);
-  color: #0f172a;
-}
-
-/*────────── 7  2×4 gallery grid ───────────────────────*/
-.gallery {
-  flex: 0 0 auto;
-  width: 100%;
-  aspect-ratio: 4 / 2;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: 1fr;
-  gap: 0.45rem;
-}
-.hero-thumb {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
-  border-radius: var(--radius);
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition: transform var(--transition), border-color var(--transition);
-}
-.hero-thumb:hover { transform: translateY(-3px); }
-.hero-thumb.selected {
-  border-color: var(--brand-accent);
-  box-shadow: 0 0 0 2px var(--brand-accent);
-}
-
-/*────────── 8  Hero info line ─────────────────────────*/
-#heroInfo {
-  flex: 0 0 2.2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
-  color: var(--brand-accent);
-  text-align: center;
-}
-
-/*────────── 9  Input + button ────────────────────────*/
-.title-card input[type="text"] {
-  flex: 0 0 38px;
-  width: 100%;
-  padding: 0 0.8rem;
-  border: none;
-  border-radius: var(--radius);
-  background: var(--brand-surface);
-  color: var(--brand-text);
-  margin-bottom: 0.4rem;
-  font-size: 1rem;
-  transition: box-shadow var(--transition);
-}
-.title-card input[type="text"]:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--brand-accent);
-}
-
-.title-card button {
-  flex: 0 0 40px;
-  width: 100%;
-  border: none;
-  border-radius: var(--radius);
-  background: var(--brand-accent);
-  color: #0f172a;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background var(--transition), transform var(--transition);
-}
-.title-card button:disabled   { opacity: 0.3; cursor: default; }
-.title-card button:hover:not(:disabled) { background: var(--brand-accent-hi); }
-.title-card button:active:not(:disabled){ transform: scale(0.97); }
+/*────────────── End of main.css ───────────────────────*/

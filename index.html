@@ -8,10 +8,10 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/ui/favicon.ico" />
 
-  <!-- global styles -->
+  <!-- global stylesheet -->
   <link rel="stylesheet" href="styles/main.css" />
 
-  <!-- import-map: MUST end with </script> -->
+  <!-- import-map for Firebase ESM bundles -->
   <script type="importmap">
   {
     "imports": {
@@ -25,11 +25,15 @@
   }
   </script>
 
-  <!-- main module -->
+  <!-- bootstrap Firebase, router, and all scenes -->
   <script type="module">
     import './scripts/main.js';
     import { initRouter } from './scripts/router.js';
+
     import './scripts/scenes/title.js';
+    import './scripts/scenes/intro.js';
+    import './scripts/scenes/gameover.js';
+    // later:  import './scripts/scenes/AU-01.js';
 
     initRouter();
   </script>
