@@ -1,15 +1,28 @@
 import { registerRoute } from '../router.js';
-import puzzles           from '../data/puzzles.json' assert { type:'json' };
-import pets              from '../data/pets.json'    assert { type:'json' };
 import { playBGM }       from '../bgm.js';
-import { pickPet }       from '../petGrid.js';   // helper that returns chosen id
+import { pickPet }       from '../petGrid.js';
 import { addGold, addHeat, resetBad, incBad } from '../stats.js';
 
 const PUZZ_ID = 'AU01_S1';
 
-function render(container) {
+/* helper – fetch JSON only the first time */
+let puzzlesCache = null;
+async function getPuzzles() {
+  if (puzzlesCache) return puzzlesCache;
+  const res = await fetch('scripts/data/puzzles.json');
+  puzzlesCache = await res.json();
+  return puzzlesCache;
+}
+
+async function render(container) {
+  const puzzles = await getPuzzles();
   const cfg = puzzles[PUZZ_ID];
-  playBGM('puzzle');  // loops fire_crackle.mp3 under the hood
+  if (!cfg) {
+    container.innerHTML = '<p style="color:#fff">Puzzle config missing.</p>';
+    return;
+  }
+
+  playBGM('puzzle');   // loops fire_crackle.mp3 in bgm.js
 
   container.innerHTML = `
     <div class="title-card" style="padding:0">
@@ -18,33 +31,35 @@ function render(container) {
         <p class="body-text" id="txt">
           Flaming embers block the track!  Choose a companion:
         </p>
-        <div id="grid"></div>
+        <div id="grid" class="btn-group"></div>
       </div>
     </div>
   `;
 
-  /* inject pet portraits */
-  document.getElementById('grid').innerHTML =
-    pets.map(p => `<img src="assets/img/characters/${p.sprite}"
-                         data-id="${p.id}" class="hero-thumb">`).join('');
+  /* build thumbnails */
+  const pets = await (await fetch('scripts/data/pets.json')).json();
+  document.getElementById('grid').innerHTML = pets
+    .map(p => `<img src="assets/img/characters/${p.sprite}"
+                    data-id="${p.id}" class="hero-thumb">`)
+    .join('');
 
   /* wait for pick */
-  pickPet(document.getElementById('grid')).then(petId =>
-    resolveOutcome(container, petId, cfg)
-  );
+  pickPet(document.getElementById('grid')).then(id => resolve(id, cfg, container));
 }
 
-function resolveOutcome(container, petId, cfg) {
-  const tier = cfg.good.includes(petId)  ? 'good' :
-               cfg.bad .includes(petId)  ? 'bad'  : 'normal';
+/* outcome handler */
+function resolve(petId, cfg, container) {
+  const tier = cfg.good.includes(petId)  ? 'good'
+            : cfg.bad .includes(petId)  ? 'bad'
+            : 'normal';
 
-  let effectHTML = '';
-  if (tier === 'good') { addGold(3); resetBad(); effectHTML = '+3 % Gold'; }
-  if (tier === 'normal'){ addGold(1);           effectHTML = '+1 % Gold'; }
-  if (tier === 'bad')  { addHeat(4); incBad();  effectHTML = '+4 Heat';   }
+  let effect = '';
+  if (tier === 'good') { addGold(3); resetBad(); effect = '+3 % Gold'; }
+  if (tier === 'normal'){ addGold(1); effect = '+1 % Gold'; }
+  if (tier === 'bad')  { addHeat(4); incBad();  effect = '+4 Heat'; }
 
   container.querySelector('.overlay').innerHTML = `
-    <p class="body-text"><b>${tier.toUpperCase()}!</b> ${effectHTML}</p>
+    <p class="body-text"><b>${tier.toUpperCase()}!</b>  ${effect}</p>
     <button class="big-btn" id="next">Continue</button>
   `;
   document.getElementById('next').onclick = () => { location.hash = 'AU-01-S2'; };
