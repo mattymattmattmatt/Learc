@@ -6,66 +6,47 @@
 
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon"  href="assets/ui/favicon.ico" />
+  <link rel="icon" href="assets/ui/favicon.ico" />
 
-  <!-- Typography -->
+  <!-- Fonts & CSS -->
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&display=swap"
-        rel="stylesheet" />
-
-  <!-- Global stylesheet -->
+        rel="stylesheet">
   <link rel="stylesheet" href="styles/main.css" />
 
-  <!-- Import-map for Firebase (CDN ESM) -->
+  <!-- Firebase import-map -->
   <script type="importmap">
   {
     "imports": {
-      "firebase/app":
-        "https://www.gstatic.com/firebasejs/11.9.0/firebase-app.js",
-      "firebase/auth":
-        "https://www.gstatic.com/firebasejs/11.9.0/firebase-auth.js",
-      "firebase/firestore":
-        "https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js"
+      "firebase/app":       "https://www.gstatic.com/firebasejs/11.9.0/firebase-app.js",
+      "firebase/auth":      "https://www.gstatic.com/firebasejs/11.9.0/firebase-auth.js",
+      "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js"
     }
   }
   </script>
 
-  <!-- Boot sequence -->
+  <!-- ONE bootstrap module — use JS comments, not HTML comments -->
   <script type="module">
-    /* core */
     import './scripts/main.js';
-    import { initRouter }     from './scripts/router.js';
+    import { initRouter }    from './scripts/router.js';
     import { initFullscreen } from './scripts/fullscreen.js';
+
+    /* helpers */
+    import './scripts/bgm.js';           // background-music manager
 
     /* scenes */
     import './scripts/scenes/title.js';
     import './scripts/scenes/intro.js';
     import './scripts/scenes/gameover.js';
-    // import './scripts/scenes/AU-01.js';   // first puzzle scene (stub)
+    import './scripts/scenes/AU-01.js';  // first puzzle scene
+    // later:  import more scenes here
 
-    /* enable helpers & router */
-    initFullscreen();    // unlocks auto-fullscreen after first tap
-    initRouter();        // hash-based navigation
+    /* initialise */
+    initFullscreen();
+    initRouter();
   </script>
-
-  <script type="module">
-  import './scripts/main.js';
-  import { initRouter }    from './scripts/router.js';
-  import { initFullscreen } from './scripts/fullscreen.js';
-
-  import './scripts/bgm.js';               <!-- NEW -->
-  import './scripts/scenes/title.js';
-  import './scripts/scenes/intro.js';
-  import './scripts/scenes/gameover.js';
-  // ...
-
-  initFullscreen();
-  initRouter();
-  </script>
-
 </head>
 
 <body>
-  <!-- Router swaps scenes into this mount point -->
   <div id="app"></div>
 </body>
 </html>

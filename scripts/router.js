@@ -1,35 +1,32 @@
-/* router.js  – simple hash-based scene manager
-   Usage:
-     import { registerRoute, initRouter } from './router.js';
+/* router.js  – hash-based scene manager                                  *
+ * ---------------------------------------------------------------------- *
+ * 1.  Each scene calls  registerRoute('#hash', renderFn)                 *
+ * 2.  initRouter() reads location.hash and renders the matching scene.   *
+ * 3.  Changing location.hash anywhere in the code swaps scenes.          */
 
-     registerRoute('title', renderTitle);
-     registerRoute('intro', renderIntro);
-     …etc…
-
-     initRouter();   // call once after all scenes are imported
-*/
+import { stopBGM } from './bgm.js';   // fade any track between scenes
 
 const routes = Object.create(null);
 
-/* scene modules call this to register themselves */
+/* scenes register themselves here */
 export function registerRoute(hash, renderFn) {
   routes[hash] = renderFn;
 }
 
-/* private helper → render whichever hash is active */
+/* render the current hash (or fallback to #title) */
 function renderCurrent() {
-  const hash = location.hash.slice(1) || 'title';     // default route
-  const route = routes[hash] || routes['title'];      // fallback safe-guard
-  const mount = document.getElementById('app');
+  const hash   = location.hash.slice(1) || 'title';
+  const render = routes[hash] || routes['title'];
+  const mount  = document.getElementById('app');
 
-  if (!mount) throw new Error('#app mount point missing');
-  if (!route) throw new Error(`Route "${hash}" not found`);
+  if (!render) { console.error(`Route "${hash}" not found.`); return; }
 
-  route(mount);   // scene renders into #app
+  stopBGM();           // stop previous music before drawing new scene
+  render(mount);
 }
 
-/* set up listener + initial render */
+/* call once after all scenes are imported */
 export function initRouter() {
   addEventListener('hashchange', renderCurrent);
-  renderCurrent();    // first load
+  renderCurrent();
 }
