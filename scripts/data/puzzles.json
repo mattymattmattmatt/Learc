@@ -1,0 +1,11 @@
+{
+  "AU01_S1": {
+    "template": "arrival_hazard",
+    "background": "bg_au01_fire.png",
+    "good":   ["waterwolf", "fixie", "whipper", "yelp"],
+    "normal": ["fygar","snapper","swack","gus","chomper","chunky",
+               "skyjumper","roger_dodger","yellogen","diver",
+               "stinger","flick","chocker","creeper"],
+    "bad":    ["fertle","peeta_heater","sixter","cliggy","zappo","bo"]
+  }
+}
