@@ -46,6 +46,22 @@
     initFullscreen();    // unlocks auto-fullscreen after first tap
     initRouter();        // hash-based navigation
   </script>
+
+  <script type="module">
+  import './scripts/main.js';
+  import { initRouter }    from './scripts/router.js';
+  import { initFullscreen } from './scripts/fullscreen.js';
+
+  import './scripts/bgm.js';               <!-- NEW -->
+  import './scripts/scenes/title.js';
+  import './scripts/scenes/intro.js';
+  import './scripts/scenes/gameover.js';
+  // ...
+
+  initFullscreen();
+  initRouter();
+  </script>
+
 </head>
 
 <body>

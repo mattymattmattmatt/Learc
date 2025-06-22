@@ -1,4 +1,5 @@
 import { registerRoute } from '../router.js';
+import { playBGM }       from '../bgm.js';
 
 function render(container) {
   container.innerHTML = `

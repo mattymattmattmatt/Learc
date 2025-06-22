@@ -1,28 +1,19 @@
-/* scripts/scenes/intro.js
-   -------------------------------------------
-   King introduction → yes/no → name prompt
-   Uses 200×200 GIF at assets/img/king_intro.gif
-   Auto-scales card (max-height 420px)
-   ------------------------------------------- */
-
 import { registerRoute } from '../router.js';
 import { loadSave, saveProgress } from '../save.js';
+import { playBGM }         from '../bgm.js';
 
-/* ─── helper: scale .title-card to viewport ──────────── */
+/* scale for 480 px design height */
 function fitCard() {
   const card = document.querySelector('.title-card');
   if (!card) return;
-  const scale = Math.min(
-    (innerWidth  * 0.95) / 500,   // width reference
-    (innerHeight * 0.95) / 420,   // height reference (matches CSS)
-    1
-  );
-  card.style.transform       = `scale(${scale})`;
+  const s = Math.min((innerWidth * 0.95) / 500,
+                     (innerHeight * 0.95) / 480, 1);
+  card.style.transform = `scale(${s})`;
   card.style.transformOrigin = 'center';
 }
 
-/* ─── scene render ───────────────────────────────────── */
 function render(container) {
+  playBGM('intro');         // plays assets/audio/bgm_intro.mp
   container.innerHTML = `
     <div class="title-card">
       <img src="assets/img/king_intro.gif" alt="King"
@@ -49,12 +40,8 @@ function render(container) {
   );
 }
 
-/* ─── handle Yes / No choice ────────────────────────── */
 function handleChoice(ans, container) {
-  if (ans === 'no') {
-    location.hash = 'gameover';
-    return;
-  }
+  if (ans === 'no') { location.hash = 'gameover'; return; }
 
   const card  = container.querySelector('.title-card');
   const text  = container.querySelector('#text');
@@ -74,16 +61,11 @@ function handleChoice(ans, container) {
 
   nextBtn.onclick = () => {
     idx++;
-    if (idx < pages.length) {
-      text.textContent = pages[idx];
-      return;
-    }
-    nextBtn.remove();
-    promptName(card);
+    if (idx < pages.length) { text.textContent = pages[idx]; return; }
+    nextBtn.remove(); promptName(card);
   };
 }
 
-/* ─── name prompt & save ────────────────────────────── */
 function promptName(card) {
   card.innerHTML += `
     <input id="nameBox" type="text" maxlength="16"
@@ -109,13 +91,9 @@ function promptName(card) {
       </button>
     `;
     fitCard();
-
-    card.querySelector('#toPuzzle').onclick = () => {
-      location.hash = 'AU-01';          // first map/puzzle scene
-    };
+    card.querySelector('#toPuzzle').onclick = () => { location.hash = 'AU-01'; };
   };
 }
 
-/* ─── register with router ──────────────────────────── */
 registerRoute('intro', render);
 export default render;
