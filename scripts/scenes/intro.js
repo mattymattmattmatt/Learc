@@ -1,19 +1,24 @@
-import { registerRoute } from '../router.js';
-import { loadSave, saveProgress } from '../save.js';
-import { playBGM }         from '../bgm.js';
+/* scripts/scenes/intro.js
+   King introduction with personalised name + Next button */
 
-/* scale for 480 px design height */
+import { registerRoute }    from '../router.js';
+import { loadSave, saveProgress } from '../save.js';
+import { playBGM }          from '../bgm.js';
+
+/*──────────────── helper: scale card to viewport ──────*/
 function fitCard() {
   const card = document.querySelector('.title-card');
   if (!card) return;
-  const s = Math.min((innerWidth * 0.95) / 500,
-                     (innerHeight * 0.95) / 480, 1);
-  card.style.transform = `scale(${s})`;
+  const scale = Math.min((innerWidth  * 0.95) / 500,
+                         (innerHeight * 0.95) / 480, 1);
+  card.style.transform       = `scale(${scale})`;
   card.style.transformOrigin = 'center';
 }
 
+/*──────────────── main render fn ───────────────────────*/
 function render(container) {
-  playBGM('intro');         // plays assets/audio/bgm_intro.mp
+  playBGM('intro');   // loops bgm_intro.mp3
+
   container.innerHTML = `
     <div class="title-card">
       <img src="assets/img/king_intro.gif" alt="King"
@@ -35,16 +40,17 @@ function render(container) {
   addEventListener('resize', fitCard);
   addEventListener('orientationchange', fitCard);
 
-  container.querySelectorAll('button[data-ans]').forEach(btn =>
-    btn.onclick = () => handleChoice(btn.dataset.ans, container)
-  );
+  container
+    .querySelectorAll('button[data-ans]')
+    .forEach(btn => btn.onclick = () => handleChoice(btn.dataset.ans, container));
 }
 
+/*──────────────── Yes / No branch ─────────────────────*/
 function handleChoice(ans, container) {
   if (ans === 'no') { location.hash = 'gameover'; return; }
 
-  const card  = container.querySelector('.title-card');
-  const text  = container.querySelector('#text');
+  const card = container.querySelector('.title-card');
+  const text = container.querySelector('#text');
   container.querySelector('#choiceBtns').remove();
 
   const pages = [
@@ -61,11 +67,16 @@ function handleChoice(ans, container) {
 
   nextBtn.onclick = () => {
     idx++;
-    if (idx < pages.length) { text.textContent = pages[idx]; return; }
-    nextBtn.remove(); promptName(card);
+    if (idx < pages.length) {
+      text.textContent = pages[idx];
+    } else {
+      nextBtn.remove();
+      promptName(card);
+    }
   };
 }
 
+/*──────────────── name entry & save ───────────────────*/
 function promptName(card) {
   card.innerHTML += `
     <input id="nameBox" type="text" maxlength="16"
@@ -79,8 +90,9 @@ function promptName(card) {
     if (!name) return;
 
     await loadSave(name);
-    await saveProgress(name, { hero: null });
+    await saveProgress(name, { hero: null });   // hero picked later
 
+    /* personalised thank-you + Next button */
     card.innerHTML = `
       <img src="assets/img/king_intro.gif" alt="King"
            style="width:200px;margin:0 auto 0.6rem" />
@@ -91,7 +103,10 @@ function promptName(card) {
       </button>
     `;
     fitCard();
-    card.querySelector('#toPuzzle').onclick = () => { location.hash = 'AU-01'; };
+
+    card.querySelector('#toPuzzle').onclick = () => {
+      location.hash = 'AU-01';      // first puzzle scene
+    };
   };
 }
 

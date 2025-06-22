@@ -1,5 +1,6 @@
-import { registerRoute } from '../router.js';
-import { playBGM }       from '../bgm.js';
+import { playBGM, stopBGM } from '../bgm.js';
+stopBGM();
+playBGM('gameover');
 
 function render(container) {
   container.innerHTML = `
