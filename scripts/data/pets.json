@@ -1,0 +1,28 @@
+{
+  "fertle":        { "id": "fertle",        "name": "Fertle",        "habitat": "land", "sprite": "char_fertle.webp",        "sfx": "fertle_fireball.mp3" },
+  "fygar":         { "id": "fygar",         "name": "Fygar",         "habitat": "land", "sprite": "char_fygar.webp",         "sfx": "fygar_dash.mp3" },
+  "waterwolf":     { "id": "waterwolf",     "name": "Waterwolf",     "habitat": "land", "sprite": "char_waterwolf.webp",     "sfx": "waterwolf_surge.mp3" },
+  "chomper":       { "id": "chomper",       "name": "Chomper",       "habitat": "land", "sprite": "char_chomper.webp",       "sfx": "chomper_bite.mp3" },
+  "fixie":         { "id": "fixie",         "name": "Fixie",         "habitat": "land", "sprite": "char_fixie.webp",         "sfx": "fixie_ice.mp3" },
+  "chunky":        { "id": "chunky",        "name": "Chunky",        "habitat": "land", "sprite": "char_chunky.webp",        "sfx": "chunky_swing.mp3" },
+  "skyjumper":     { "id": "skyjumper",     "name": "Skyjumper",     "habitat": "land", "sprite": "char_skyjumper.webp",     "sfx": "skyjumper_jump.mp3" },
+  "cliggy":        { "id": "cliggy",        "name": "Cliggy",        "habitat": "land", "sprite": "char_cliggy.webp",        "sfx": "cliggy_egg.mp3" },
+
+  "peeta_heater":  { "id": "peeta_heater",  "name": "Peeta Heater",  "habitat": "sea",  "sprite": "char_peeta-heater.webp",  "sfx": "peeta_heatwave.mp3" },
+  "snapper":       { "id": "snapper",       "name": "Snapper",       "habitat": "sea",  "sprite": "char_snapper.webp",       "sfx": "snapper_snap.mp3" },
+  "swack":         { "id": "swack",         "name": "Swack",         "habitat": "sea",  "sprite": "char_swack.webp",         "sfx": "swack_fin.mp3" },
+  "zappo":         { "id": "zappo",         "name": "Zappo",         "habitat": "sea",  "sprite": "char_zappo.webp",         "sfx": "zappo_sting.mp3" },
+  "yelp":          { "id": "yelp",          "name": "Yelp",          "habitat": "sea",  "sprite": "char_yelp.webp",          "sfx": "yelp_roar.mp3" },
+  "sixter":        { "id": "sixter",        "name": "Sixter",        "habitat": "sea",  "sprite": "char_sixter.webp",        "sfx": "sixter_poison.mp3" },
+  "chocker":       { "id": "chocker",       "name": "Chocker",       "habitat": "sea",  "sprite": "char_chocker.webp",       "sfx": "chocker_choke.mp3" },
+  "gus":           { "id": "gus",           "name": "Gus",           "habitat": "sea",  "sprite": "char_gus.webp",           "sfx": "gus_threaten.mp3" },
+
+  "bo":            { "id": "bo",            "name": "Bo",            "habitat": "sky",  "sprite": "char_bo.webp",            "sfx": "bo_rainbow.mp3" },
+  "roger_dodger":  { "id": "roger_dodger",  "name": "Roger Dodger",  "habitat": "sky",  "sprite": "char_roger-dodger.webp",  "sfx": "roger_dodge.mp3" },
+  "yellogen":      { "id": "yellogen",      "name": "Yellogen",      "habitat": "sky",  "sprite": "char_yellogen.webp",      "sfx": "yellogen_squawk.mp3" },
+  "whipper":       { "id": "whipper",       "name": "Whipper",       "habitat": "sky",  "sprite": "char_whipper.webp",       "sfx": "whipper_wind.mp3" },
+  "diver":         { "id": "diver",         "name": "Diver",         "habitat": "sky",  "sprite": "char_diver.webp",         "sfx": "diver_dive.mp3" },
+  "stinger":       { "id": "stinger",       "name": "Stinger",       "habitat": "sky",  "sprite": "char_stinger.webp",       "sfx": "stinger_jab.mp3" },
+  "flick":         { "id": "flick",         "name": "Flick",         "habitat": "sky",  "sprite": "char_flick.webp",         "sfx": "flick_throw.mp3" },
+  "creeper":       { "id": "creeper",       "name": "Creeper",       "habitat": "sky",  "sprite": "char_creeper.webp",       "sfx": "creeper_stare.mp3" }
+}
