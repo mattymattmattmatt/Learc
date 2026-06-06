@@ -25,6 +25,14 @@ function renderCurrent() {
   render(mount);
 }
 
+/* Navigate to a route. If it's the SAME hash we're already on
+   (e.g. puzzle slot 1 → puzzle slot 2), no hashchange event would
+   fire, so we force a re-render explicitly. */
+export function navigate(route) {
+  if (location.hash.slice(1) === route) renderCurrent();
+  else location.hash = route;
+}
+
 /* call once after all scenes are imported */
 export function initRouter() {
   addEventListener('hashchange', renderCurrent);

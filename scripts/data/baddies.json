@@ -1,0 +1,41 @@
+{
+  "street_brigand": {
+    "id": "street_brigand",
+    "name": "Street Brigand",
+    "emoji": "🗡️",
+    "trigger": 2,
+    "intro": "A Street Brigand blocks the alley, eyeing your satchel of gold. Pick a companion to scare them off!",
+    "good": ["chomper","snapper","yelp","gus","creeper","zappo","fertle","cliggy"],
+    "rewardHeat": -5,
+    "rewardGold": 1,
+    "penaltyHeat": 4,
+    "winText": "Your companion sends the brigand fleeing! Heat cools and you pocket a stray coin.",
+    "loseText": "The brigand snatches a handful of gold before bolting. Heat rises."
+  },
+  "royal_turncoat": {
+    "id": "royal_turncoat",
+    "name": "Royal Turncoat",
+    "emoji": "🎭",
+    "trigger": 3,
+    "intro": "A Royal Turncoat — once loyal to the King — ambushes you with hired blades. Choose wisely!",
+    "good": ["fixie","chocker","whipper","stinger","diver","flick","bo","yelp"],
+    "rewardHeat": -8,
+    "rewardGold": 2,
+    "penaltyHeat": 6,
+    "winText": "The turncoat is outwitted and retreats into the shadows. The trail goes quiet.",
+    "loseText": "The turncoat escapes and spreads word of your hunt. Heat surges."
+  },
+  "false_vizier": {
+    "id": "false_vizier",
+    "name": "False Vizier",
+    "emoji": "🧙",
+    "trigger": 4,
+    "intro": "The False Vizier, mastermind of the theft, confronts you with dark cunning. Everything rides on this!",
+    "good": ["bo","creeper","gus","fixie","zappo","diver","fertle","chomper"],
+    "rewardHeat": -12,
+    "rewardGold": 3,
+    "penaltyHeat": 8,
+    "winText": "You unmask the False Vizier and seize a chest he hid! The pressure eases at last.",
+    "loseText": "The Vizier slips away laughing, alerting every guard. Heat spikes dangerously."
+  }
+}
