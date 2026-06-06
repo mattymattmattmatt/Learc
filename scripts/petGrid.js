@@ -10,6 +10,7 @@ export function pickPet(gridEl) {
     function handler(e) {
       const btn = e.target.closest('[data-id]');
       if (!btn || !gridEl.contains(btn)) return;
+      if (btn.disabled || btn.classList.contains('resting')) return;  // resting companion
 
       gridEl.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
       btn.classList.add('selected');

@@ -1,7 +1,7 @@
-/* hud.js — persistent top-bar showing Gold % and Heat.
-   Mounted once; shown only during gameplay scenes. */
+/* hud.js — persistent top-bar: location · Combo · Gold % · Heat clock.
+   Shown only during gameplay scenes. */
 
-import { state, subscribe, heatStatus } from './state.js';
+import { state, subscribe, heatStatus, HEAT_CAP } from './state.js';
 import { getCountry, TOTAL_COUNTRIES } from './engine.js';
 
 let el = null;
@@ -12,6 +12,7 @@ function build() {
   el.innerHTML = `
     <div class="hud-inner">
       <div class="hud-loc" id="hudLoc"></div>
+      <div class="hud-combo" id="hudCombo"></div>
       <div class="hud-stats">
         <div class="hud-stat">
           <span class="hud-icon">🪙</span>
@@ -31,32 +32,27 @@ function build() {
 
 function update() {
   if (!el) return;
-  const gold = state.gold;
-  const heat = state.heat;
-  const hs   = heatStatus();
+  const hs = heatStatus();
 
-  const goldFill = el.querySelector('#hudGoldFill');
-  const goldVal  = el.querySelector('#hudGoldVal');
-  const heatFill = el.querySelector('#hudHeatFill');
-  const heatVal  = el.querySelector('#hudHeatVal');
-  const loc      = el.querySelector('#hudLoc');
+  const set = (id, fn) => { const n = el.querySelector(id); if (n) fn(n); };
+  set('#hudGoldFill', n => n.style.width = state.gold + '%');
+  set('#hudGoldVal',  n => n.textContent = state.gold + '%');
+  set('#hudHeatFill', n => n.style.width = Math.min(100, (state.heat / HEAT_CAP) * 100) + '%');
+  set('#hudHeatVal',  n => n.textContent = state.heat + '/' + HEAT_CAP);
+  el.dataset.heat = hs.level;
 
-  if (goldFill) goldFill.style.width = gold + '%';
-  if (goldVal)  goldVal.textContent  = gold + '%';
-  // heat bar saturates visually at 30 (the GDD "high danger" floor)
-  if (heatFill) heatFill.style.width = Math.min(100, (heat / 30) * 100) + '%';
-  if (heatVal)  heatVal.textContent  = heat + ' · ' + hs.label;
-  if (el.dataset) el.dataset.heat = hs.level;
+  set('#hudCombo', n => {
+    if (state.combo >= 2) { n.textContent = `🔥 ×${state.combo}`; n.classList.add('on'); }
+    else { n.textContent = ''; n.classList.remove('on'); }
+  });
 
-  if (loc) {
+  set('#hudLoc', n => {
     const i = state.countryIndex;
     if (i < TOTAL_COUNTRIES()) {
       const c = getCountry(i);
-      loc.textContent = `${c.emoji} ${c.name} — ${i + 1}/${TOTAL_COUNTRIES()}`;
-    } else {
-      loc.textContent = '';
-    }
-  }
+      n.textContent = c ? `${c.emoji} ${c.name} ${i + 1}/${TOTAL_COUNTRIES()}` : '';
+    } else n.textContent = '';
+  });
 }
 
 export function mountHUD() { if (!el) build(); }

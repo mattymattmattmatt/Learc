@@ -26,20 +26,36 @@ Title → Intro (meet the King, name your hero)
       → Country Map (Chapter 1 of 30)
         → 5 puzzles per country (Arrival Hazard, Ally Test, Cryptic Artifact,
           Chase/Stealth, Lockbox)
-          → pick a companion → GOOD / NORMAL / BAD outcome
-          → a bad streak summons an enemy encounter
+          → read the hazard → pick the companion whose TRAITS counter it
+          → PERFECT / SLOPPY / BLUNDER outcome
+          → a blunder streak summons an enemy encounter
       → Country Summary → next country
-→ Final Ending (Golden Triumph / Indentured Middle / The Fall Guy)
+→ Final Ending + letter grade + score (beat your personal best)
 ```
 
-**Outcomes** — GOOD `+3% Gold` (resets bad streak) · NORMAL `+1% Gold` ·
-BAD `+4 Heat` (and grows your consecutive-bad streak).
+It's a game of **tactical matching**, not luck:
 
-**Enemies** — 2 consecutive bad → Street Brigand · 3 → Royal Turncoat ·
+- **Traits & counters** — every companion wears its ability traits as badges
+  (🔥 💧 ❄️ 💪 ⚡ 🥷 …). Each hazard is countered by some traits and *backfires*
+  on others. Match correctly and you reason your way to a **PERFECT**.
+- **Combo** — consecutive perfect picks stack a multiplier (gold ×2 → ×3 → ×4)
+  and even **cool your Heat**. One non-perfect pick resets it.
+- **Heat is a capture clock (0→100)** — a BLUNDER spikes it, a SLOPPY pick lets
+  it creep, and hitting **100 = CAUGHT, run over.** Skilled play keeps it near 0.
+- **Cooldowns** — a companion you use **rests for 2 puzzles**, so you must learn
+  several counters and sequence them, not spam one favourite.
+- **Rising difficulty** — Act 1 shows the counter *and* backfire icons (teaching);
+  Act 2 hides the backfire; Acts 3–4 give only a cryptic clue, so you must
+  **deduce** the counter from the hazard and your companions' traits — and the
+  Heat penalties for mistakes grow each act.
+
+**Enemies** — 2 blunders in a row → Street Brigand · 3 → Royal Turncoat ·
 4+ → False Vizier. Win to cool your Heat; lose and it spikes.
 
-**Endings** — `Golden Triumph` (≥80% gold & ≤10 heat) ·
-`The Fall Guy` (<30% gold **or** ≥26 heat) · `The Indentured Middle` (otherwise).
+**Endings** — `Golden Triumph` (≥80% gold & ≤15 heat) ·
+`Caught Red-Handed` (Heat hit 100) · `The Fall Guy` (<30% gold **or** ≥70 heat) ·
+`The Indentured Middle` (otherwise). Every run is scored (gold + best combo +
+countries cleared − heat) and graded **S–D**, with your best saved locally.
 
 ## How content is built
 
@@ -50,9 +66,12 @@ engine instead of 150 hand-written files:
   **tags** (`fire`, `water`, `speed`, `stealth`, …).
 - **`scripts/data/countries.json`** — 30 chapters (name, landmark, signature biome).
 - **`scripts/data/baddies.json`** — the three enemy encounters.
-- **`scripts/engine.js`** — combines a country + slot into a themed hazard, then
-  sorts the 24 pets into GOOD / NORMAL / BAD by matching ability tags to the
-  hazard (e.g. *water/ice* beats a wildfire; *fire* makes it worse).
+- **`scripts/engine.js`** — combines a country + slot into a themed hazard with
+  `need` traits (counters), `backfire` traits, and a cryptic clue; then sorts the
+  24 pets into PERFECT / SLOPPY / BLUNDER by matching tags (e.g. *water/ice* beats
+  a wildfire, *fire* makes it worse). Every hazard has ≥3 valid counters, so
+  cooldowns can never soft-lock a run. Difficulty (hint disclosure + Heat
+  penalties) scales by act.
 
 ## Architecture
 

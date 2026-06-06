@@ -1,75 +1,127 @@
-/* state.js — runtime game state + persistence for King's Gold
+/* state.js — runtime game state, tactics economy & persistence
    ----------------------------------------------------------------
-   Persistence is localStorage-first so the core loop works with NO
-   backend.  Firebase, if configured, is written to in a best-effort
-   fire-and-forget manner and NEVER blocks or breaks gameplay.
+   localStorage is the source of truth; Firebase (if present) is
+   mirrored best-effort and never blocks play.
 */
 
-import { TOTAL_COUNTRIES } from './engine.js';
+import { TOTAL_COUNTRIES, heatScale } from './engine.js';
 import { navigate } from './router.js';
 
 const LS_PREFIX = 'kingsgold:save:';
 const LS_LAST   = 'kingsgold:last';
+const LS_BEST   = 'kingsgold:best';
+
+export const HEAT_CAP    = 100;   // reach this → CAUGHT, run ends
+export const COOLDOWN     = 2;    // a used companion rests this many puzzles
 
 /* ── live state ─────────────────────────────────────────────────── */
 export const state = {
   name: '',
-  gold: 0,          // 0–100 (%)
-  heat: 0,          // 0+
+  gold: 0,            // 0–100 (% treasure recovered)
+  heat: 0,            // 0–100 (suspicion / capture clock)
+  combo: 0,           // current streak of perfect picks
+  maxCombo: 0,
   consecutiveBad: 0,
-  countryIndex: 0,  // 0-based chapter
-  slotIndex: 0      // 0–4 puzzle slot
+  countryIndex: 0,
+  slotIndex: 0,
+  captured: false,    // transient — set when Heat hits the cap
+  cooldowns: {}       // transient — petId → puzzles remaining
 };
 
 const listeners = new Set();
 export function subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); }
 function notify() { listeners.forEach(fn => fn(state)); }
 
-/* ── mutators ───────────────────────────────────────────────────── */
-export function addGold(p) { state.gold = Math.max(0, Math.min(100, state.gold + p)); notify(); }
-export function addHeat(v) { state.heat = Math.max(0, state.heat + v);                notify(); }
-export function resetBad()  { state.consecutiveBad = 0;        notify(); }
-export function incBad()    { state.consecutiveBad += 1;       notify(); }
+/* ── cooldowns ──────────────────────────────────────────────────── */
+export function isResting(id)  { return (state.cooldowns[id] || 0) > 0; }
+export function restingTurns(id){ return state.cooldowns[id] || 0; }
+export function restCompanion(id) { state.cooldowns[id] = COOLDOWN; }
+function tickCooldowns() {
+  for (const id of Object.keys(state.cooldowns)) {
+    state.cooldowns[id] -= 1;
+    if (state.cooldowns[id] <= 0) delete state.cooldowns[id];
+  }
+}
+
+/* ── outcome economy (the heart of the tactics loop) ────────────── */
+function goldGain(combo) {
+  if (combo >= 9) return 4;
+  if (combo >= 6) return 3;
+  if (combo >= 3) return 2;
+  return 1;
+}
+
+/* Apply a resolved tier. Returns { goldDelta, heatDelta, captured }. */
+export function applyOutcome(tier, act) {
+  let goldDelta = 0, heatDelta = 0;
+
+  if (tier === 'good') {
+    state.combo += 1;
+    state.maxCombo = Math.max(state.maxCombo, state.combo);
+    state.consecutiveBad = 0;
+    goldDelta = goldGain(state.combo);
+    if (state.combo >= 4) heatDelta = -3;          // a hot streak cools the trail
+  } else if (tier === 'normal') {
+    state.combo = 0;
+    heatDelta = 2 + act;                            // sloppy: suspicion creeps
+  } else { // bad
+    state.combo = 0;
+    state.consecutiveBad += 1;
+    heatDelta = heatScale(act);                     // a blunder spikes Heat
+  }
+
+  state.gold = Math.max(0, Math.min(100, state.gold + goldDelta));
+  state.heat = Math.max(0, Math.min(HEAT_CAP, state.heat + heatDelta));
+  if (state.heat >= HEAT_CAP) state.captured = true;
+
+  save();
+  notify();
+  return { goldDelta, heatDelta, captured: state.captured };
+}
+
+/* enemy-encounter helpers (still mutate Heat directly) */
+export function addHeat(v)  { state.heat = Math.max(0, Math.min(HEAT_CAP, state.heat + v));
+                             if (state.heat >= HEAT_CAP) state.captured = true; notify(); }
+export function addGold(p)  { state.gold = Math.max(0, Math.min(100, state.gold + p)); notify(); }
+export function resetBad()  { state.consecutiveBad = 0; notify(); }
 
 /* ── lifecycle ──────────────────────────────────────────────────── */
 export function newGame(name) {
-  state.name = name;
-  state.gold = 0;
-  state.heat = 0;
-  state.consecutiveBad = 0;
-  state.countryIndex = 0;
-  state.slotIndex = 0;
+  Object.assign(state, {
+    name, gold: 0, heat: 0, combo: 0, maxCombo: 0, consecutiveBad: 0,
+    countryIndex: 0, slotIndex: 0, captured: false, cooldowns: {}
+  });
   save();
   notify();
 }
 
-/* Heat status label per GDD thresholds. */
 export function heatStatus() {
-  if (state.heat <= 10) return { label: 'Safe',      level: 'safe'   };
-  if (state.heat <= 25) return { label: 'Suspicious', level: 'rising' };
-  return { label: 'High Danger', level: 'danger' };
+  const pct = state.heat / HEAT_CAP;
+  if (pct >= 0.75) return { label: 'CRITICAL',  level: 'danger' };
+  if (pct >= 0.40) return { label: 'Suspicious', level: 'rising' };
+  return { label: 'Cold', level: 'safe' };
 }
 
-/* ── navigation helpers (single source of truth for the loop) ───── */
+/* ── navigation (single source of truth for the loop) ───────────── */
 export function routeForState() {
   const total = TOTAL_COUNTRIES();
+  if (state.captured) return 'ending';
   if (total && state.countryIndex >= total) return 'ending';
   return state.slotIndex === 0 ? 'map' : 'puzzle';
 }
 
-/* Advance one slot; if a country is finished, route to its summary. */
 export function stepForward() {
+  if (state.captured) { navigate('ending'); return; }
+  tickCooldowns();
   if (state.slotIndex < 4) {
     state.slotIndex += 1;
     save();
     navigate('puzzle');
   } else {
-    // country complete — summary screen handles the country++ step
     navigate('summary');
   }
 }
 
-/* Called by the summary screen to move on to the next country. */
 export function advanceCountry() {
   state.countryIndex += 1;
   state.slotIndex = 0;
@@ -77,15 +129,29 @@ export function advanceCountry() {
   navigate(routeForState());
 }
 
+/* ── scoring ────────────────────────────────────────────────────── */
+export function computeScore() {
+  const cleared = state.captured ? state.countryIndex : Math.min(state.countryIndex, TOTAL_COUNTRIES());
+  return Math.max(0,
+    state.gold * 100 + state.maxCombo * 40 + cleared * 25 - state.heat * 3);
+}
+export function bestScore() {
+  try { return parseInt(localStorage.getItem(LS_BEST) || '0', 10) || 0; } catch { return 0; }
+}
+export function recordScore(score) {
+  try {
+    if (score > bestScore()) { localStorage.setItem(LS_BEST, String(score)); return true; }
+  } catch {}
+  return false;
+}
+
 /* ── persistence ────────────────────────────────────────────────── */
 function snapshot() {
   return {
-    name: state.name,
-    gold: state.gold,
-    heat: state.heat,
+    name: state.name, gold: state.gold, heat: state.heat,
+    combo: state.combo, maxCombo: state.maxCombo,
     consecutiveBad: state.consecutiveBad,
-    countryIndex: state.countryIndex,
-    slotIndex: state.slotIndex,
+    countryIndex: state.countryIndex, slotIndex: state.slotIndex,
     updatedAt: Date.now()
   };
 }
@@ -96,8 +162,7 @@ export function save() {
   try {
     localStorage.setItem(LS_PREFIX + state.name.toLowerCase(), JSON.stringify(data));
     localStorage.setItem(LS_LAST, state.name.toLowerCase());
-  } catch { /* storage unavailable — game still runs in-memory */ }
-  // best-effort cloud save (never awaited, never throws)
+  } catch {}
   cloudSave(data);
 }
 
@@ -107,31 +172,23 @@ export function loadByName(name) {
   try { raw = localStorage.getItem(key); } catch { raw = null; }
   if (!raw) return null;
   try {
-    const data = JSON.parse(raw);
+    const d = JSON.parse(raw);
     Object.assign(state, {
-      name: data.name || name,
-      gold: data.gold | 0,
-      heat: data.heat | 0,
-      consecutiveBad: data.consecutiveBad | 0,
-      countryIndex: data.countryIndex | 0,
-      slotIndex: data.slotIndex | 0
+      name: d.name || name,
+      gold: d.gold | 0, heat: d.heat | 0,
+      combo: d.combo | 0, maxCombo: d.maxCombo | 0,
+      consecutiveBad: d.consecutiveBad | 0,
+      countryIndex: d.countryIndex | 0, slotIndex: d.slotIndex | 0,
+      captured: false, cooldowns: {}
     });
     notify();
-    return data;
+    return d;
   } catch { return null; }
 }
 
-export function hasAnySave() {
-  try { return !!localStorage.getItem(LS_LAST); } catch { return false; }
-}
-export function lastSaveName() {
-  try { return localStorage.getItem(LS_LAST) || ''; } catch { return ''; }
-}
+export function hasAnySave() { try { return !!localStorage.getItem(LS_LAST); } catch { return false; } }
+export function lastSaveName(){ try { return localStorage.getItem(LS_LAST) || ''; } catch { return ''; } }
 
-/* Optional Firebase write — imported lazily so a missing/broken
-   Firebase config can never stop the game from running. */
 function cloudSave(data) {
-  import('./save.js')
-    .then(m => m.saveProgress?.(data.name, data))
-    .catch(() => { /* offline / no backend — fine */ });
+  import('./save.js').then(m => m.saveProgress?.(data.name, data)).catch(() => {});
 }
