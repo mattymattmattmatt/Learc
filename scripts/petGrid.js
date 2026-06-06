@@ -1,22 +1,23 @@
 /* petGrid.js
-   Click-to-pick helper used by AU-01 puzzle scene
-   Expects a container of <img data-id="petId"> thumbnails.
+   Click-to-pick helper for any grid of `[data-id]` pet buttons.
+   Resolves with the chosen pet id, after applying a visual highlight.
+   Uses event delegation so the grid's innerHTML can be re-rendered
+   (e.g. habitat filtering) without losing the handler.
 */
 
 export function pickPet(gridEl) {
   return new Promise(resolve => {
-    gridEl.addEventListener('click', handler, { once: true });
-
     function handler(e) {
-      const img = e.target.closest('img[data-id]');
-      if (!img) { gridEl.addEventListener('click', handler, { once: true }); return; }
+      const btn = e.target.closest('[data-id]');
+      if (!btn || !gridEl.contains(btn)) return;
 
-      // visual highlight
-      gridEl.querySelectorAll('.hero-thumb.selected')
-            .forEach(el => el.classList.remove('selected'));
-      img.classList.add('selected');
+      gridEl.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+      btn.classList.add('selected');
 
-      resolve(img.dataset.id);
+      gridEl.removeEventListener('click', handler);
+      // brief beat so the highlight is visible before the scene swaps
+      setTimeout(() => resolve(btn.dataset.id), 160);
     }
+    gridEl.addEventListener('click', handler);
   });
 }

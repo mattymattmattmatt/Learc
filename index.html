@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Learc</title>
+  <title>King's Gold</title>
 
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="manifest" href="manifest.webmanifest" />
@@ -26,27 +26,36 @@
 
   <!-- ONE bootstrap module — use JS comments, not HTML comments -->
   <script type="module">
-    import './scripts/main.js';
-    import { initRouter }    from './scripts/router.js';
+    /* NOTE: Firebase (scripts/main.js) is intentionally NOT imported here.
+       It is loaded lazily by scripts/save.js only when a cloud save is
+       attempted, so an unreachable Firebase CDN can never stop the game
+       from loading. The core loop runs entirely on localStorage. */
+    import { initRouter }     from './scripts/router.js';
     import { initFullscreen } from './scripts/fullscreen.js';
+    import { mountHUD }       from './scripts/hud.js';
+    import { loadData }       from './scripts/engine.js';
 
-    /* helpers */
-    import './scripts/bgm.js';           // background-music manager
-
-    /* scenes */
+    /* scenes register their own routes on import */
     import './scripts/scenes/title.js';
     import './scripts/scenes/intro.js';
+    import './scripts/scenes/map.js';
+    import './scripts/scenes/puzzle.js';
+    import './scripts/scenes/encounter.js';
+    import './scripts/scenes/summary.js';
+    import './scripts/scenes/ending.js';
     import './scripts/scenes/gameover.js';
-    import './scripts/scenes/AU-01.js';  // first puzzle scene
-    // later:  import more scenes here
 
-    /* initialise */
+    /* preload game data so the HUD & Continue routing always have it,
+       then start. Data fetch failures are non-fatal — scenes retry. */
     initFullscreen();
+    await loadData().catch(err => console.warn('[data] preload failed:', err));
+    mountHUD();
     initRouter();
   </script>
 </head>
 
 <body>
+  <div id="hud"></div>
   <div id="app"></div>
 </body>
 </html>

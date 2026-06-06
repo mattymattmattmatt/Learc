@@ -1,70 +1,53 @@
 import { registerRoute } from '../router.js';
-import { loadSave } from '../save.js';  // no saveProgress needed here
 import { stopBGM }       from '../bgm.js';
-
-/* scale helper (480 px design height) */
-function fitCard() {
-  const card = document.querySelector('.title-card');
-  if (!card) return;
-  const s = Math.min((innerWidth * 0.95) / 500,
-                     (innerHeight * 0.95) / 480, 1);
-  card.style.transform = `scale(${s})`;
-  card.style.transformOrigin = 'center';
-}
+import { loadByName, hasAnySave, lastSaveName, routeForState } from '../state.js';
+import { hideHUD }       from '../hud.js';
 
 function render(container) {
-  stopBGM();                 // menu is silent
+  stopBGM();
+  hideHUD();
   container.innerHTML = `
-    <div class="title-card title-only">
-      <button id="startBtn"    class="big-btn">Start Game</button>
-      <button id="contBtn"     class="big-btn">Continue</button>
-    </div>
-  `;
+    <div class="card title-card-shell">
+      <h1 class="game-title">KING'S<br>GOLD</h1>
+      <p class="subtitle">Recover the stolen royal treasure across 30 nations.</p>
+      <div class="btn-group">
+        <button id="startBtn" class="big-btn">New Game</button>
+        <button id="contBtn" class="big-btn ghost"${hasAnySave() ? '' : ' disabled'}>Continue</button>
+      </div>
+    </div>`;
 
-  fitCard();
-  addEventListener('resize', fitCard);
-  addEventListener('orientationchange', fitCard);
-
-  /* Start = go to intro */
-  container.querySelector('#startBtn').onclick = () => {
-    location.hash = 'intro';
-  };
-
-  /* Continue flow */
-  container.querySelector('#contBtn').onclick = () => {
-    showContinuePrompt(container);
-  };
+  container.querySelector('#startBtn').onclick = () => { location.hash = 'intro'; };
+  container.querySelector('#contBtn').onclick  = () => showContinue(container);
 }
 
-async function showContinuePrompt(container) {
-  const card = container.querySelector('.title-card');
+function showContinue(container) {
+  const card = container.querySelector('.card');
   card.innerHTML = `
-    <h1>Continue</h1>
+    <h1 class="game-title small">Continue</h1>
     <input id="nameBox" type="text" maxlength="16"
-           placeholder="Enter your explorer name" />
-    <button id="tryLoad" class="big-btn">Load Save</button>
-    <button id="backBtn" class="big-btn">Back</button>
-    <p id="msg" class="body-text" style="min-height:1.2rem"></p>
-  `;
-  fitCard();
+           placeholder="Enter your explorer name" value="${lastSaveName()}">
+    <div class="btn-group">
+      <button id="tryLoad" class="big-btn">Load Save</button>
+      <button id="backBtn" class="big-btn ghost">Back</button>
+    </div>
+    <p id="msg" class="warn"></p>`;
 
-  card.querySelector('#backBtn').onclick = render.bind(null, container);
+  const box = card.querySelector('#nameBox');
+  box.focus();
+  card.querySelector('#backBtn').onclick = () => render(container);
 
-  card.querySelector('#tryLoad').onclick = async () => {
-    const name = card.querySelector('#nameBox').value.trim();
+  const load = () => {
+    const name = box.value.trim();
     if (!name) return;
-
-    const doc = await loadSave(name);
-    if (!doc) {
-      card.querySelector('#msg').textContent =
-        'No save for that name. Start a new game?';
+    const data = loadByName(name);
+    if (!data) {
+      card.querySelector('#msg').textContent = 'No save found for that name.';
       return;
     }
-
-    /* resume at stored hash or default to AU-01 */
-    const next = doc?.lastScene || 'AU-01';
-    location.hash = next;
+    location.hash = routeForState();
   };
+  card.querySelector('#tryLoad').onclick = load;
+  box.addEventListener('keydown', e => { if (e.key === 'Enter') load(); });
 }
 
 registerRoute('title', render);

@@ -1,71 +1,52 @@
-// save.js ─────────────────────────────────────────────────────
-import { db } from './main.js';          // path may vary
-import {
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-  serverTimestamp
-} from 'firebase/firestore';
+// save.js — optional Firebase cloud save (best-effort)
+// ----------------------------------------------------------------
+// The game's source of truth is localStorage (see state.js). This
+// module mirrors saves to Firestore when available, but every export
+// fails soft: if Firebase is misconfigured, offline, or the user is
+// not yet authenticated, these resolve quietly instead of throwing.
 
-/**
- * Default structure for a brand-new save file.
- * Extend as your game grows (add xp, items, etc.).
- */
-function getDefaultSave(username) {
-  return {
-    username,
-    level: 1,
-    hero: null,          // chosen character (null until selected)
-    hp: 3,
-    inventory: [],
-    branchFlags: {},     // choice flags for story branches
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp()
-  };
+let _db = null;
+let _fs = null;
+
+async function ready() {
+  if (_db && _fs) return true;
+  try {
+    const main = await import('./main.js');
+    _db = main.db;
+    _fs = await import('firebase/firestore');
+    return !!_db;
+  } catch {
+    return false;
+  }
 }
 
 /**
- * Load a save or auto-create it if it doesn’t exist.
- * @param {string} username – plain text ID the player typed
- * @returns {Promise<Object>} save data
+ * Mirror a save snapshot to Firestore. Never throws.
+ * @param {string} username
+ * @param {Object} data full save snapshot
+ */
+export async function saveProgress(username, data = {}) {
+  if (!username) return;
+  if (!(await ready())) return;
+  try {
+    const ref = _fs.doc(_db, 'saves', username.toLowerCase());
+    await _fs.setDoc(ref, { ...data, updatedAt: _fs.serverTimestamp() }, { merge: true });
+  } catch { /* ignore cloud failures */ }
+}
+
+/**
+ * Load a save snapshot from Firestore, or null. Never throws.
+ * @param {string} username
+ * @returns {Promise<Object|null>}
  */
 export async function loadSave(username) {
-  if (!username) throw new Error('Username required');
-
-  const ref  = doc(db, 'saves', username.toLowerCase());
-  const snap = await getDoc(ref);
-
-  if (snap.exists()) {
-    return snap.data();
+  if (!username) return null;
+  if (!(await ready())) return null;
+  try {
+    const ref  = _fs.doc(_db, 'saves', username.toLowerCase());
+    const snap = await _fs.getDoc(ref);
+    return snap.exists() ? snap.data() : null;
+  } catch {
+    return null;
   }
-
-  const fresh = getDefaultSave(username);
-  await setDoc(ref, fresh);
-  return fresh;
-}
-
-/**
- * Patch the player’s document with partial progress.
- * Example: saveProgress(name, { level: 4, hp: 2 });
- * @param {string} username
- * @param {Object} partialData – only the fields you’re changing
- */
-export async function saveProgress(username, partialData = {}) {
-  const ref = doc(db, 'saves', username.toLowerCase());
-  await updateDoc(ref, {
-    ...partialData,
-    updatedAt: serverTimestamp()
-  });
-}
-
-/**
- * Wipe and re-initialise a save slot (used for “Start Over”).
- * @param {string} username
- */
-export async function resetSave(username) {
-  const ref = doc(db, 'saves', username.toLowerCase());
-  const fresh = getDefaultSave(username);
-  await setDoc(ref, fresh, { merge: false });
-  return fresh;
 }
