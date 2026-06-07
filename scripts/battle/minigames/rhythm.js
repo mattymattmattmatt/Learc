@@ -1,6 +1,6 @@
 /* Rhythm Duel — notes fall toward the line. TAP when a note hits the
    glowing line. Land enough clean hits to out-perform the foe. */
-import { el, clamp, loop, sfx, buzz } from '../util.js';
+import { el, clamp, loop, sfx, buzz, S } from '../util.js';
 import { stageHTML, hitFlash } from './stage.js';
 
 export default {
@@ -55,7 +55,7 @@ export default {
         if (judged >= total) return end();
       });
 
-      function miss(note) { note.node.classList.add('miss'); hitFlash(heroEl); }
+      function miss(note) { note.node.classList.add('miss'); hitFlash(heroEl); S.bad(); }
       function cleanup(note, i) { setTimeout(() => note.node.remove(), 180); if (i != null) notes.splice(i, 1); }
 
       const onTap = e => {
@@ -66,7 +66,7 @@ export default {
         notes.forEach((n, i) => { if (n.judged) return; const d = Math.abs(n.y - HIT_Y()); if (d < bestD) { bestD = d; best = n; bi = i; } });
         if (best && bestD <= WIN_PX()) {
           best.judged = true; judged++; hits++;
-          best.node.classList.add('hit'); hitFlash(foeEl); buzz(14); sfx(null);
+          best.node.classList.add('hit'); hitFlash(foeEl); buzz(14); S.good();
           accEl.textContent = `Hits ${hits} / ${total}`;
           cleanup(best, bi);
         }

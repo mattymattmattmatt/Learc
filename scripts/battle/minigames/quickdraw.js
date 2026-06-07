@@ -1,7 +1,7 @@
 /* Quick Draw — a reaction duel, best of 3.
    Wait for STRIKE!, then tap. Faster than your foe wins the round.
    Tap too early and you flinch (round lost). */
-import { el, clamp, rand, sfx, buzz, wait } from '../util.js';
+import { el, clamp, rand, sfx, buzz, wait, S } from '../util.js';
 import { stageHTML, hitFlash } from './stage.js';
 
 export default {
@@ -34,8 +34,8 @@ export default {
           if (done) return; done = true;
           z.removeEventListener('pointerdown', onTap);
           clearTimeout(signalTimer); clearTimeout(foeTimer);
-          if (playerWon) { pWins++; hitFlash(foeEl); sfx(ctx.hero.sfx, 0.7); }
-          else { fWins++; hitFlash(heroEl); sfx(ctx.foe.sfx, 0.7); }
+          if (playerWon) { pWins++; hitFlash(foeEl); S.good(); }
+          else { fWins++; hitFlash(heroEl); S.bad(); }
           buzz(playerWon ? 25 : 50);
           msg.textContent = txt;
           z.classList.add(playerWon ? 'win' : 'lose');

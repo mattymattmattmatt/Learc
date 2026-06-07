@@ -1,7 +1,7 @@
 /* Power Strike — a timing bar. Stop the sweeping cursor in the target to
    land a hit. Bullseye = 2 damage, edge = 1. Knock out the foe's HP
    before you run out of swings. The zone shrinks and speeds up. */
-import { clamp, loop, sfx, buzz, floatText } from '../util.js';
+import { clamp, loop, sfx, buzz, floatText, S } from '../util.js';
 import { stageHTML, hitFlash } from './stage.js';
 
 export default {
@@ -50,8 +50,8 @@ export default {
         else if (dz <= zoneW / 2) { dmg = 1; txt = 'Hit! −1'; }
         const r = bar.getBoundingClientRect();
         floatText(area, r.left + x * r.width - area.getBoundingClientRect().left, r.top - area.getBoundingClientRect().top, txt, dmg ? 'good' : 'bad');
-        if (dmg) { hp = Math.max(0, hp - dmg); hpEl.textContent = '❤'.repeat(hp); hitFlash(foeEl); sfx(ctx.hero.sfx, 0.6); buzz(20); }
-        else { hitFlash(heroEl); buzz(40); }
+        if (dmg) { hp = Math.max(0, hp - dmg); hpEl.textContent = '❤'.repeat(hp); hitFlash(foeEl); S.good(); buzz(20); }
+        else { hitFlash(heroEl); S.bad(); buzz(40); }
         swings--; swEl.textContent = 'Swings left: ' + swings;
         if (hp <= 0) finish(true);
         else if (swings <= 0) finish(false);

@@ -6,7 +6,14 @@ import memory from './memory.js';
 import dodge from './dodge.js';
 import blitz from './blitz.js';
 import rhythm from './rhythm.js';
+import catchgame from './catch.js';
+import swipe from './swipe.js';
+import charge from './charge.js';
+import balance from './balance.js';
 import boss from './boss.js';
 
-export const GAMES = { quickdraw, tugofwar, powerstrike, memory, dodge, blitz, rhythm, boss };
+export const GAMES = {
+  quickdraw, tugofwar, powerstrike, memory, dodge, blitz, rhythm,
+  catch: catchgame, swipe, charge, balance, boss
+};
 export const getGame = id => GAMES[id] || quickdraw;
