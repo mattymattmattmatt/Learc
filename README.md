@@ -32,21 +32,36 @@ python3 -m http.server 8000
 lose a heart and retry it. Run out and the **current region restarts** with full
 hearts (earlier regions stay cleared). Win battles cleanly to earn up to ★★★.
 
-## The seven microgames
+## The eleven microgames
 
 | Game | Skill |
 |------|-------|
 | ⚡ **Quick Draw** | reaction — out-draw your foe (best of 3) |
+| 🧺 **Star Catch** | drag to catch falling stars, dodge the bombs |
 | 🪢 **Tug of War** | mashing — pull the rope to your side |
+| 🌟 **Swipe Strike** | gesture — swipe the way each arrow points |
 | 🎯 **Power Strike** | timing — stop the slider on the bullseye to KO the foe's HP |
+| 🔋 **Charge Shot** | hold & release inside the golden band |
 | 🧠 **Memory Echo** | memory — repeat the rune pattern (Simon) |
+| ⚖️ **Balance Beam** | reflex — tap left/right to stay upright |
 | 🌀 **Dodge!** | dexterity — drag to dodge the barrage and survive |
 | 💥 **Target Blitz** | speed — tap the orbs, avoid the bombs |
 | 🎵 **Rhythm Duel** | timing — tap the notes on the beat |
-| 👑 **The Gilded King** | a 3-phase boss gauntlet at max difficulty |
+| 👑 **The Gilded King** | a 3-phase boss gauntlet — three random trials at max difficulty |
 
 Every microgame scales with difficulty (faster, smaller targets, longer patterns,
-denser attacks) so the journey ramps from gentle to brutal.
+denser attacks) so the journey ramps from gentle to brutal. Games are interleaved
+so each region serves a fresh mix of mechanics, and the King draws three different
+trials each attempt.
+
+## Polish
+
+- **Procedural sound** — all SFX (taps, hits, stars, fanfares, countdown) are
+  synthesized live with the WebAudio API, so there are no audio downloads and it
+  works fully offline. Creatures still use their own recorded entrance roars.
+- **Juice** — confetti on wins, stars that pop in one-by-one with a ding, screen
+  shakes, sparkles and floating damage text, haptic buzz on mobile.
+- **🔊 Mute toggle** (top-right, remembered between sessions).
 
 ## Code layout
 

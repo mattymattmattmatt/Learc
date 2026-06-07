@@ -1,6 +1,6 @@
 /* Target Blitz — tap the glowing orbs before they vanish. Hit the goal
    before time runs out. Watch for bombs 💣 — tapping one costs you! */
-import { el, clamp, loop, rand, sfx, buzz, sparkle } from '../util.js';
+import { el, clamp, loop, rand, sfx, buzz, sparkle, S } from '../util.js';
 
 export default {
   id: 'blitz', name: 'Target Blitz', icon: '💥',
@@ -40,8 +40,8 @@ export default {
           e.preventDefault();
           if (done || t._gone) return; t._gone = true;
           const cx = x + s / 2, cy = y + s / 2;
-          if (bomb) { score = Math.max(0, score - 2); buzz(70); sfx(ctx.foe.sfx, 0.6); t.classList.add('boom'); }
-          else { score++; buzz(15); sfx(null); sparkle(field, cx, cy, 6); t.classList.add('pop'); }
+          if (bomb) { score = Math.max(0, score - 2); buzz(70); S.hit(); t.classList.add('boom'); }
+          else { score++; buzz(15); S.star(); sparkle(field, cx, cy, 6); t.classList.add('pop'); }
           scEl.textContent = score;
           setTimeout(() => t.remove(), 160);
           remove(t);

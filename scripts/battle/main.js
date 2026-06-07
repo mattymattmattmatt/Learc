@@ -1,6 +1,7 @@
 /* main.js — Battle of the Realm: screen flow & glue */
 import {
-  byId, petImg, SPRITE, KING_GIF, playMusic, sfx, buzz, countdown
+  byId, el, petImg, SPRITE, KING_GIF, playMusic, sfx, buzz, countdown,
+  S, confetti, isMuted, toggleMute
 } from './util.js';
 import { loadPets, getPet, allPets, flavor, REGIONS, KING_INTRO, KING_DEFEAT } from './data.js';
 import {
@@ -14,6 +15,7 @@ const show = html => { APP.innerHTML = html; };
 
 boot();
 async function boot() {
+  installChrome();
   try {
     await loadPets();
     screenTitle();
@@ -26,6 +28,19 @@ async function boot() {
     </div></div>`);
     console.error('boot failed', err);
   }
+}
+
+/* persistent UI: mute toggle + click sounds */
+function installChrome() {
+  const m = el('button', 'mute-btn', isMuted() ? '🔇' : '🔊');
+  m.setAttribute('aria-label', 'Toggle sound');
+  m.addEventListener('pointerdown', e => { e.preventDefault(); const muted = toggleMute(); m.textContent = muted ? '🔇' : '🔊'; if (!muted) S.ui(); });
+  document.body.appendChild(m);
+  // soft click on navigation buttons
+  document.addEventListener('pointerdown', e => {
+    const b = e.target.closest && e.target.closest('.btn, .btn-link');
+    if (b) S.ui();
+  });
 }
 
 /* ════════ TITLE ════════ */
@@ -223,11 +238,18 @@ function onBattleWon(entry, res, foeDisp) {
         <div class="res-burst">🎉</div>
         <h2 class="res-title">Champion Freed!</h2>
         <img class="res-foe" src="${SPRITE(foeDisp.sprite)}">
-        <div class="res-stars" id="stars">${'★'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
+        <div class="res-stars" id="stars">${'<span class="star-slot">☆</span>'.repeat(3)}</div>
         <p class="res-line">“${fl.freed}”</p>
         <button class="btn btn-go" id="next">Continue ▸</button>
       </div>
     </div>`);
+  S.win();
+  confetti(document.querySelector('.screen'), 36);
+  // reveal earned stars one at a time, each with a little ding
+  const slots = [...document.querySelectorAll('.star-slot')];
+  slots.forEach((s, i) => {
+    if (i < stars) setTimeout(() => { s.textContent = '★'; s.classList.add('lit'); S.star(); buzz(15); }, 350 + i * 320);
+  });
   byId('next').onclick = () => {
     const route = recordWin(entry.id, stars);
     if (route === 'region-clear') screenRegionClear();
@@ -237,7 +259,7 @@ function onBattleWon(entry, res, foeDisp) {
 }
 
 function onBattleLost(entry, foeDisp) {
-  buzz(70);
+  buzz(70); S.lose();
   const route = recordLoss();
   const lives = '❤'.repeat(state.lives) + '🖤'.repeat(Math.max(0, MAX_LIVES - state.lives));
   if (route === 'gameover') return screenGameOver();
@@ -269,6 +291,8 @@ function screenRegionClear(toKing = false) {
         <button class="btn btn-go" id="go">${toKing ? 'To the Throne ▸' : 'Onward ▸'}</button>
       </div>
     </div>`);
+  S.win();
+  confetti(document.querySelector('.screen'), 50);
   byId('go').onclick = () => toKing ? screenMap() : screenRegionIntro(state.region);
 }
 
@@ -311,6 +335,11 @@ function screenEnding() {
         <button class="btn btn-go" id="again">Play Again</button>
       </div>
     </div>`);
+  S.win();
+  const scr = document.querySelector('.screen');
+  confetti(scr, 70);
+  setTimeout(() => confetti(scr, 50), 900);
+  setTimeout(() => { S.win(); confetti(scr, 50); }, 1800);
   byId('again').onclick = () => screenTitle();
 }
 

@@ -1,6 +1,6 @@
 /* Tug of War — mash TAP to pull the rope. The foe pulls back harder as
    difficulty rises. Pull the marker to your side before time runs out. */
-import { clamp, loop, sfx, buzz } from '../util.js';
+import { clamp, loop, sfx, buzz, S } from '../util.js';
 import { stageHTML } from './stage.js';
 
 export default {
@@ -31,7 +31,7 @@ export default {
         e.preventDefault();
         pos = clamp(pos + pull, -1, 1);
         pad.classList.remove('mash'); void pad.offsetWidth; pad.classList.add('mash');
-        if (Math.random() < 0.3) sfx(ctx.hero.sfx, 0.4);
+        if (Math.random() < 0.4) S.tick();
       };
       pad.addEventListener('pointerdown', onPad);
 

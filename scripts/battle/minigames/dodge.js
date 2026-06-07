@@ -1,7 +1,6 @@
 /* Dodge — drag your creature to survive the foe's barrage for 12s.
    You have 3 hearts; projectiles speed up and thicken with difficulty. */
-import { el, clamp, loop, rand, sfx, buzz, floatText } from '../util.js';
-import { petImg } from '../util.js';
+import { el, clamp, loop, rand, sfx, buzz, floatText, petImg, S } from '../util.js';
 
 export default {
   id: 'dodge', name: 'Dodge!', icon: '🌀',
@@ -83,7 +82,7 @@ export default {
             p.node.remove(); projs.splice(i, 1);
             hp--; iframe = 0.9; heartsEl.textContent = '❤'.repeat(Math.max(0, hp));
             me.classList.remove('hurt'); void me.offsetWidth; me.classList.add('hurt');
-            sfx(ctx.foe.sfx, 0.6); buzz(60);
+            S.hit(); buzz(60);
             floatText(area, hx, hy, '−1', 'bad');
             if (hp <= 0) return end(false);
           }

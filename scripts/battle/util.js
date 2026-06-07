@@ -15,28 +15,91 @@ export const pick = arr => arr[(Math.random() * arr.length) | 0];
 export function shuffle(a) { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = (Math.random()*(i+1))|0; [b[i],b[j]]=[b[j],b[i]]; } return b; }
 export const starsByRatio = r => (r >= 0.95 ? 3 : r >= 0.6 ? 2 : 1);
 
-/* ── audio (unlocked on first user gesture) ───────────────────── */
-let audioOn = false, music = null, musicName = '';
+/* ── audio: WebAudio SFX synth + music (unlocked on first gesture) ─ */
+let audioOn = false, music = null, musicName = '', musicVol = 0.28;
+let muted = false;
+try { muted = localStorage.getItem('realm:mute') === '1'; } catch {}
+
+let _ac = null;
+function ac() {
+  if (!_ac) { try { _ac = new (window.AudioContext || window.webkitAudioContext)(); } catch {} }
+  if (_ac && _ac.state === 'suspended') _ac.resume().catch(() => {});
+  return _ac;
+}
+
 export function unlockAudio() {
+  ac();
   if (audioOn) return; audioOn = true;
-  document.removeEventListener('pointerdown', unlockAudio);
 }
 document.addEventListener('pointerdown', unlockAudio);
 
+export function isMuted() { return muted; }
+export function setMuted(v) {
+  muted = !!v;
+  try { localStorage.setItem('realm:mute', muted ? '1' : '0'); } catch {}
+  if (music) music.volume = muted ? 0 : musicVol;
+}
+export function toggleMute() { setMuted(!muted); return muted; }
+
 export function playMusic(name, vol = 0.28) {
   if (musicName === name && music) return;
-  stopMusic(); musicName = name;
-  const a = new Audio(AUDIO(name)); a.loop = true; a.volume = vol;
+  stopMusic(); musicName = name; musicVol = vol;
+  const a = new Audio(AUDIO(name)); a.loop = true; a.volume = muted ? 0 : vol;
   a.addEventListener('error', () => {});
   music = a; a.play().catch(() => {});
 }
 export function stopMusic() { try { music?.pause(); } catch {} music = null; musicName = ''; }
 
+/* play a sampled file (used for the creatures' own entrance roars) */
 export function sfx(file, vol = 0.8) {
-  if (!file) return;
+  if (!file || muted) return;
   try { const a = new Audio(AUDIO(file)); a.volume = vol; a.play().catch(() => {}); } catch {}
 }
-export const buzz = ms => { try { navigator.vibrate?.(ms); } catch {} };
+export const buzz = ms => { if (!muted) { try { navigator.vibrate?.(ms); } catch {} } };
+
+/* ── tiny synth: build crisp arcade SFX with no downloads ─────────── */
+function tone({ f = 440, f2, dur = 0.12, type = 'sine', vol = 0.3, delay = 0, attack = 0.004, release = 0.07 }) {
+  const c = ac(); if (!c || muted) return;
+  const t = c.currentTime + delay;
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = type; o.frequency.setValueAtTime(f, t);
+  if (f2) o.frequency.exponentialRampToValueAtTime(Math.max(1, f2), t + dur);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.linearRampToValueAtTime(vol, t + attack);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur + release);
+  o.connect(g).connect(c.destination);
+  o.start(t); o.stop(t + dur + release + 0.02);
+}
+function noise({ dur = 0.14, vol = 0.3, delay = 0, lp = 2200, hp = 200 }) {
+  const c = ac(); if (!c || muted) return;
+  const t = c.currentTime + delay;
+  const n = Math.floor(c.sampleRate * dur);
+  const buf = c.createBuffer(1, n, c.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+  const src = c.createBufferSource(); src.buffer = buf;
+  const g = c.createGain(); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  let node = src;
+  if (lp) { const f = c.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = lp; node.connect(f); node = f; }
+  if (hp) { const f = c.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = hp; node.connect(f); node = f; }
+  node.connect(g).connect(c.destination);
+  src.start(t); src.stop(t + dur + 0.02);
+}
+/* named one-shots */
+export const S = {
+  tick:  () => tone({ f: 540, dur: 0.05, type: 'square', vol: 0.18 }),
+  go:    () => { tone({ f: 660, f2: 990, dur: 0.18, type: 'sawtooth', vol: 0.25 }); tone({ f: 990, dur: 0.18, delay: 0.04, vol: 0.18 }); },
+  ui:    () => tone({ f: 480, dur: 0.06, type: 'triangle', vol: 0.16 }),
+  hit:   () => { noise({ dur: 0.13, vol: 0.32, lp: 1600 }); tone({ f: 160, f2: 60, dur: 0.12, type: 'square', vol: 0.22 }); },
+  good:  () => { tone({ f: 620, dur: 0.07, type: 'square', vol: 0.2 }); tone({ f: 930, dur: 0.09, delay: 0.06, type: 'square', vol: 0.18 }); },
+  bad:   () => tone({ f: 200, f2: 90, dur: 0.22, type: 'sawtooth', vol: 0.22 }),
+  star:  () => { tone({ f: 1180, dur: 0.07, type: 'triangle', vol: 0.2 }); tone({ f: 1760, dur: 0.1, delay: 0.05, type: 'triangle', vol: 0.16 }); },
+  swipe: () => { noise({ dur: 0.16, vol: 0.22, lp: 3500, hp: 600 }); tone({ f: 300, f2: 760, dur: 0.14, type: 'sine', vol: 0.14 }); },
+  pad:   i => tone({ f: [330, 440, 554, 660][i % 4], dur: 0.16, type: 'sine', vol: 0.22 }),
+  charge:lvl => tone({ f: 200 + lvl * 700, dur: 0.05, type: 'sawtooth', vol: 0.12 }),
+  catch: () => tone({ f: 720, f2: 1080, dur: 0.08, type: 'triangle', vol: 0.2 }),
+  win:   () => [523, 659, 784, 1047].forEach((f, i) => tone({ f, dur: 0.16, delay: i * 0.1, type: 'triangle', vol: 0.24 })),
+  lose:  () => [392, 330, 262].forEach((f, i) => tone({ f, dur: 0.22, delay: i * 0.12, type: 'sawtooth', vol: 0.22 }))
+};
 
 /* ── DOM helpers ──────────────────────────────────────────────── */
 export const el = (tag, cls, html) => { const n = document.createElement(tag); if (cls) n.className = cls; if (html != null) n.innerHTML = html; return n; };
@@ -76,7 +139,7 @@ export function countdown(area, goWord = 'FIGHT!') {
       c.textContent = seq[i];
       c.classList.toggle('go', i === 3);
       c.classList.remove('cd-pulse'); void c.offsetWidth; c.classList.add('cd-pulse');
-      sfx(null);
+      (i === 3 ? S.go : S.tick)();
       i++;
       if (i < seq.length) setTimeout(tick, 650);
       else setTimeout(() => { c.remove(); resolve(); }, 520);
@@ -104,4 +167,21 @@ export function floatText(container, x, y, txt, cls = '') {
   t.style.left = x + 'px'; t.style.top = y + 'px';
   container.appendChild(t);
   setTimeout(() => t.remove(), 900);
+}
+
+/* confetti shower from the top of a container (celebration) */
+export function confetti(container, n = 40) {
+  const colors = ['#ffd23f', '#ff5a86', '#5cc6ff', '#5fe39a', '#c08bff', '#ff9a3f'];
+  for (let i = 0; i < n; i++) {
+    const c = el('span', 'confetti');
+    c.style.left = rand(0, 100) + '%';
+    c.style.background = pick(colors);
+    c.style.setProperty('--rot', rand(-1, 1) + 'turn');
+    c.style.setProperty('--xoff', rand(-40, 40) + 'px');
+    c.style.animationDelay = rand(0, 0.6) + 's';
+    c.style.animationDuration = rand(1.6, 2.8) + 's';
+    if (Math.random() < 0.5) c.style.borderRadius = '50%';
+    container.appendChild(c);
+    setTimeout(() => c.remove(), 3600);
+  }
 }

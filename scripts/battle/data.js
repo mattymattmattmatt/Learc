@@ -28,7 +28,11 @@ export const REGIONS = [
   { key: 'sky',  name: 'The Stormcrown Peaks', theme: 'sky', blurb: 'Cloud-wreathed summits where the sky-champions soar.' }
 ];
 
-const MINIGAMES = ['quickdraw', 'tugofwar', 'powerstrike', 'memory', 'dodge', 'blitz', 'rhythm'];
+/* interleaved so each region samples a fresh mix of mechanics */
+const MINIGAMES = [
+  'quickdraw', 'catch', 'tugofwar', 'swipe', 'powerstrike', 'charge',
+  'memory', 'balance', 'dodge', 'blitz', 'rhythm'
+];
 
 /* Build the full adventure for a chosen hero.
    Returns { regions:[{...meta, foes:[{id,difficulty,game}]}], king } */
