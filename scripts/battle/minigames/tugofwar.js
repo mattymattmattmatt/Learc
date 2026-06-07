@@ -1,7 +1,7 @@
 /* Tug of War — mash TAP to pull the rope. The foe pulls back harder as
    difficulty rises. Pull the marker to your side before time runs out. */
 import { clamp, loop, sfx, buzz } from '../util.js';
-import { stageHTML } from './_stage.js';
+import { stageHTML } from './stage.js';
 
 export default {
   id: 'tugofwar', name: 'Tug of War', icon: '🪢',

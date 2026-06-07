@@ -9,6 +9,7 @@ let PETS = null;          // id → pet
 export async function loadPets() {
   if (PETS) return PETS;
   const res = await fetch('scripts/data/pets.json');
+  if (!res.ok) throw new Error(`Could not load creatures (pets.json: ${res.status})`);
   PETS = await res.json();
   return PETS;
 }

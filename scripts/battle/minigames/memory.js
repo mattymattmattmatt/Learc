@@ -1,7 +1,7 @@
 /* Memory Echo — the foe flashes a pattern of elemental runes; repeat it
    back. One mistake and you lose. The pattern grows with difficulty. */
 import { el, wait, sfx, buzz } from '../util.js';
-import { stageHTML, hitFlash } from './_stage.js';
+import { stageHTML, hitFlash } from './stage.js';
 
 const PADS = [
   { c: 'pad-fire',  e: '🔥' },

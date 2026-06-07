@@ -1,4 +1,4 @@
-/* _stage.js — shared bits for minigames: the two combatants + HP pips */
+/* stage.js — shared bits for minigames: the two combatants + HP pips */
 import { petImg, el } from '../util.js';
 
 export function stageHTML(ctx, extraClass = '') {

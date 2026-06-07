@@ -14,8 +14,18 @@ const show = html => { APP.innerHTML = html; };
 
 boot();
 async function boot() {
-  await loadPets();
-  screenTitle();
+  try {
+    await loadPets();
+    screenTitle();
+  } catch (err) {
+    // never leave the player staring at a blank screen
+    show(`<div class="screen"><div class="menu-card">
+      <h2 class="res-title" style="color:var(--bad)">Couldn't start the game</h2>
+      <p class="res-line">${err && err.message ? err.message : err}</p>
+      <button class="btn btn-go" onclick="location.reload()">Try again</button>
+    </div></div>`);
+    console.error('boot failed', err);
+  }
 }
 
 /* ════════ TITLE ════════ */
