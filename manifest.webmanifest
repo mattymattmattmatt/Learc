@@ -1,13 +1,13 @@
 {
-  "name": "Critter Catch",
-  "short_name": "Critter Catch",
+  "name": "Battle of the Realm",
+  "short_name": "Realm Battle",
   "start_url": "./",
   "display": "fullscreen",
   "orientation": "any",
-  "background_color": "#5ec9f2",
-  "theme_color": "#3ac0e8",
+  "background_color": "#2a1a4a",
+  "theme_color": "#2a1a4a",
   "icons": [
-    { "src": "assets/img/characters/char_zappo.webp", "sizes": "192x192", "type": "image/webp" },
-    { "src": "assets/img/characters/char_zappo.webp", "sizes": "512x512", "type": "image/webp" }
+    { "src": "assets/img/characters/char_chomper.webp", "sizes": "192x192", "type": "image/webp" },
+    { "src": "assets/img/characters/char_chomper.webp", "sizes": "512x512", "type": "image/webp" }
   ]
 }
