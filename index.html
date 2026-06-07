@@ -2,60 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>King's Gold</title>
+  <title>Critter Catch</title>
 
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <!-- mobile-first: lock zoom, fill the screen, allow notch areas -->
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#3ac0e8" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" href="assets/ui/favicon.ico" />
 
-  <!-- Fonts & CSS -->
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&display=swap"
+  <!-- playful rounded font (falls back to system if offline) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap"
         rel="stylesheet">
-  <link rel="stylesheet" href="styles/main.css" />
-
-  <!-- Firebase import-map -->
-  <script type="importmap">
-  {
-    "imports": {
-      "firebase/app":       "https://www.gstatic.com/firebasejs/11.9.0/firebase-app.js",
-      "firebase/auth":      "https://www.gstatic.com/firebasejs/11.9.0/firebase-auth.js",
-      "firebase/firestore": "https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js"
-    }
-  }
-  </script>
-
-  <!-- ONE bootstrap module — use JS comments, not HTML comments -->
-  <script type="module">
-    /* NOTE: Firebase (scripts/main.js) is intentionally NOT imported here.
-       It is loaded lazily by scripts/save.js only when a cloud save is
-       attempted, so an unreachable Firebase CDN can never stop the game
-       from loading. The core loop runs entirely on localStorage. */
-    import { initRouter }     from './scripts/router.js';
-    import { initFullscreen } from './scripts/fullscreen.js';
-    import { mountHUD }       from './scripts/hud.js';
-    import { loadData }       from './scripts/engine.js';
-
-    /* scenes register their own routes on import */
-    import './scripts/scenes/title.js';
-    import './scripts/scenes/intro.js';
-    import './scripts/scenes/map.js';
-    import './scripts/scenes/puzzle.js';
-    import './scripts/scenes/encounter.js';
-    import './scripts/scenes/summary.js';
-    import './scripts/scenes/ending.js';
-    import './scripts/scenes/gameover.js';
-
-    /* preload game data so the HUD & Continue routing always have it,
-       then start. Data fetch failures are non-fatal — scenes retry. */
-    initFullscreen();
-    await loadData().catch(err => console.warn('[data] preload failed:', err));
-    mountHUD();
-    initRouter();
-  </script>
+  <link rel="stylesheet" href="styles/critter.css" />
 </head>
 
 <body>
-  <div id="hud"></div>
   <div id="app"></div>
+  <script type="module" src="scripts/critter/game.js"></script>
+  <!-- The original puzzle game still lives at /kingsgold.html -->
 </body>
 </html>
