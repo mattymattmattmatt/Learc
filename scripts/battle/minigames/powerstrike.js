@@ -2,7 +2,7 @@
    land a hit. Bullseye = 2 damage, edge = 1. Knock out the foe's HP
    before you run out of swings. The zone shrinks and speeds up. */
 import { clamp, loop, sfx, buzz, floatText } from '../util.js';
-import { stageHTML, hitFlash } from './_stage.js';
+import { stageHTML, hitFlash } from './stage.js';
 
 export default {
   id: 'powerstrike', name: 'Power Strike', icon: '🎯',

@@ -2,7 +2,7 @@
    Wait for STRIKE!, then tap. Faster than your foe wins the round.
    Tap too early and you flinch (round lost). */
 import { el, clamp, rand, sfx, buzz, wait } from '../util.js';
-import { stageHTML, hitFlash } from './_stage.js';
+import { stageHTML, hitFlash } from './stage.js';
 
 export default {
   id: 'quickdraw', name: 'Quick Draw', icon: '⚡',

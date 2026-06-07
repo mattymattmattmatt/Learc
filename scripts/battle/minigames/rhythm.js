@@ -1,7 +1,7 @@
 /* Rhythm Duel — notes fall toward the line. TAP when a note hits the
    glowing line. Land enough clean hits to out-perform the foe. */
 import { el, clamp, loop, sfx, buzz } from '../util.js';
-import { stageHTML, hitFlash } from './_stage.js';
+import { stageHTML, hitFlash } from './stage.js';
 
 export default {
   id: 'rhythm', name: 'Rhythm Duel', icon: '🎵',
