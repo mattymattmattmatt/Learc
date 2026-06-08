@@ -271,6 +271,7 @@ function onBattleWon(entry, res, foeDisp) {
         <button class="btn btn-go" id="next">Continue ▸</button>
       </div>
     </div>`);
+  setTimeout(() => sfx(foeDisp.sfx, 0.6), 50);
   S.win();
   confetti(document.querySelector('.screen'), 36);
   // reveal earned stars one at a time, each with a little ding
