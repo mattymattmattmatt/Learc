@@ -26,9 +26,18 @@ export const state = {
   region: 0,           // 0..2 = regions, 3 = King
   idx: 0,              // foe index within current region
   lives: MAX_LIVES,
-  stars: {},           // foeId → 1..3
+  stars: {},           // foeId → 1..3 (includes 'king')
+  continues: 0,        // times the player has used a game-over continue
   done: false
 };
+
+/* ── scoring / leaderboard helpers ────────────────────────────── */
+export function maxStars() { return (state.adventure ? totalFoes() : 24) * 3; }   // 24 battles × 3 = 72
+/* a clean run (no continues) earns a perfect-run bonus */
+export function finalScore() { return totalStars() + (state.continues === 0 && state.done ? 6 : 0); }
+const NAME_LS = 'realm:name';
+export function getName() { try { return localStorage.getItem(NAME_LS) || ''; } catch { return ''; } }
+export function setName(n) { try { localStorage.setItem(NAME_LS, (n || '').slice(0, 14)); } catch {} }
 
 export function startAdventure(heroId) {
   state.heroId = heroId;
@@ -39,6 +48,7 @@ export function startAdventure(heroId) {
   state.idx = 0;
   state.lives = state.maxLives;
   state.stars = {};
+  state.continues = 0;
   state.done = false;
   save();
 }
@@ -65,7 +75,7 @@ export function clearedCount() {
 /* ── outcomes ─────────────────────────────────────────────────── */
 /* returns one of: 'next-foe' | 'region-clear' | 'king' | 'win' */
 export function recordWin(foeId, stars) {
-  if (foeId !== 'king') state.stars[foeId] = Math.max(state.stars[foeId] || 0, stars);
+  state.stars[foeId] = Math.max(state.stars[foeId] || 0, stars);   // includes 'king'
 
   if (state.region >= 3) { state.done = true; save(); return 'win'; }
 
@@ -89,6 +99,7 @@ export function recordLoss() {
     // restart current region from the top with full lives
     state.idx = 0;
     state.lives = state.maxLives;
+    state.continues = (state.continues || 0) + 1;
     save();
     return 'gameover';
   }
@@ -101,7 +112,7 @@ export function save() {
   try {
     localStorage.setItem(LS, JSON.stringify({
       heroId: state.heroId, mode: state.mode, maxLives: state.maxLives,
-      region: state.region, idx: state.idx,
+      region: state.region, idx: state.idx, continues: state.continues,
       lives: state.lives, stars: state.stars, done: state.done
     }));
   } catch {}
@@ -121,6 +132,7 @@ export function loadSave() {
     state.idx = d.idx | 0;
     state.lives = d.lives ?? state.maxLives;
     state.stars = d.stars || {};
+    state.continues = d.continues | 0;
     state.done = !!d.done;
     return true;
   } catch { return false; }
