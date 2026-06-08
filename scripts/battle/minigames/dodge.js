@@ -15,14 +15,14 @@ export default {
         <div class="dg-hud"><span id="hearts">${'❤'.repeat(hp)}</span>
           <div class="dg-time"><div class="dg-fill" id="tf"></div></div></div>
         <div class="dg-field" id="field">
-          <img class="dg-hero" id="me" src="${petImg(ctx.hero)}" alt="you" draggable="false">
+          <div class="dg-hero" id="me"><img src="${petImg(ctx.hero)}" alt="you" draggable="false"></div>
         </div>
-        <div class="dg-hint">Drag to move!</div>`;
+        <div class="dg-hint">Drag the bubble to dodge!</div>`;
       const field = area.querySelector('#field'), me = area.querySelector('#me');
       const heartsEl = area.querySelector('#hearts'), tf = area.querySelector('#tf');
 
       let W = 0, H = 0, size = 56;
-      const measure = () => { const r = field.getBoundingClientRect(); W = r.width; H = r.height; size = clamp(Math.min(W, H) * 0.16, 40, 72); me.style.width = size + 'px'; };
+      const measure = () => { const r = field.getBoundingClientRect(); W = r.width; H = r.height; size = clamp(Math.min(W, H) * 0.17, 44, 76); me.style.width = size + 'px'; me.style.height = size + 'px'; };
       measure(); window.addEventListener('resize', measure);
 
       let px = 0, py = 0;
@@ -72,7 +72,7 @@ export default {
         tf.style.width = clamp((left / TIME) * 100, 0, 100) + '%';
         acc += dt; if (acc >= spawnEvery) { acc = 0; spawn(); if (ctx.difficulty >= 6) spawn(); }
 
-        const hx = px + size / 2, hy = py + size / 2, hr = size * 0.42;
+        const hx = px + size / 2, hy = py + size / 2, hr = size * 0.46;   // matches the round token
         for (let i = projs.length - 1; i >= 0; i--) {
           const p = projs[i];
           p.x += p.vx * dt; p.y += p.vy * dt;
