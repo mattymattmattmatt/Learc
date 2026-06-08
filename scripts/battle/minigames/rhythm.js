@@ -30,8 +30,8 @@ export default {
       const accEl = area.querySelector('#acc'), comboEl = area.querySelector('#combo');
       const heroEl = area.querySelector('.hero'), foeEl = area.querySelector('.foe');
 
-      let H = 0, W = 0;
-      const measure = () => { const r = lane.getBoundingClientRect(); H = r.height; W = r.width; };
+      let H = 0, W = 0, aRect = null, lRect = null;
+      const measure = () => { lRect = lane.getBoundingClientRect(); aRect = area.getBoundingClientRect(); H = lRect.height; W = lRect.width; };
       measure(); window.addEventListener('resize', measure);
       const HIT_Y = () => H * 0.8;
       const GOOD = () => clamp(H * 0.08, 18, 44);
@@ -76,16 +76,15 @@ export default {
 
       const onTap = e => {
         e.preventDefault(); if (done) return;
-        pad.classList.remove('mash'); void pad.offsetWidth; pad.classList.add('mash');
+        // (the pad's :active style gives instant feedback — no forced reflow per tap)
         let best = null, bestD = 1e9, bi = -1;
         notes.forEach((n, i) => { if (n.judged) return; const d = Math.abs(n.y - HIT_Y()); if (d < bestD) { bestD = d; best = n; bi = i; } });
         if (best && bestD <= GOOD()) {
           best.judged = true; judged++; hits++; combo++; maxCombo = Math.max(maxCombo, combo);
           const perfect = bestD <= PERFECT();
           best.node.classList.add('hit'); hitFlash(foeEl); buzz(perfect ? 18 : 10);
-          S.note(MELODY[(hits - 1) % MELODY.length] * (perfect ? 1 : 1));
-          const a = area.getBoundingClientRect(), l = lane.getBoundingClientRect();
-          floatText(area, l.left + W / 2 - a.left, l.top + HIT_Y() - a.top - 14, perfect ? 'PERFECT!' : 'good', perfect ? 'good' : '');
+          S.note(MELODY[(hits - 1) % MELODY.length]);
+          floatText(area, lRect.left + W / 2 - aRect.left, lRect.top + HIT_Y() - aRect.top - 14, perfect ? 'PERFECT!' : 'good', perfect ? 'good' : '');
           accEl.textContent = hits; updateCombo();
           cleanup(best, bi);
         }
