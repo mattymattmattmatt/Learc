@@ -6,7 +6,8 @@ import {
 import { loadPets, getPet, allPets, flavor, REGIONS, KING_INTRO, KING_DEFEAT } from './data.js';
 import {
   state, startAdventure, currentFoe, currentRegion, recordWin, recordLoss,
-  hasSave, loadSave, totalFoes, clearedCount, totalStars, MAX_LIVES
+  hasSave, loadSave, totalFoes, clearedCount, totalStars,
+  effDiff, getMode, setMode, livesFor
 } from './state.js';
 import { getGame } from './minigames/index.js';
 
@@ -47,6 +48,7 @@ function installChrome() {
 function screenTitle() {
   playMusic('bgm_intro.mp3');
   const cont = hasSave();
+  const mode = getMode();
   show(`
     <div class="screen menu">
       <div class="bg-drift" id="drift"></div>
@@ -55,12 +57,27 @@ function screenTitle() {
         <p class="subtitle">A heart-and-courage adventure</p>
         <button class="btn btn-go" id="new">⚔ New Adventure</button>
         ${cont ? '<button class="btn btn-2" id="cont">▸ Continue</button>' : ''}
+        <div class="mode-pick">
+          <span class="mode-label">Difficulty</span>
+          <div class="seg">
+            <button class="seg-btn ${mode === 'story' ? 'on' : ''}" data-mode="story">😊 Story</button>
+            <button class="seg-btn ${mode === 'normal' ? 'on' : ''}" data-mode="normal">⚔️ Normal</button>
+          </div>
+          <span class="mode-hint" id="modeHint">${mode === 'story' ? '5 hearts, gentler challenges — great for younger players.' : '3 hearts, the full challenge.'}</span>
+        </div>
         <p class="foot">Free the realm from the Tarnished Crown.</p>
       </div>
     </div>`);
   drift(byId('drift'));
   byId('new').onclick = () => screenIntro();
   if (cont) byId('cont').onclick = () => { if (loadSave()) routeFromSave(); };
+  APP.querySelectorAll('.seg-btn').forEach(b => b.onclick = () => {
+    const m = b.dataset.mode; setMode(m); S.ui();
+    APP.querySelectorAll('.seg-btn').forEach(x => x.classList.toggle('on', x === b));
+    byId('modeHint').textContent = m === 'story'
+      ? '5 hearts, gentler challenges — great for younger players.'
+      : '3 hearts, the full challenge.';
+  });
 }
 function routeFromSave() {
   if (state.done) return screenEnding();
@@ -149,7 +166,12 @@ function screenMap() {
   const r = king ? null : currentRegion();
   const foe = currentFoe();
 
-  const lives = '❤'.repeat(state.lives) + '🖤'.repeat(Math.max(0, MAX_LIVES - state.lives));
+  const lives = '❤'.repeat(state.lives) + '🖤'.repeat(Math.max(0, state.maxLives - state.lives));
+  const J = [['🌳', 'Land'], ['🌊', 'Sea'], ['⛰️', 'Sky'], ['👑', 'King']];
+  const journey = J.map((j, i) => {
+    const st = i < state.region ? 'done' : i === state.region ? 'cur' : 'todo';
+    return `<div class="jstep ${st}"><span class="jicon">${st === 'done' ? '✓' : j[0]}</span><span class="jlbl">${j[1]}</span></div>`;
+  }).join('<span class="jline"></span>');
   const nodes = king ? '' : r.foes.map((f, i) => {
     const done = i < state.idx, cur = i === state.idx;
     const st = state.stars[f.id] || 0;
@@ -165,6 +187,7 @@ function screenMap() {
         <div class="hero-chip"><img src="${SPRITE(hero.sprite)}"><span>${hero.name}</span></div>
         <div class="lives">${lives}</div>
       </div>
+      <div class="journey">${journey}</div>
       <div class="map-body">
         <h2 class="region-name">${king ? '👑 The King’s Throne' : r.name}</h2>
         ${king
@@ -216,7 +239,7 @@ async function runBattle(entry, foeDisp) {
   const game = getGame(entry.game);
   let res;
   try {
-    res = await game.play(arena, { difficulty: entry.difficulty, hero, foe: foeDisp });
+    res = await game.play(arena, { difficulty: effDiff(entry.difficulty), hero, foe: foeDisp });
   } catch (e) {
     console.error('minigame error', e);
     res = { win: false, stars: 1 };
@@ -261,7 +284,7 @@ function onBattleWon(entry, res, foeDisp) {
 function onBattleLost(entry, foeDisp) {
   buzz(70); S.lose();
   const route = recordLoss();
-  const lives = '❤'.repeat(state.lives) + '🖤'.repeat(Math.max(0, MAX_LIVES - state.lives));
+  const lives = '❤'.repeat(state.lives) + '🖤'.repeat(Math.max(0, state.maxLives - state.lives));
   if (route === 'gameover') return screenGameOver();
   show(`
     <div class="screen result lose">
@@ -280,13 +303,20 @@ function onBattleLost(entry, foeDisp) {
 
 /* ════════ REGION CLEAR ════════ */
 function screenRegionClear(toKing = false) {
-  const cleared = REGIONS[state.region - 1] || REGIONS[REGIONS.length - 1];
+  const ri = state.region - 1;
+  const cleared = REGIONS[ri] || REGIONS[REGIONS.length - 1];
   const nextTxt = toKing ? 'The path to the King’s Throne lies open.' : `Next: <b>${REGIONS[state.region].name}</b>`;
+  const foes = (state.adventure.regions[ri] || { foes: [] }).foes;
+  const roster = foes.map(f => `<img src="${SPRITE(getPet(f.id).sprite)}" title="${getPet(f.id).name}">`).join('');
+  const cheerer = foes.length ? getPet(foes[foes.length - 1].id) : null;
+  const cheer = cheerer ? `“We stand with you, friend.” — <b>${cheerer.name}</b>` : '';
   show(`
     <div class="screen region-clear theme-${cleared.theme}">
       <div class="ri-card">
         <div class="rc-shine">✨</div>
         <h1 class="ri-name">${cleared.name} is Free!</h1>
+        <div class="rc-roster">${roster}</div>
+        <p class="rc-cheer">${cheer}</p>
         <p class="ri-blurb">Every champion here stands with you now. ${nextTxt}</p>
         <button class="btn btn-go" id="go">${toKing ? 'To the Throne ▸' : 'Onward ▸'}</button>
       </div>
