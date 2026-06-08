@@ -141,3 +141,89 @@ export const KING_DEFEAT = [
   'You did not beat me with fury. You beat me with heart. That, the Tarnish could never understand.',
   'Rise, young guardian. The realm is free — and it chose well.'
 ];
+
+/* ── THE KING'S ASPECTS ──────────────────────────────────────────────
+   For the final battle the crown takes one random Aspect. The King's
+   speech leaks clues about WHAT he'll do and WHERE; the player then
+   returns to the select screen and picks ANY freed champion. The right
+   traits (counter) make the fight far kinder; the wrong ones (backfire)
+   make it brutal. `threat` is the plain clue shown on the select screen;
+   `hint` is a gentle nudge for younger players.                         */
+export const KING_ASPECTS = [
+  {
+    id: 'cinders', name: 'Cinders', element: '🔥',
+    counter: ['water', 'ice', 'cold'], backfire: ['fire', 'heat'],
+    speech: [
+      'Feel the heat of my crown? The very floor shall run with molten gold.',
+      'Embers will rain from on high, and where they fall the ground erupts in flame.',
+      'Bring me one who does not fear the cold… if such a friend still stands with you.'
+    ],
+    threat: 'The floor erupts in flame and embers rain from above.',
+    hint: 'Something cool — water or ice — smothers the fire. Fiery champions only feed it.'
+  },
+  {
+    id: 'deluge', name: 'the Deluge', element: '🌊',
+    counter: ['flight', 'jump'], backfire: ['strength'],
+    speech: [
+      'The tides answer to me now — watch the water climb toward my throne.',
+      'Only those who leave the ground stay dry; the heavy will sink and be swept away.',
+      'Choose a champion of the air, or one with a mighty leap.'
+    ],
+    threat: 'Water floods the arena from below, rising higher and higher.',
+    hint: 'Wings or a big jump keep you above the flood. Heavy, strong champions sink.'
+  },
+  {
+    id: 'tempest', name: 'the Tempest', element: '⚡',
+    counter: ['agility', 'speed', 'flight'], backfire: ['electric', 'water'],
+    speech: [
+      'I crown the sky with lightning, and it will hunt you across the floor.',
+      'Pillars of thunder fall where you stand — only the swift slip away in time.',
+      'Bring nothing that drinks the spark, or it will light you up like a candle.'
+    ],
+    threat: 'Lightning hammers down in telegraphed columns.',
+    hint: 'Fast, nimble or flying champions dodge the bolts. Electric or watery ones attract them.'
+  },
+  {
+    id: 'gale', name: 'the Gale', element: '🌪️',
+    counter: ['flight', 'wind', 'strength'], backfire: ['agility', 'speed'],
+    speech: [
+      'A wind howls from my crown, strong enough to move mountains.',
+      'It will shove you from your feet each time you reach to strike me.',
+      'Bring wings to ride it — or the brute strength to stand against it.'
+    ],
+    threat: 'A relentless wind shoves you away from the King.',
+    hint: 'Fliers ride it and the strong stand firm. Light, quick champions get blown around.'
+  },
+  {
+    id: 'stone', name: 'Stone', element: '⛰️',
+    counter: ['strength', 'bite', 'explosive'], backfire: ['calm', 'light'],
+    speech: [
+      'My crown turns to living rock; boulders will rain down upon you.',
+      'And its shell — no gentle touch will ever leave a mark.',
+      'Only raw strength, a crushing bite, or a blast can break through.'
+    ],
+    threat: 'Boulders crash down and the crown is armored in rock.',
+    hint: 'Strength, a hard bite or explosives shatter the shell. Gentle champions can’t dent it.'
+  },
+  {
+    id: 'gloom', name: 'the Gloom', element: '🌑',
+    counter: ['light', 'calm'], backfire: ['fear'],
+    speech: [
+      'I will drown your sight in shadow and pour fear into your heart.',
+      'You will never see my blows coming through the dark.',
+      'Only a calm and shining spirit can pierce the gloom.'
+    ],
+    threat: 'Darkness smothers the arena — you can barely see the attacks.',
+    hint: 'A radiant or calm champion lights the way. Fearful champions deepen the dark.'
+  }
+];
+
+export function pickKingAspect() { return KING_ASPECTS[(Math.random() * KING_ASPECTS.length) | 0]; }
+
+/* How a hero fares against an Aspect: 'counter' (great), 'backfire' (bad), or 'neutral'. */
+export function aspectAffinity(hero, aspect) {
+  const tags = (hero && hero.tags) || [];
+  if (aspect.counter.some(t => tags.includes(t)))  return 'counter';
+  if (aspect.backfire.some(t => tags.includes(t))) return 'backfire';
+  return 'neutral';
+}

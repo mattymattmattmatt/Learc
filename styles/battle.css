@@ -450,6 +450,39 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg1);color:var
 .kf-banner.strike{color:var(--gold);}
 @keyframes kfBanner{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1)}}
 
+/* ── King Aspects: hud label, projectiles, hazards, shield ── */
+.kf-aspect{font-family:"Cinzel",serif;font-weight:700;color:#fff;text-shadow:0 0 10px rgba(0,0,0,.6);font-size:.95rem;}
+.kf-proj{position:absolute;transform:translate(-50%,-50%);z-index:1;font-size:1.25rem;line-height:1;pointer-events:none;filter:drop-shadow(0 0 6px rgba(0,0,0,.5));will-change:left,top;}
+.kf-bolt{position:absolute;top:0;bottom:0;z-index:1;pointer-events:none;border-radius:6px;}
+.kf-bolt.warn{background:repeating-linear-gradient(180deg,rgba(255,225,90,.18) 0 10px,transparent 10px 20px);border:2px dashed rgba(255,225,90,.7);box-shadow:0 0 14px rgba(255,225,90,.3) inset;}
+.kf-bolt.strike{background:linear-gradient(180deg,#fff,#ffe15a 40%,#ffae3f);box-shadow:0 0 22px rgba(255,225,90,.95),0 0 40px rgba(255,180,60,.7);animation:boltFlash .2s ease;}
+@keyframes boltFlash{0%{opacity:.4;transform:scaleY(.6)}40%{opacity:1;transform:scaleY(1)}100%{opacity:.85}}
+.kf-water{position:absolute;left:0;right:0;bottom:0;height:0;z-index:1;pointer-events:none;border-top:3px solid rgba(220,245,255,.85);
+  background:linear-gradient(180deg,rgba(90,180,255,.5),rgba(30,100,205,.78));box-shadow:0 -4px 18px rgba(90,180,255,.5);}
+.kf-vignette{position:absolute;inset:0;z-index:4;pointer-events:none;
+  background:radial-gradient(circle var(--gr,120px) at var(--gx,50%) var(--gy,60%),transparent 0,transparent calc(var(--gr,120px) * .55),rgba(3,5,18,.94) var(--gr,120px));}
+.kf-hero.shielded{box-shadow:0 0 0 4px rgba(120,220,255,.75),0 0 22px rgba(120,220,255,.85);}
+.kf-hero.shield-pop{animation:shieldPop .22s ease;}
+@keyframes shieldPop{0%{box-shadow:0 0 0 4px rgba(120,220,255,.9),0 0 30px rgba(120,220,255,1)}100%{box-shadow:0 0 0 0 rgba(120,220,255,0)}}
+/* subtle per-Aspect tint of the arena */
+.kf-field.aspect-cinders{background:radial-gradient(circle at 50% 12%,#3a1208,#160a06);}
+.kf-field.aspect-deluge{background:radial-gradient(circle at 50% 12%,#0c2742,#06121f);}
+.kf-field.aspect-tempest{background:radial-gradient(circle at 50% 12%,#23244a,#0c0d1c);}
+.kf-field.aspect-gale{background:radial-gradient(circle at 50% 12%,#243a3f,#0e1719);}
+.kf-field.aspect-stone{background:radial-gradient(circle at 50% 12%,#322a1f,#14110c);}
+.kf-field.aspect-gloom{background:radial-gradient(circle at 50% 12%,#1a1626,#05040a);}
+
+/* ── King select screen (strategic re-pick) ── */
+.king-select .screen-title{margin-bottom:4px;}
+.ks-threat{max-width:600px;margin:2px auto 8px;text-align:center;background:rgba(0,0,0,.28);border:1px solid rgba(255,210,63,.35);border-radius:14px;padding:8px 12px;}
+.ks-aspect{font-family:"Cinzel",serif;font-weight:700;color:var(--gold);font-size:1.05rem;}
+.ks-clue{margin:3px 0 2px;font-weight:600;}
+.ks-hint{margin:0;font-size:.82rem;color:var(--muted);}
+.res-hint{font-size:.85rem;color:var(--muted);margin:4px 0 8px;}
+.aff-good{color:var(--good);font-weight:700;}
+.aff-bad{color:var(--bad);font-weight:700;}
+.aff-mid{color:var(--muted);}
+
 /* tailored-attack line on the battle intro */
 .bi-attack{font-size:.92rem;color:var(--ink);margin-bottom:8px;}
 .bi-attack b{color:var(--bad);}
