@@ -39,7 +39,7 @@ export default {
         const bomb = Math.random() < bombChance;
         const fromL = Math.random() < 0.5;
         const r = clamp(Math.min(W, H) * (bomb ? 0.085 : 0.075), 22, 40);
-        const node = el('div', 'ss-target' + (bomb ? ' bomb' : ''), bomb ? '💣' : '');
+        const node = el('div', 'ss-target' + (bomb ? ' bomb' : ''), bomb ? '💣' : ((ctx.theme && ctx.theme.proj) || ''));
         node.style.width = node.style.height = r * 2 + 'px';
         const y = rand(H * 0.25, H * 0.7);
         const x = fromL ? -r : W + r;

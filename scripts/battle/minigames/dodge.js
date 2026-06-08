@@ -48,9 +48,10 @@ export default {
       const pspeed = 150 + ctx.difficulty * 26;
       let acc = 0, iframe = 0;
 
+      const PROJ = (ctx.theme && ctx.theme.proj) || '⭐';
       function spawn() {
         const edge = (Math.random() * 4) | 0;
-        const node = el('div', 'dg-proj', '⭐');
+        const node = el('div', 'dg-proj', PROJ);
         let x, y, vx, vy;
         if (edge === 0) { x = rand(0, W); y = -20; }
         else if (edge === 1) { x = W + 20; y = rand(0, H); }

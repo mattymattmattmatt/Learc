@@ -49,12 +49,20 @@ hearts (earlier regions stay cleared). Win battles cleanly to earn up to ★★�
 | 🌀 **Dodge!** | dexterity — drag the bubble to dodge the barrage |
 | 💥 **Target Blitz** | speed — tap the orbs, avoid the bombs |
 | 🎵 **Rhythm Duel** | timing — tap gems on the beat for combos |
-| 👑 **The Gilded King** | a 3-phase boss gauntlet — three random trials at max difficulty |
+| 👑 **The Gilded King** | bespoke boss duel — dodge the crown's attack waves, then strike it while exposed |
 
 Every microgame scales with difficulty (faster, smaller targets, longer patterns,
-denser attacks) so the journey ramps from gentle to brutal. Games are interleaved
-so each region serves a fresh mix of mechanics, and the King draws three different
-trials each attempt.
+denser attacks) so the journey ramps from gentle to brutal.
+
+**Each creature fights as themselves.** Every one of the 23 champions is matched to
+the microgame and themed attack that fits *their* power — Fertle hurls a 🔥 Fireball
+Barrage (Dodge), Fixie a ❄️ Ice Shard Volley, Roger Dodger is an Untouchable flying
+target you must lead with the Slingshot, Cliggy bombards you with explosive eggs
+(Star Catch), Zappo makes you echo a ⚡ Shock Pattern (Memory), and so on. The
+attack each creature uses is named on the pre-battle screen, so your niece's
+designs drive the whole game.
+
+The **Gilded King** is a bespoke 1-on-1 boss duel (see below), not a microgame.
 
 ## Polish
 

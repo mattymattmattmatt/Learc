@@ -221,6 +221,7 @@ function screenBattleIntro() {
         <h2 class="bi-name">${foe.name}</h2>
         <div class="bi-epithet">${fl.epithet}</div>
         <p class="bi-taunt">“${fl.taunt}”</p>
+        <div class="bi-attack">${entry.theme ? entry.theme.proj : ''} Attack: <b>${entry.theme ? entry.theme.act : game.name}</b></div>
         <div class="bi-game"><span class="bi-icon">${game.icon}</span>
           <div><b>${game.name}</b><br><small>${game.howto}</small></div></div>
         <div class="bi-diff">Difficulty ${'🔥'.repeat(Math.min(5, Math.ceil(entry.difficulty / 2)))}</div>
@@ -239,7 +240,7 @@ async function runBattle(entry, foeDisp) {
   const game = getGame(entry.game);
   let res;
   try {
-    res = await game.play(arena, { difficulty: effDiff(entry.difficulty), hero, foe: foeDisp });
+    res = await game.play(arena, { difficulty: effDiff(entry.difficulty), hero, foe: foeDisp, theme: entry.theme || {} });
   } catch (e) {
     console.error('minigame error', e);
     res = { win: false, stars: 1 };

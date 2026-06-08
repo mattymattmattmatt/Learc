@@ -43,9 +43,10 @@ export default {
       const bombChance = clamp((ctx.difficulty - 2) * 0.05, 0, 0.35);
       let acc = 0, every = clamp(0.8 - ctx.difficulty * 0.04, 0.4, 0.8);
 
+      const GOOD = (ctx.theme && ctx.theme.proj) || '⭐';
       function spawn() {
         const bomb = Math.random() < bombChance;
-        const n = el('div', 'ct-item' + (bomb ? ' bomb' : ''), bomb ? '💣' : '⭐');
+        const n = el('div', 'ct-item' + (bomb ? ' bomb' : ''), bomb ? '💥' : GOOD);
         const x = rand(10, Math.max(12, W - 40));
         n.style.left = x + 'px'; n.style.top = '-30px';
         field.appendChild(n);
