@@ -32,7 +32,7 @@ python3 -m http.server 8000
 lose a heart and retry it. Run out and the **current region restarts** with full
 hearts (earlier regions stay cleared). Win battles cleanly to earn up to ★★★.
 
-## The thirteen microgames
+## The nineteen microgames
 
 | Game | Skill |
 |------|-------|
@@ -49,6 +49,12 @@ hearts (earlier regions stay cleared). Win battles cleanly to earn up to ★★�
 | 🌀 **Dodge!** | dexterity — drag the bubble to dodge the barrage |
 | 💥 **Target Blitz** | speed — tap the orbs, avoid the bombs |
 | 🎵 **Rhythm Duel** | timing — tap gems on the beat for combos |
+| 🛑 **Freeze!** | red-light/green-light — hold to creep, freeze when the eye opens |
+| 🪁 **Windrider** | flap through the gaps in the clouds (flappy-style) |
+| 🥌 **Ice Curling** | flick-and-slide momentum — stop on the bullseye |
+| 🏓 **Fin Smash** | brick-breaker — keep the ball alive, shatter every brick |
+| 🔊 **Sonic Shatter** | timing — tap when a shrinking ring meets the target |
+| ☄️ **Dive Dodge** | drag out of the telegraphed slam zones before impact |
 | 👑 **The Gilded King** | bespoke boss duel — dodge the crown's attack waves, then strike it while exposed |
 
 Every microgame scales with difficulty (faster, smaller targets, longer patterns,

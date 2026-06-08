@@ -43,28 +43,28 @@ export const BATTLES = {
   fygar:       { game: 'quickdraw',   proj: '💨', color: '#9fe8ff', act: 'Blur Strike' },
   waterwolf:   { game: 'balance',     proj: '🌊', color: '#4aa8ff', act: 'Tidal Surge' },
   chomper:     { game: 'powerstrike', proj: '🦷', color: '#7ad17a', act: 'Iron Bite' },
-  fixie:       { game: 'dodge',       proj: '❄️', color: '#9fe8ff', act: 'Ice Shard Volley' },
+  fixie:       { game: 'iceslide',    proj: '❄️', color: '#9fe8ff', act: 'Ice Curling' },
   chunky:      { game: 'tugofwar',    proj: '🌿', color: '#5fd47a', act: 'Vine Yank' },
   skyjumper:   { game: 'charge',      proj: '⬆️', color: '#c08bff', act: 'Sky Leap' },
   cliggy:      { game: 'catch',       proj: '🥚', color: '#ffd23f', act: 'Egg Bombardment' },
   // ── Sea ──
   peeta_heater:{ game: 'dodge',       proj: '♨️', color: '#ff8a4a', act: 'Scalding Waves' },
   snapper:     { game: 'quickdraw',   proj: '🦀', color: '#ff7a5a', act: 'Claw Snap' },
-  swack:       { game: 'powerstrike', proj: '💥', color: '#5cc6ff', act: 'Fin Whack' },
+  swack:       { game: 'paddle',      proj: '🏓', color: '#5cc6ff', act: 'Fin Smash' },
   zappo:       { game: 'memory',      proj: '⚡', color: '#ffd23f', act: 'Shock Pattern' },
   yelp:        { game: 'rhythm',      proj: '🔊', color: '#ff5a86', act: 'Sonic Roar' },
   sixter:      { game: 'dodge',       proj: '☠️', color: '#9be86b', act: 'Venom Cloud' },
   chocker:     { game: 'tugofwar',    proj: '🪢', color: '#c08bff', act: 'Coil Squeeze' },
-  gus:         { game: 'swipe',       proj: '👁️', color: '#b06bff', act: 'Dread Stare' },
+  gus:         { game: 'freezeframe', proj: '👁️', color: '#b06bff', act: 'Dread Stare' },
   // ── Sky ──
   bo:          { game: 'swipe',       proj: '🌈', color: '#5cc6ff', act: 'Rainbow Beams' },
   roger_dodger:{ game: 'slingshot',   proj: '🎯', color: '#ffd23f', act: 'Untouchable Dance' },
-  yellogen:    { game: 'memory',      proj: '🗯️', color: '#ffd23f', act: 'Squawk Echo' },
-  whipper:     { game: 'balance',     proj: '🌬️', color: '#9fe8ff', act: 'Gale Push' },
-  diver:       { game: 'dodge',       proj: '☄️', color: '#ff6b3f', act: 'Dive Bomb' },
+  yellogen:    { game: 'sonicring',   proj: '🗯️', color: '#ffd23f', act: 'Squawk Echo' },
+  whipper:     { game: 'glider',      proj: '🌬️', color: '#9fe8ff', act: 'Gale Push' },
+  diver:       { game: 'divedodge',   proj: '☄️', color: '#ff6b3f', act: 'Dive Bomb' },
   stinger:     { game: 'blitz',       proj: '📍', color: '#ffd23f', act: 'Rapid Jabs' },
   flick:       { game: 'sharpshooter',proj: '🥢', color: '#ffae5a', act: 'Stick Toss' },
-  creeper:     { game: 'powerstrike', proj: '🌀', color: '#b06bff', act: 'Hollow Gaze' }
+  creeper:     { game: 'freezeframe', proj: '🌀', color: '#b06bff', act: 'Hollow Gaze' }
 };
 
 /* Build the full adventure for a chosen hero.
