@@ -82,7 +82,7 @@ export default {
         field.removeEventListener('pointerdown', down); window.removeEventListener('pointermove', move);
         window.removeEventListener('pointerup', up); window.removeEventListener('resize', measure);
         trail.forEach(s => s.node.remove());
-        (win ? S.win : S.lose)(); sfx(win ? ctx.hero.sfx : ctx.foe.sfx, 0.7); buzz(win ? 30 : 70);
+        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7); buzz(win ? 30 : 70);
         resolve({ win, stars: win ? (eaten >= goal ? 3 : 2) : 1 });
         return false;
       }

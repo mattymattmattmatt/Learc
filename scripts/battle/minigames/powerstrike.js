@@ -62,7 +62,7 @@ export default {
       function finish(win) {
         if (done) return; done = true;
         stop(); pad.removeEventListener('pointerdown', strike);
-        sfx(win ? ctx.hero.sfx : ctx.foe.sfx, 0.7);
+        if (!win) sfx(ctx.foe.sfx, 0.7);
         resolve({ win, stars: win ? (swings >= 3 ? 3 : swings >= 1 ? 2 : 2) : 1 });
       }
     });

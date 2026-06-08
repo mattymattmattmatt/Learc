@@ -74,7 +74,7 @@ export default {
         if (done) return; done = true;
         clearTimeout(timer); cancelAnimationFrame(raf);
         pad.removeEventListener('pointerdown', down); window.removeEventListener('pointerup', upH);
-        (win ? S.win : S.lose)(); sfx(win ? ctx.hero.sfx : ctx.foe.sfx, 0.7);
+        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7);
         resolve({ win, stars: win ? (misses === 0 ? 3 : 2) : 1 });
       }
 

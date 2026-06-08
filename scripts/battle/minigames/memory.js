@@ -57,7 +57,7 @@ export default {
       function finish(win) {
         pads.forEach(p => { p.disabled = true; p.onclick = null; });
         st.textContent = win ? 'Perfect echo! 🎉' : 'Wrong rune! 💥';
-        sfx(win ? ctx.hero.sfx : ctx.foe.sfx, 0.7);
+        if (!win) sfx(ctx.foe.sfx, 0.7);
         if (win) hitFlash(foeEl);
         buzz(win ? 30 : 60);
         setTimeout(() => resolve({ win, stars: win ? 3 : 1 }), 700);

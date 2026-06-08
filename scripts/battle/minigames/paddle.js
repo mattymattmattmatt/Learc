@@ -23,6 +23,7 @@ export default {
       const bricks = [];
       const cols = 5, rows = clamp(2 + Math.floor(ctx.difficulty / 4), 2, 4);
       let px = 0, ball = { x: 0, y: 0, vx: 0, vy: 0 }, spd = 0, launched = false;
+      let held = 0, pendingA = 0;          // brief pause before a (re)served ball flies off
 
       const buildBricks = () => {
         bricks.forEach(b => b.node.remove()); bricks.length = 0;
@@ -35,7 +36,7 @@ export default {
         }
         bkEl.textContent = bricks.length;
       };
-      const resetBall = () => { ball.x = px + pw / 2; ball.y = H - 60; const a = rand(-0.6, 0.6) - Math.PI / 2; ball.vx = Math.cos(a) * spd; ball.vy = Math.sin(a) * spd; launched = true; };
+      const resetBall = () => { ball.x = px + pw / 2; ball.y = H - 60; ball.vx = 0; ball.vy = 0; pendingA = rand(-0.6, 0.6) - Math.PI / 2; held = 0.5; launched = true; };
       const measure = () => {
         const r = field.getBoundingClientRect(); W = r.width; H = r.height;
         pw = clamp(W * 0.24, 70, 140); ph = 14; br = clamp(Math.min(W, H) * 0.028, 8, 13);
@@ -61,6 +62,13 @@ export default {
 
       const stop = loop((dt) => {
         if (done) return false;
+        if (held > 0) {                    // ball waits on the paddle, then launches
+          held -= dt;
+          ball.x = px + pw / 2; ball.y = H - 60;
+          ballEl.style.left = (ball.x - br) + 'px'; ballEl.style.top = (ball.y - br) + 'px';
+          if (held <= 0) { ball.vx = Math.cos(pendingA) * spd; ball.vy = Math.sin(pendingA) * spd; }
+          return;
+        }
         ball.x += ball.vx * dt; ball.y += ball.vy * dt;
         if (ball.x < br) { ball.x = br; ball.vx = Math.abs(ball.vx); }
         if (ball.x > W - br) { ball.x = W - br; ball.vx = -Math.abs(ball.vx); }
@@ -98,7 +106,7 @@ export default {
         if (done) return false; done = true; stop();
         field.removeEventListener('pointerdown', down); window.removeEventListener('pointermove', move);
         window.removeEventListener('pointerup', up); window.removeEventListener('resize', measure);
-        (win ? S.win : S.lose)(); sfx(win ? ctx.hero.sfx : ctx.foe.sfx, 0.7);
+        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7);
         resolve({ win, stars: win ? (balls >= 3 ? 3 : 2) : 1 });
         return false;
       }

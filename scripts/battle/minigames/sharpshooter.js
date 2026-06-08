@@ -93,7 +93,7 @@ export default {
         field.removeEventListener('pointerdown', onDown);
         window.removeEventListener('resize', measure);
         targets.forEach(t => t.node.remove());
-        (win ? S.win : S.lose)(); sfx(win ? ctx.hero.sfx : ctx.foe.sfx, 0.7); buzz(win ? 30 : 60);
+        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7); buzz(win ? 30 : 60);
         resolve({ win, stars: win ? (left > TIME * 0.4 ? 3 : 2) : 1 });
         return false;
       }

@@ -11,7 +11,7 @@ export default {
   play(area, ctx) {
     return new Promise(resolve => {
       const total = 10 + ctx.difficulty;
-      const need = 0.6;
+      const need = 0.7;                       // must shatter 70% to win
       let spawned = 0, hits = 0, judged = 0, combo = 0, done = false;
 
       area.innerHTML = `
@@ -25,15 +25,15 @@ export default {
       let W = 0, H = 0, cx = 0, cy = 0, TR = 60, tol = 22;
       const measure = () => {
         const r = field.getBoundingClientRect(); W = r.width; H = r.height; cx = W / 2; cy = H / 2;
-        TR = clamp(Math.min(W, H) * 0.15, 42, 86); tol = TR * 0.42;
+        TR = clamp(Math.min(W, H) * 0.15, 42, 86); tol = TR * 0.28;   // tighter timing window
         tg.style.left = cx + 'px'; tg.style.top = cy + 'px'; tg.style.width = tg.style.height = TR * 2 + 'px';
         field.dataset.tr = TR;
       };
       measure(); window.addEventListener('resize', measure);
 
       const rings = [];
-      const approach = clamp(1.7 - ctx.difficulty * 0.06, 1.0, 1.7);
-      const gap = clamp(0.95 - ctx.difficulty * 0.04, 0.5, 0.95);
+      const approach = clamp(1.35 - ctx.difficulty * 0.07, 0.8, 1.35);  // rings close in faster
+      const gap = clamp(0.8 - ctx.difficulty * 0.045, 0.42, 0.8);       // and arrive more often
       let t0 = performance.now(), nextSpawn = 0.5;
 
       const stop = loop((dt, now) => {
@@ -75,7 +75,7 @@ export default {
         field.removeEventListener('pointerdown', onTap); window.removeEventListener('resize', measure);
         rings.forEach(r => r.node.remove());
         const acc = hits / total, win = acc >= need;
-        (win ? S.win : S.lose)(); sfx(win ? ctx.hero.sfx : ctx.foe.sfx, 0.7);
+        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7);
         resolve({ win, stars: win ? (acc >= 0.9 ? 3 : 2) : 1 });
         return false;
       }

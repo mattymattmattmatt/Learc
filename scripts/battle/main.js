@@ -339,7 +339,7 @@ function screenKingIntro() {
     portrait: KING_GIF, name: 'The Gilded King', lines: KING_INTRO, cls: 'king-dlg',
     onDone: () => {
       const entry = currentFoe();    // king entry
-      runBattle(entry, { id: 'king', name: 'The Gilded King', king: true, sfx: 'zappo_entrance.wav' });
+      runBattle(entry, { id: 'king', name: 'The Gilded King', king: true });   // no entrance voice for the King yet
     }
   });
 }

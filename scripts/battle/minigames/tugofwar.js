@@ -14,13 +14,14 @@ export default {
         <div class="tow-track"><div class="tow-knot" id="knot">🟡</div>
           <div class="tow-mid"></div></div>
         <div class="tow-time"><div class="tow-fill" id="tf"></div></div>
+        <div class="tow-taps">Taps: <b id="taps">0</b></div>
         <button class="tap-pad" id="pad">TAP!</button>`;
       const knot = area.querySelector('#knot'), tf = area.querySelector('#tf');
-      const pad = area.querySelector('#pad');
+      const pad = area.querySelector('#pad'), tapsEl = area.querySelector('#taps');
 
       let pos = 0;                        // -1 (foe) .. +1 (you)
       const TIME = 16;
-      let left = TIME, done = false;
+      let left = TIME, done = false, taps = 0;
       const pull = 0.05;
       const foeRate = 0.17 + ctx.difficulty * 0.045;
 
@@ -30,6 +31,7 @@ export default {
       const onPad = e => {
         e.preventDefault();
         pos = clamp(pos + pull, -1, 1);
+        taps++; tapsEl.textContent = taps;
         pad.classList.remove('mash'); void pad.offsetWidth; pad.classList.add('mash');
         if (Math.random() < 0.4) S.tick();
       };
@@ -49,9 +51,10 @@ export default {
       function end(win) {
         if (done) return false; done = true;
         pad.removeEventListener('pointerdown', onPad);
-        buzz(win ? 30 : 60); sfx(win ? ctx.hero.sfx : ctx.foe.sfx, 0.7);
-        const margin = (pos + 1) / 2;      // 0..1
-        resolve({ win, stars: win ? (left > TIME * 0.5 ? 3 : 2) : 1 });
+        buzz(win ? 30 : 60); if (!win) sfx(ctx.foe.sfx, 0.7);
+        // your star rating is how hard you pulled — total taps
+        const stars = win ? (taps >= 60 ? 3 : taps >= 40 ? 2 : 1) : 1;
+        resolve({ win, stars });
         return false;
       }
     });

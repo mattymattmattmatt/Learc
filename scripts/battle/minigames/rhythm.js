@@ -14,9 +14,9 @@ export default {
   play(area, ctx) {
     return new Promise(resolve => {
       const total = 12 + ctx.difficulty;
-      const gap = clamp(0.82 - ctx.difficulty * 0.035, 0.45, 0.82);  // beat interval
-      const fall = clamp(1.7 - ctx.difficulty * 0.05, 1.05, 1.7);
-      const need = 0.6;
+      const gap = clamp(0.7 - ctx.difficulty * 0.04, 0.34, 0.7);    // beat interval (faster)
+      const fall = clamp(1.4 - ctx.difficulty * 0.06, 0.85, 1.4);   // gems drop quicker
+      const need = 0.7;                                            // must nail 70% to win
 
       area.innerHTML = `
         ${stageHTML(ctx, 'rh')}
@@ -34,8 +34,8 @@ export default {
       const measure = () => { const r = lane.getBoundingClientRect(); H = r.height; W = r.width; };
       measure(); window.addEventListener('resize', measure);
       const HIT_Y = () => H * 0.8;
-      const GOOD = () => clamp(H * 0.11, 24, 64);
-      const PERFECT = () => clamp(H * 0.05, 12, 30);
+      const GOOD = () => clamp(H * 0.08, 18, 44);
+      const PERFECT = () => clamp(H * 0.035, 10, 22);
 
       const notes = [];
       let spawned = 0, hits = 0, judged = 0, combo = 0, maxCombo = 0;
@@ -98,7 +98,7 @@ export default {
         window.removeEventListener('resize', measure);
         notes.forEach(n => n.node.remove());
         const acc = hits / total, win = acc >= need;
-        (win ? S.win : S.lose)(); sfx(win ? ctx.hero.sfx : ctx.foe.sfx, 0.7); buzz(win ? 30 : 60);
+        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7); buzz(win ? 30 : 60);
         resolve({ win, stars: win ? (acc >= 0.9 ? 3 : 2) : 1 });
         return false;
       }

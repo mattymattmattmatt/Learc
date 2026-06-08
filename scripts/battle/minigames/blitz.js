@@ -66,7 +66,7 @@ export default {
         if (done) return false; done = true;
         stop(); window.removeEventListener('resize', measure);
         targets.forEach(o => o.t.remove());
-        sfx(win ? ctx.hero.sfx : ctx.foe.sfx, 0.7); buzz(win ? 30 : 60);
+        if (!win) sfx(ctx.foe.sfx, 0.7); buzz(win ? 30 : 60);
         const ratio = clamp((TIME - 0) ? left / TIME : 0, 0, 1);
         resolve({ win, stars: win ? (left > TIME * 0.45 ? 3 : 2) : 1 });
         return false;

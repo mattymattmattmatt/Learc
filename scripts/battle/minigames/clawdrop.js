@@ -97,7 +97,7 @@ export default {
         if (done) return false; done = true; stop();
         pad.removeEventListener('pointerdown', drop); window.removeEventListener('resize', measure);
         items.forEach(it => it.node.remove());
-        (win ? S.win : S.lose)(); sfx(win ? ctx.hero.sfx : ctx.foe.sfx, 0.7);
+        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7);
         resolve({ win, stars: win ? (left > TIME * 0.4 ? 3 : 2) : 1 });
         return false;
       }
