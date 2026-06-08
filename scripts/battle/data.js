@@ -28,11 +28,44 @@ export const REGIONS = [
   { key: 'sky',  name: 'The Stormcrown Peaks', theme: 'sky', blurb: 'Cloud-wreathed summits where the sky-champions soar.' }
 ];
 
-/* interleaved so each region samples a fresh mix of mechanics */
+/* interleaved fallback order (only used if a creature isn't mapped below) */
 const MINIGAMES = [
   'quickdraw', 'catch', 'tugofwar', 'slingshot', 'swipe', 'powerstrike',
   'charge', 'memory', 'sharpshooter', 'balance', 'dodge', 'blitz', 'rhythm'
 ];
+
+/* Each creature gets the microgame + themed attack that matches its power,
+   so every battle is tailored to who you're facing. proj = the thing they
+   throw at you; act = the attack name shown before the fight. */
+export const BATTLES = {
+  // ── Land ──
+  fertle:      { game: 'dodge',       proj: '🔥', color: '#ff6b3f', act: 'Fireball Barrage' },
+  fygar:       { game: 'quickdraw',   proj: '💨', color: '#9fe8ff', act: 'Blur Strike' },
+  waterwolf:   { game: 'balance',     proj: '🌊', color: '#4aa8ff', act: 'Tidal Surge' },
+  chomper:     { game: 'powerstrike', proj: '🦷', color: '#7ad17a', act: 'Iron Bite' },
+  fixie:       { game: 'dodge',       proj: '❄️', color: '#9fe8ff', act: 'Ice Shard Volley' },
+  chunky:      { game: 'tugofwar',    proj: '🌿', color: '#5fd47a', act: 'Vine Yank' },
+  skyjumper:   { game: 'charge',      proj: '⬆️', color: '#c08bff', act: 'Sky Leap' },
+  cliggy:      { game: 'catch',       proj: '🥚', color: '#ffd23f', act: 'Egg Bombardment' },
+  // ── Sea ──
+  peeta_heater:{ game: 'dodge',       proj: '♨️', color: '#ff8a4a', act: 'Scalding Waves' },
+  snapper:     { game: 'quickdraw',   proj: '🦀', color: '#ff7a5a', act: 'Claw Snap' },
+  swack:       { game: 'powerstrike', proj: '💥', color: '#5cc6ff', act: 'Fin Whack' },
+  zappo:       { game: 'memory',      proj: '⚡', color: '#ffd23f', act: 'Shock Pattern' },
+  yelp:        { game: 'rhythm',      proj: '🔊', color: '#ff5a86', act: 'Sonic Roar' },
+  sixter:      { game: 'dodge',       proj: '☠️', color: '#9be86b', act: 'Venom Cloud' },
+  chocker:     { game: 'tugofwar',    proj: '🪢', color: '#c08bff', act: 'Coil Squeeze' },
+  gus:         { game: 'swipe',       proj: '👁️', color: '#b06bff', act: 'Dread Stare' },
+  // ── Sky ──
+  bo:          { game: 'swipe',       proj: '🌈', color: '#5cc6ff', act: 'Rainbow Beams' },
+  roger_dodger:{ game: 'slingshot',   proj: '🎯', color: '#ffd23f', act: 'Untouchable Dance' },
+  yellogen:    { game: 'memory',      proj: '🗯️', color: '#ffd23f', act: 'Squawk Echo' },
+  whipper:     { game: 'balance',     proj: '🌬️', color: '#9fe8ff', act: 'Gale Push' },
+  diver:       { game: 'dodge',       proj: '☄️', color: '#ff6b3f', act: 'Dive Bomb' },
+  stinger:     { game: 'blitz',       proj: '📍', color: '#ffd23f', act: 'Rapid Jabs' },
+  flick:       { game: 'sharpshooter',proj: '🥢', color: '#ffae5a', act: 'Stick Toss' },
+  creeper:     { game: 'powerstrike', proj: '🌀', color: '#b06bff', act: 'Hollow Gaze' }
+};
 
 /* Build the full adventure for a chosen hero.
    Returns { regions:[{...meta, foes:[{id,difficulty,game}]}], king } */
@@ -48,14 +81,18 @@ export function buildAdventure(heroId) {
   let gi = 0;
   const regions = REGIONS.map(r => {
     const foes = byHab[r.theme].map((id, i) => {
-      const entry = { id, difficulty: diffOf(gi), game: MINIGAMES[gi % MINIGAMES.length] };
+      const b = BATTLES[id] || { game: MINIGAMES[gi % MINIGAMES.length] };
+      const entry = {
+        id, difficulty: diffOf(gi), game: b.game,
+        theme: { proj: b.proj || '⭐', color: b.color || '#ffd23f', act: b.act || 'Champion’s Trial' }
+      };
       gi++;
       return entry;
     });
     return { ...r, foes };
   });
 
-  return { heroId, regions, king: { id: 'king', difficulty: 10, game: 'boss' } };
+  return { heroId, regions, king: { id: 'king', difficulty: 10, game: 'kingfight', theme: { proj: '👑', color: '#ffd23f', act: 'The Tarnished Crown' } } };
 }
 
 /* ── flavour: epithet + taunt (under the Tarnish) + freed (warm) ── */

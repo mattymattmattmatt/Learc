@@ -13,9 +13,9 @@ export default {
       const hp0 = 3 + Math.floor(ctx.difficulty / 3);     // 3..6
       let hp = hp0;
       let swings = hp0 + 3;
-      const speed = 0.55 + ctx.difficulty * 0.085;        // full sweeps/sec (constant, readable)
-      const zoneW = clamp(0.36 - ctx.difficulty * 0.022, 0.1, 0.36);
-      const bullW = zoneW * 0.36;
+      const speed = 0.85 + ctx.difficulty * 0.16;         // full sweeps/sec (constant, readable)
+      const zoneW = clamp(0.32 - ctx.difficulty * 0.024, 0.075, 0.32);
+      const bullW = zoneW * 0.34;
 
       area.innerHTML = `
         ${stageHTML(ctx, 'ps')}
