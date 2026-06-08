@@ -216,7 +216,6 @@ function screenBattleIntro() {
   const foe = getPet(entry.id);
   const fl = flavor(foe.id);
   const game = getGame(entry.game);
-  sfx(foe.sfx, 0.6);
   show(`
     <div class=”screen battle-intro”>
       <div class=”bi-card”>
@@ -232,6 +231,7 @@ function screenBattleIntro() {
         <button class=”btn btn-go” id=”begin”>Begin Battle ▸</button>
       </div>
     </div>`);
+  sfx(foe.sfx, 0.6);
   byId('begin').onclick = () => runBattle(entry, foe);
 }
 
@@ -260,7 +260,6 @@ function onBattleWon(entry, res, foeDisp) {
 
   const fl = flavor(entry.id);
   const stars = res.stars || 1;
-  sfx(foeDisp.sfx, 0.6);
   show(`
     <div class=”screen result win”>
       <div class=”result-card”>
@@ -272,6 +271,7 @@ function onBattleWon(entry, res, foeDisp) {
         <button class=”btn btn-go” id=”next”>Continue ▸</button>
       </div>
     </div>`);
+  sfx(foeDisp.sfx, 0.6);
   S.win();
   confetti(document.querySelector('.screen'), 36);
   // reveal earned stars one at a time, each with a little ding
