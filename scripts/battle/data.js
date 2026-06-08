@@ -30,8 +30,8 @@ export const REGIONS = [
 
 /* interleaved so each region samples a fresh mix of mechanics */
 const MINIGAMES = [
-  'quickdraw', 'catch', 'tugofwar', 'swipe', 'powerstrike', 'charge',
-  'memory', 'balance', 'dodge', 'blitz', 'rhythm'
+  'quickdraw', 'catch', 'tugofwar', 'slingshot', 'swipe', 'powerstrike',
+  'charge', 'memory', 'sharpshooter', 'balance', 'dodge', 'blitz', 'rhythm'
 ];
 
 /* Build the full adventure for a chosen hero.

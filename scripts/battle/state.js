@@ -9,10 +9,20 @@ import { buildAdventure } from './data.js';
 
 export const MAX_LIVES = 3;
 const LS = 'realm:save';
+const MODE_LS = 'realm:mode';
+
+/* difficulty mode: 'story' (gentler, more hearts) or 'normal' */
+export function getMode() { try { return localStorage.getItem(MODE_LS) === 'story' ? 'story' : 'normal'; } catch { return 'normal'; } }
+export function setMode(m) { try { localStorage.setItem(MODE_LS, m === 'story' ? 'story' : 'normal'); } catch {} }
+export function livesFor(mode) { return mode === 'story' ? 5 : 3; }
+/* scale a foe's base difficulty (1..10) by the chosen mode */
+export function effDiff(d) { return state.mode === 'story' ? Math.max(1, Math.round(d * 0.62)) : d; }
 
 export const state = {
   heroId: null,
   adventure: null,     // built from hero
+  mode: 'normal',
+  maxLives: MAX_LIVES,
   region: 0,           // 0..2 = regions, 3 = King
   idx: 0,              // foe index within current region
   lives: MAX_LIVES,
@@ -23,9 +33,11 @@ export const state = {
 export function startAdventure(heroId) {
   state.heroId = heroId;
   state.adventure = buildAdventure(heroId);
+  state.mode = getMode();
+  state.maxLives = livesFor(state.mode);
   state.region = 0;
   state.idx = 0;
-  state.lives = MAX_LIVES;
+  state.lives = state.maxLives;
   state.stars = {};
   state.done = false;
   save();
@@ -62,7 +74,7 @@ export function recordWin(foeId, stars) {
   if (state.idx >= r.foes.length) {
     state.region++;
     state.idx = 0;
-    state.lives = MAX_LIVES;                 // refill at each new region
+    state.lives = state.maxLives;            // refill at each new region
     save();
     return state.region >= 3 ? 'king' : 'region-clear';
   }
@@ -76,7 +88,7 @@ export function recordLoss() {
   if (state.lives <= 0) {
     // restart current region from the top with full lives
     state.idx = 0;
-    state.lives = MAX_LIVES;
+    state.lives = state.maxLives;
     save();
     return 'gameover';
   }
@@ -88,7 +100,8 @@ export function recordLoss() {
 export function save() {
   try {
     localStorage.setItem(LS, JSON.stringify({
-      heroId: state.heroId, region: state.region, idx: state.idx,
+      heroId: state.heroId, mode: state.mode, maxLives: state.maxLives,
+      region: state.region, idx: state.idx,
       lives: state.lives, stars: state.stars, done: state.done
     }));
   } catch {}
@@ -102,9 +115,11 @@ export function loadSave() {
     if (!d.heroId) return false;
     state.heroId = d.heroId;
     state.adventure = buildAdventure(d.heroId);
+    state.mode = d.mode === 'story' ? 'story' : 'normal';
+    state.maxLives = d.maxLives || livesFor(state.mode);
     state.region = d.region | 0;
     state.idx = d.idx | 0;
-    state.lives = d.lives ?? MAX_LIVES;
+    state.lives = d.lives ?? state.maxLives;
     state.stars = d.stars || {};
     state.done = !!d.done;
     return true;

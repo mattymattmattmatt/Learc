@@ -8,6 +8,8 @@ import charge from './charge.js';
 import swipe from './swipe.js';
 import balance from './balance.js';
 import catchgame from './catch.js';
+import slingshot from './slingshot.js';
+import sharpshooter from './sharpshooter.js';
 
 /* a curated pool of games that play well at max difficulty; the King
    draws three different trials each attempt, so the finale stays fresh */
@@ -18,7 +20,9 @@ const POOL = [
   { game: dodge,       name: 'Tarnished Storm',  sub: 'Survive the crown’s wrath!' },
   { game: swipe,       name: 'Decree of Blades', sub: 'Answer every command!' },
   { game: balance,     name: 'Weight of a Crown', sub: 'Do not falter!' },
-  { game: catchgame,   name: 'Falling Realm',    sub: 'Save what you can!' }
+  { game: catchgame,   name: 'Falling Realm',    sub: 'Save what you can!' },
+  { game: slingshot,   name: 'Siege the Throne',  sub: 'Strike the crown down!' },
+  { game: sharpshooter,name: 'Royal Gauntlet',    sub: 'Pick off the guard!' }
 ];
 
 export default {
@@ -31,7 +35,7 @@ export default {
     for (let i = 0; i < phases.length; i++) {
       const ph = phases[i];
       await banner(area, i + 1, phases.length, ph, kingHp);
-      const res = await ph.game.play(area, { ...ctx, difficulty: 10 });
+      const res = await ph.game.play(area, { ...ctx });
       if (!res.win) { sfx(ctx.foe.sfx, 0.8); S.lose(); return { win: false, stars: 1 }; }
       kingHp--; buzz(40); S.win(); sfx(ctx.hero.sfx, 0.8);
     }

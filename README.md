@@ -32,21 +32,23 @@ python3 -m http.server 8000
 lose a heart and retry it. Run out and the **current region restarts** with full
 hearts (earlier regions stay cleared). Win battles cleanly to earn up to ★★★.
 
-## The eleven microgames
+## The thirteen microgames
 
 | Game | Skill |
 |------|-------|
 | ⚡ **Quick Draw** | reaction — out-draw your foe (best of 3) |
 | 🧺 **Star Catch** | drag to catch falling stars, dodge the bombs |
 | 🪢 **Tug of War** | mashing — pull the rope to your side |
+| 🪃 **Slingshot** | physics — pull back, aim the arc, fling stones at the foe |
 | 🌟 **Swipe Strike** | gesture — swipe the way each arrow points |
 | 🎯 **Power Strike** | timing — stop the slider on the bullseye to KO the foe's HP |
 | 🔋 **Charge Shot** | hold & release inside the golden band |
 | 🧠 **Memory Echo** | memory — repeat the rune pattern (Simon) |
-| ⚖️ **Balance Beam** | reflex — tap left/right to stay upright |
-| 🌀 **Dodge!** | dexterity — drag to dodge the barrage and survive |
+| 🔫 **Sharpshooter** | aim — shoot flying targets, manage ammo & reloads |
+| ⚖️ **Balance Beam** | reflex — tap left/right to stay on the log over the crocs |
+| 🌀 **Dodge!** | dexterity — drag the bubble to dodge the barrage |
 | 💥 **Target Blitz** | speed — tap the orbs, avoid the bombs |
-| 🎵 **Rhythm Duel** | timing — tap the notes on the beat |
+| 🎵 **Rhythm Duel** | timing — tap gems on the beat for combos |
 | 👑 **The Gilded King** | a 3-phase boss gauntlet — three random trials at max difficulty |
 
 Every microgame scales with difficulty (faster, smaller targets, longer patterns,
@@ -62,6 +64,10 @@ trials each attempt.
 - **Juice** — confetti on wins, stars that pop in one-by-one with a ding, screen
   shakes, sparkles and floating damage text, haptic buzz on mobile.
 - **🔊 Mute toggle** (top-right, remembered between sessions).
+- **Difficulty modes** — **Story** (5 hearts, gentler) or **Normal** (3 hearts,
+  full challenge), chosen on the title screen and remembered.
+- **Journey & story beats** — a Land → Sea → Sky → King progress strip on the map,
+  and a freed-champions montage with a cheer line each time a region is liberated.
 
 ## Code layout
 
