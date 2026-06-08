@@ -5,7 +5,7 @@ import { stageHTML } from './stage.js';
 
 export default {
   id: 'tugofwar', name: 'Tug of War', icon: '🪢',
-  howto: 'TAP as fast as you can to pull the rope to YOUR side before time runs out!',
+  howto: 'TAP as fast as you can! Keep the rope on YOUR side — the more taps, the more stars.',
 
   play(area, ctx) {
     return new Promise(resolve => {
@@ -43,8 +43,8 @@ export default {
         left -= dt;
         tf.style.width = clamp((left / TIME) * 100, 0, 100) + '%';
         place();
-        if (pos >= 1)  { return end(true); }
-        if (pos <= -1) { return end(false); }
+        // no early win — keep mashing for as many taps as you can
+        if (pos <= -1) { return end(false); }      // foe drags you all the way over
         if (left <= 0) { return end(pos > 0); }
       });
 
@@ -53,7 +53,7 @@ export default {
         pad.removeEventListener('pointerdown', onPad);
         buzz(win ? 30 : 60); if (!win) sfx(ctx.foe.sfx, 0.7);
         // your star rating is how hard you pulled — total taps
-        const stars = win ? (taps >= 60 ? 3 : taps >= 40 ? 2 : 1) : 1;
+        const stars = win ? (taps > 150 ? 3 : taps > 90 ? 2 : 1) : 1;
         resolve({ win, stars });
         return false;
       }
