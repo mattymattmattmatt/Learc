@@ -217,18 +217,18 @@ function screenBattleIntro() {
   const fl = flavor(foe.id);
   const game = getGame(entry.game);
   show(`
-    <div class=”screen battle-intro”>
-      <div class=”bi-card”>
-        <div class=”bi-vs”>Champion of ${currentRegion().name}</div>
-        <img class=”bi-foe” src=”${SPRITE(foe.sprite)}” alt=”${foe.name}”>
-        <h2 class=”bi-name”>${foe.name}</h2>
-        <div class=”bi-epithet”>${fl.epithet}</div>
-        <p class=”bi-taunt”>”${fl.taunt}”</p>
-        <div class=”bi-attack”>${entry.theme ? entry.theme.proj : ''} Attack: <b>${entry.theme ? entry.theme.act : game.name}</b></div>
-        <div class=”bi-game”><span class=”bi-icon”>${game.icon}</span>
+    <div class="screen battle-intro">
+      <div class="bi-card">
+        <div class="bi-vs">Champion of ${currentRegion().name}</div>
+        <img class="bi-foe" src="${SPRITE(foe.sprite)}" alt="${foe.name}">
+        <h2 class="bi-name">${foe.name}</h2>
+        <div class="bi-epithet">${fl.epithet}</div>
+        <p class="bi-taunt">“${fl.taunt}”</p>
+        <div class="bi-attack">${entry.theme ? entry.theme.proj : ''} Attack: <b>${entry.theme ? entry.theme.act : game.name}</b></div>
+        <div class="bi-game"><span class="bi-icon">${game.icon}</span>
           <div><b>${game.name}</b><br><small>${game.howto}</small></div></div>
-        <div class=”bi-diff”>Difficulty ${'🔥'.repeat(Math.min(5, Math.ceil(entry.difficulty / 2)))}</div>
-        <button class=”btn btn-go” id=”begin”>Begin Battle ▸</button>
+        <div class="bi-diff">Difficulty ${'🔥'.repeat(Math.min(5, Math.ceil(entry.difficulty / 2)))}</div>
+        <button class="btn btn-go" id="begin">Begin Battle ▸</button>
       </div>
     </div>`);
   byId('begin').onclick = () => runBattle(entry, foe);
@@ -239,6 +239,7 @@ async function runBattle(entry, foeDisp) {
   const hero = getPet(state.heroId);
   show(`<div class="screen battle"><div class="arena" id="arena"></div></div>`);
   const arena = byId('arena');
+  sfx(foeDisp.sfx, 0.7);
   await countdown(arena, 'FIGHT!');
   const game = getGame(entry.game);
   let res;
@@ -260,14 +261,14 @@ function onBattleWon(entry, res, foeDisp) {
   const fl = flavor(entry.id);
   const stars = res.stars || 1;
   show(`
-    <div class=”screen result win”>
-      <div class=”result-card”>
-        <div class=”res-burst”>🎉</div>
-        <h2 class=”res-title”>Champion Freed!</h2>
-        <img class=”res-foe” src=”${SPRITE(foeDisp.sprite)}”>
-        <div class=”res-stars” id=”stars”>${'<span class=”star-slot”>☆</span>'.repeat(3)}</div>
-        <p class=”res-line”>”${fl.freed}”</p>
-        <button class=”btn btn-go” id=”next”>Continue ▸</button>
+    <div class="screen result win">
+      <div class="result-card">
+        <div class="res-burst">🎉</div>
+        <h2 class="res-title">Champion Freed!</h2>
+        <img class="res-foe" src="${SPRITE(foeDisp.sprite)}">
+        <div class="res-stars" id="stars">${'<span class="star-slot">☆</span>'.repeat(3)}</div>
+        <p class="res-line">“${fl.freed}”</p>
+        <button class="btn btn-go" id="next">Continue ▸</button>
       </div>
     </div>`);
   S.win();
