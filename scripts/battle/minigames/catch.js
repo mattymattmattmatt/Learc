@@ -75,7 +75,7 @@ export default {
         stop(); field.removeEventListener('pointerdown', down);
         window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up);
         window.removeEventListener('resize', measure); items.forEach(it => it.n.remove());
-        (win ? S.win : S.lose)(); sfx(win ? ctx.hero.sfx : ctx.foe.sfx, 0.7);
+        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7);
         resolve({ win, stars: win ? (hearts >= 3 && left > 1 ? 3 : 2) : 1 });
         return false;
       }

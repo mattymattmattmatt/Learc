@@ -147,7 +147,7 @@ export default {
         window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up);
         window.removeEventListener('resize', measure);
         projs.forEach(p => p.node.remove());
-        (win ? S.win : S.lose)(); sfx(win ? ctx.hero.sfx : 'zappo_entrance.wav', 0.8); buzz(win ? 60 : 120);
+        (win ? S.win : S.lose)(); buzz(win ? 60 : 120);   // the King has no entrance voice yet
         resolve({ win, stars: win ? (hearts >= 3 ? 3 : 2) : 1 });
         return false;
       }

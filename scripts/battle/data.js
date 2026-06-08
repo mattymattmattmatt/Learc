@@ -79,11 +79,13 @@ export function buildAdventure(heroId) {
   const diffOf = gi => Math.max(1, Math.min(9, 1 + Math.round((gi / (total - 1)) * 8)));
 
   let gi = 0;
-  const regions = REGIONS.map(r => {
+  const regions = REGIONS.map((r, ri) => {
     const foes = byHab[r.theme].map((id, i) => {
       const b = BATTLES[id] || { game: MINIGAMES[gi % MINIGAMES.length] };
+      let difficulty = diffOf(gi);
+      if (ri === 0) difficulty = Math.min(9, difficulty + 1);   // first region starts a notch harder
       const entry = {
-        id, difficulty: diffOf(gi), game: b.game,
+        id, difficulty, game: b.game,
         theme: { proj: b.proj || '⭐', color: b.color || '#ffd23f', act: b.act || 'Champion’s Trial' }
       };
       gi++;

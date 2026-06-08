@@ -56,7 +56,7 @@ export default {
       function finish(win) {
         if (done) return false; done = true; stop();
         Lb.removeEventListener('pointerdown', onL); Rb.removeEventListener('pointerdown', onR);
-        (win ? S.win : S.lose)(); sfx(win ? ctx.hero.sfx : ctx.foe.sfx, 0.7); buzz(win ? 30 : 80);
+        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7); buzz(win ? 30 : 80);
         resolve({ win, stars: win ? (squeeze < 0.5 ? 3 : 2) : 1 });
         return false;
       }

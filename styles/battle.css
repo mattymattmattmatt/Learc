@@ -178,6 +178,8 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg1);color:var
 .tow-knot{position:absolute;top:50%;transform:translate(-50%,-50%);font-size:2rem;transition:left .05s linear;}
 .tow-time{width:100%;max-width:600px;height:10px;background:rgba(255,255,255,.15);border-radius:99px;overflow:hidden;}
 .tow-fill{height:100%;width:100%;background:linear-gradient(90deg,#ffe08a,var(--gold));}
+.tow-taps{margin:6px 0 2px;font-weight:600;opacity:.92;letter-spacing:.3px;}
+.tow-taps b{color:var(--gold);font-size:1.15em;}
 
 /* power strike */
 .ps-hp{font-size:1.1rem;margin:6px 0;} .ps-hp b{color:var(--bad);letter-spacing:2px;}

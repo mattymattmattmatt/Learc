@@ -99,7 +99,7 @@ export default {
         window.removeEventListener('pointerup', up);
         window.removeEventListener('resize', measure);
         projs.forEach(p => p.node.remove());
-        sfx(win ? ctx.hero.sfx : ctx.foe.sfx, 0.7);
+        if (!win) sfx(ctx.foe.sfx, 0.7);
         resolve({ win, stars: win ? (hp >= 3 ? 3 : hp >= 2 ? 2 : 2) : 1 });
         return false;
       }
