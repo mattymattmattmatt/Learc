@@ -32,7 +32,13 @@ python3 -m http.server 8000
 lose a heart and retry it. Run out and the **current region restarts** with full
 hearts (earlier regions stay cleared). Win battles cleanly to earn up to ★★★.
 
-## The nineteen microgames
+## A unique game for every creature
+
+All **24 creatures have their own distinct microgame** (one each — no two share a
+mechanic), plus the bespoke King boss. Below are the game *types*; each is themed
+to the creature that uses it.
+
+## The microgames
 
 | Game | Skill |
 |------|-------|
@@ -55,7 +61,26 @@ hearts (earlier regions stay cleared). Win battles cleanly to earn up to ★★�
 | 🏓 **Fin Smash** | brick-breaker — keep the ball alive, shatter every brick |
 | 🔊 **Sonic Shatter** | timing — tap when a shrinking ring meets the target |
 | ☄️ **Dive Dodge** | drag out of the telegraphed slam zones before impact |
+| 🦀 **Claw Drop** | time the sweeping crane to snatch fish |
+| 🔥 **Hot Floor** | hop across a grid to safe tiles before they ignite |
+| 🐍 **Venom Trail** | a Snake game — eat orbs, don't cross your poison trail |
+| 🌀 **Unwind** | drag in circles to spin free of the coils |
+| ✍️ **Break the Trance** | trace the glowing sigil through its dots in order |
 | 👑 **The Gilded King** | bespoke boss duel — dodge the crown's attack waves, then strike it while exposed |
+
+## Score, stars & leaderboard
+
+Every battle earns **1–3 stars**. Your run total is shown on the map (`★ X / 72`)
+and becomes your **final score** — collect three stars in all 24 battles for a
+perfect 72, plus a **+6 clean-run bonus** if you never use a continue. At the end
+you enter a name and submit to a **🏆 leaderboard** (viewable from the title), so
+players can compete for the most stars. The board uses the project's Firebase
+(anonymous auth + a `scores` collection) and falls back to an on-device board when
+offline, so it never blocks play.
+
+> Note: cloud scores need the Firestore rules to allow the `scores` collection
+> (read + create for signed-in users). If writes are denied, the local board
+> still works.
 
 Every microgame scales with difficulty (faster, smaller targets, longer patterns,
 denser attacks) so the journey ramps from gentle to brutal.

@@ -7,9 +7,10 @@ import { loadPets, getPet, allPets, flavor, REGIONS, KING_INTRO, KING_DEFEAT } f
 import {
   state, startAdventure, currentFoe, currentRegion, recordWin, recordLoss,
   hasSave, loadSave, totalFoes, clearedCount, totalStars,
-  effDiff, getMode, setMode, livesFor
+  effDiff, getMode, setMode, livesFor, maxStars, finalScore, getName, setName
 } from './state.js';
 import { getGame } from './minigames/index.js';
+import { submitScore, topScores } from './leaderboard.js';
 
 const APP = byId('app');
 const show = html => { APP.innerHTML = html; };
@@ -57,6 +58,7 @@ function screenTitle() {
         <p class="subtitle">A heart-and-courage adventure</p>
         <button class="btn btn-go" id="new">⚔ New Adventure</button>
         ${cont ? '<button class="btn btn-2" id="cont">▸ Continue</button>' : ''}
+        <button class="btn btn-2" id="board">🏆 Leaderboard</button>
         <div class="mode-pick">
           <span class="mode-label">Difficulty</span>
           <div class="seg">
@@ -71,6 +73,7 @@ function screenTitle() {
   drift(byId('drift'));
   byId('new').onclick = () => screenIntro();
   if (cont) byId('cont').onclick = () => { if (loadSave()) routeFromSave(); };
+  byId('board').onclick = () => screenLeaderboard();
   APP.querySelectorAll('.seg-btn').forEach(b => b.onclick = () => {
     const m = b.dataset.mode; setMode(m); S.ui();
     APP.querySelectorAll('.seg-btn').forEach(x => x.classList.toggle('on', x === b));
@@ -194,7 +197,7 @@ function screenMap() {
           ? `<p class="map-blurb">All champions are free. Only the Gilded King remains. This is the final battle.</p>
              <img class="king-throne" src="${KING_GIF}">`
           : `<div class="path">${nodes}</div>
-             <p class="map-blurb">${clearedCount()} / ${totalFoes()} champions freed</p>`}
+             <p class="map-blurb">${clearedCount()} / ${totalFoes()} freed · ★ ${totalStars()} / ${maxStars()}</p>`}
       </div>
       <div class="map-foot">
         ${king
@@ -349,7 +352,8 @@ function screenKingDefeat() {
 function screenEnding() {
   playMusic('bgm_intro.mp3');
   const hero = getPet(state.heroId);
-  const stars = totalStars();
+  const score = finalScore(), max = maxStars();
+  const clean = state.continues === 0;
   show(`
     <div class="screen ending">
       <div class="end-card">
@@ -358,12 +362,13 @@ function screenEnding() {
         <img class="end-hero" src="${SPRITE(hero.sprite)}">
         <p class="end-text">
           The Tarnish lifts from the crown, and color floods back into Liitokala.
-          The freed champions raise <b>${hero.name}</b> high — the realm’s new guardian,
-          who won not with fury, but with heart.
+          The freed champions raise <b>${hero.name}</b> high — the realm’s new guardian.
         </p>
-        <div class="end-roster">${allPets().map(p => `<img src="${SPRITE(p.sprite)}" title="${p.name}">`).join('')}</div>
-        <div class="end-stars">Total stars earned: ★ ${stars}</div>
-        <button class="btn btn-go" id="again">Play Again</button>
+        <div class="end-stars">Final Score: ★ ${score} / ${max}</div>
+        <div class="end-sub">${state.mode === 'story' ? '😊 Story' : '⚔️ Normal'} mode${clean ? ' · clean run bonus +6 ✨' : ` · ${state.continues} continue${state.continues > 1 ? 's' : ''}`}</div>
+        <input class="name-input" id="name" maxlength="14" placeholder="Your name" value="${escapeHtml(getName())}">
+        <button class="btn btn-go" id="submit">Submit to Leaderboard 🏆</button>
+        <button class="btn-link" id="again">Play Again</button>
       </div>
     </div>`);
   S.win();
@@ -371,7 +376,48 @@ function screenEnding() {
   confetti(scr, 70);
   setTimeout(() => confetti(scr, 50), 900);
   setTimeout(() => { S.win(); confetti(scr, 50); }, 1800);
+  byId('submit').onclick = async () => {
+    const name = (byId('name').value || 'Hero').trim() || 'Hero';
+    setName(name);
+    const btn = byId('submit'); btn.disabled = true; btn.textContent = 'Submitting…';
+    const entry = { name, score, mode: state.mode, ms: Date.now() };
+    await submitScore(entry);
+    screenLeaderboard(entry);
+  };
   byId('again').onclick = () => screenTitle();
+}
+
+/* ════════ LEADERBOARD ════════ */
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+async function renderBoard(listEl, highlight) {
+  listEl.innerHTML = '<div class="lb-empty">Loading…</div>';
+  let res; try { res = await topScores(12); } catch { res = { rows: [], source: 'local' }; }
+  const rows = res.rows || [];
+  if (!rows.length) { listEl.innerHTML = '<div class="lb-empty">No scores yet — be the first to free the realm!</div>'; return; }
+  listEl.innerHTML = rows.map((r, i) => {
+    const hot = highlight && r.name === highlight.name && r.score === highlight.score && Math.abs((r.ms || 0) - (highlight.ms || 0)) < 8000;
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}`;
+    return `<div class="lb-row ${hot ? 'me' : ''}">
+      <span class="lb-rank">${medal}</span>
+      <span class="lb-name">${escapeHtml(r.name)}</span>
+      <span class="lb-mode">${r.mode === 'story' ? '😊' : '⚔️'}</span>
+      <span class="lb-score">★ ${r.score}</span></div>`;
+  }).join('') + (res.source === 'local' ? '<div class="lb-note">Offline — showing scores saved on this device.</div>' : '');
+}
+
+function screenLeaderboard(highlight) {
+  show(`
+    <div class="screen leaderboard">
+      <div class="lb-card">
+        <h1 class="title small">🏆 Leaderboard</h1>
+        <p class="subtitle">Most stars wins! (max ${maxStars()})</p>
+        <div class="lb-list" id="list"></div>
+        <button class="btn btn-go" id="back">◂ Back to Title</button>
+      </div>
+    </div>`);
+  renderBoard(byId('list'), highlight);
+  byId('back').onclick = () => screenTitle();
 }
 
 /* ════════ GAME OVER ════════ */

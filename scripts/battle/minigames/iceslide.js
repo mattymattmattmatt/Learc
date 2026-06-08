@@ -10,7 +10,7 @@ export default {
   play(area, ctx) {
     return new Promise(resolve => {
       const shotsMax = 5;
-      const goal = 7 + ctx.difficulty;          // points to win
+      const goal = clamp(6 + Math.floor(ctx.difficulty * 0.7), 6, 12);   // always reachable in 5 slides (max 15)
       let shots = shotsMax, score = 0, done = false;
 
       area.innerHTML = `
@@ -25,15 +25,15 @@ export default {
       const target = area.querySelector('#target'), aim = area.querySelector('#aim');
       const scEl = area.querySelector('#sc'), shEl = area.querySelector('#sh');
 
-      let W = 0, H = 0, size = 48, K = 5.5, fric = 0, tx = 0, ty = 0, tr = 60;
+      let W = 0, H = 0, size = 48, K = 7, fric = 0, tx = 0, ty = 0, tr = 60;
       const start = { x: 0, y: 0 };
       const measure = () => {
         const r = field.getBoundingClientRect(); W = r.width; H = r.height;
         size = clamp(Math.min(W, H) * 0.13, 38, 60); me.style.width = me.style.height = size + 'px';
-        fric = H * 1.0;
-        tx = W / 2; ty = H * 0.22; tr = clamp(Math.min(W, H) * 0.18, 48, 90);
+        fric = H * 0.68;
+        tx = W / 2; ty = H * 0.26; tr = clamp(Math.min(W, H) * 0.2, 54, 100);
         target.style.left = tx + 'px'; target.style.top = ty + 'px'; target.style.width = target.style.height = tr * 2 + 'px';
-        start.x = W / 2; start.y = H * 0.82;
+        start.x = W / 2; start.y = H * 0.84;
       };
       measure(); window.addEventListener('resize', measure);
 
@@ -53,7 +53,7 @@ export default {
       function updateAim(e) {
         const r = field.getBoundingClientRect();
         let dx = (e.clientX - r.left) - start.x, dy = (e.clientY - r.top) - start.y;
-        const d = Math.hypot(dx, dy), max = Math.min(W, H) * 0.32;
+        const d = Math.hypot(dx, dy), max = Math.min(W, H) * 0.4;
         if (d > max) { dx = dx / d * max; dy = dy / d * max; }
         pull.x = start.x + dx; pull.y = start.y + dy;
         // aim arrow points opposite the pull (the launch direction)

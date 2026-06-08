@@ -44,17 +44,17 @@ export const BATTLES = {
   waterwolf:   { game: 'balance',     proj: '🌊', color: '#4aa8ff', act: 'Tidal Surge' },
   chomper:     { game: 'powerstrike', proj: '🦷', color: '#7ad17a', act: 'Iron Bite' },
   fixie:       { game: 'iceslide',    proj: '❄️', color: '#9fe8ff', act: 'Ice Curling' },
-  chunky:      { game: 'tugofwar',    proj: '🌿', color: '#5fd47a', act: 'Vine Yank' },
+  chunky:      { game: 'tugofwar',    proj: '🌿', color: '#5fd47a', act: 'Vine Yank' },  // owns Tug of War
   skyjumper:   { game: 'charge',      proj: '⬆️', color: '#c08bff', act: 'Sky Leap' },
   cliggy:      { game: 'catch',       proj: '🥚', color: '#ffd23f', act: 'Egg Bombardment' },
   // ── Sea ──
-  peeta_heater:{ game: 'dodge',       proj: '♨️', color: '#ff8a4a', act: 'Scalding Waves' },
-  snapper:     { game: 'quickdraw',   proj: '🦀', color: '#ff7a5a', act: 'Claw Snap' },
+  peeta_heater:{ game: 'hotfloor',    proj: '♨️', color: '#ff8a4a', act: 'Scalding Floor' },
+  snapper:     { game: 'clawdrop',    proj: '🦀', color: '#ff7a5a', act: 'Claw Snap' },
   swack:       { game: 'paddle',      proj: '🏓', color: '#5cc6ff', act: 'Fin Smash' },
   zappo:       { game: 'memory',      proj: '⚡', color: '#ffd23f', act: 'Shock Pattern' },
   yelp:        { game: 'rhythm',      proj: '🔊', color: '#ff5a86', act: 'Sonic Roar' },
-  sixter:      { game: 'dodge',       proj: '☠️', color: '#9be86b', act: 'Venom Cloud' },
-  chocker:     { game: 'tugofwar',    proj: '🪢', color: '#c08bff', act: 'Coil Squeeze' },
+  sixter:      { game: 'snaketrail',  proj: '☠️', color: '#9be86b', act: 'Venom Trail' },
+  chocker:     { game: 'unwind',      proj: '🪢', color: '#c08bff', act: 'Coil Squeeze' },
   gus:         { game: 'freezeframe', proj: '👁️', color: '#b06bff', act: 'Dread Stare' },
   // ── Sky ──
   bo:          { game: 'swipe',       proj: '🌈', color: '#5cc6ff', act: 'Rainbow Beams' },
@@ -64,7 +64,7 @@ export const BATTLES = {
   diver:       { game: 'divedodge',   proj: '☄️', color: '#ff6b3f', act: 'Dive Bomb' },
   stinger:     { game: 'blitz',       proj: '📍', color: '#ffd23f', act: 'Rapid Jabs' },
   flick:       { game: 'sharpshooter',proj: '🥢', color: '#ffae5a', act: 'Stick Toss' },
-  creeper:     { game: 'freezeframe', proj: '🌀', color: '#b06bff', act: 'Hollow Gaze' }
+  creeper:     { game: 'trace',       proj: '🌀', color: '#b06bff', act: 'Hollow Gaze' }
 };
 
 /* Build the full adventure for a chosen hero.

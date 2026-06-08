@@ -18,12 +18,18 @@ import iceslide from './iceslide.js';
 import paddle from './paddle.js';
 import sonicring from './sonicring.js';
 import divedodge from './divedodge.js';
+import clawdrop from './clawdrop.js';
+import hotfloor from './hotfloor.js';
+import snaketrail from './snaketrail.js';
+import unwind from './unwind.js';
+import trace from './trace.js';
 import kingfight from './kingfight.js';
 import boss from './boss.js';
 
 export const GAMES = {
   quickdraw, tugofwar, powerstrike, memory, dodge, blitz, rhythm,
   catch: catchgame, swipe, charge, balance, slingshot, sharpshooter,
-  freezeframe, glider, iceslide, paddle, sonicring, divedodge, kingfight, boss
+  freezeframe, glider, iceslide, paddle, sonicring, divedodge,
+  clawdrop, hotfloor, snaketrail, unwind, trace, kingfight, boss
 };
 export const getGame = id => GAMES[id] || quickdraw;
