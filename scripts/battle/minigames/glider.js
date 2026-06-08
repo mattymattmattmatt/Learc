@@ -23,7 +23,7 @@ export default {
       const heartsEl = area.querySelector('#hearts'), scEl = area.querySelector('#sc');
 
       let W = 0, H = 0, size = 48;
-      const measure = () => { const r = field.getBoundingClientRect(); W = r.width; H = r.height; size = clamp(Math.min(W, H) * 0.14, 38, 64); me.style.width = me.style.height = size + 'px'; };
+      const measure = () => { const r = field.getBoundingClientRect(); W = r.width; H = r.height; size = clamp(Math.min(W, H) * 0.14, 38, 64); me.style.width = me.style.height = size + 'px'; me.style.left = (W * 0.26 - size / 2) + 'px'; me.style.top = '0'; };
       measure(); window.addEventListener('resize', measure);
 
       let y = 0, vy = 0, iframe = 0;
@@ -36,8 +36,8 @@ export default {
       let acc = 0, every = clamp(1.5 - ctx.difficulty * 0.06, 0.95, 1.5);
       function spawn() {
         const gy = rand(gapH * 0.6, H - gapH * 0.6);
-        const top = el('div', 'gl-wall'); top.style.cssText = `left:${W}px;top:0;height:${gy - gapH / 2}px`;
-        const bot = el('div', 'gl-wall'); bot.style.cssText = `left:${W}px;top:${gy + gapH / 2}px;bottom:0;height:${H - (gy + gapH / 2)}px`;
+        const top = el('div', 'gl-wall'); top.style.cssText = `left:0;top:0;height:${gy - gapH / 2}px;transform:translate3d(${W}px,0,0)`;
+        const bot = el('div', 'gl-wall'); bot.style.cssText = `left:0;top:${gy + gapH / 2}px;bottom:0;height:${H - (gy + gapH / 2)}px;transform:translate3d(${W}px,0,0)`;
         field.appendChild(top); field.appendChild(bot);
         walls.push({ top, bot, x: W, gy, scored: false });
       }
@@ -51,14 +51,14 @@ export default {
         vy += grav * dt; y += vy * dt;
         if (y < size / 2) { y = size / 2; vy = 0; }
         if (y > H - size / 2) { y = H - size / 2; vy = 0; if (iframe <= 0) hit(); }
-        me.style.transform = `translateY(${y - size / 2}px)`;
-        me.style.top = '0'; me.style.left = (W * 0.26 - size / 2) + 'px';
+        me.style.transform = `translate3d(0,${y - size / 2}px,0)`;
 
         acc += dt; if (acc >= every) { acc = 0; spawn(); }
         const mx = W * 0.26, mr = size * 0.4;
         for (let i = walls.length - 1; i >= 0; i--) {
           const w = walls[i]; w.x -= speed * dt;
-          w.top.style.left = w.x + 'px'; w.bot.style.left = w.x + 'px';
+          const tx = `translate3d(${w.x}px,0,0)`;
+          w.top.style.transform = tx; w.bot.style.transform = tx;
           if (!w.scored && w.x + 28 < mx) { w.scored = true; passed++; scEl.textContent = passed; S.good(); sparkle(field, mx, y, 5); if (passed >= goal) return finish(true); }
           // collision: within wall x-range and outside gap
           if (iframe <= 0 && Math.abs(w.x + 14 - mx) < 14 + mr && (y - mr < w.gy - gapH / 2 || y + mr > w.gy + gapH / 2)) hit();

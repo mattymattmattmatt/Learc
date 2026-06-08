@@ -45,6 +45,7 @@ export default {
         const x = fromL ? -r : W + r;
         const vx = (fromL ? 1 : -1) * tSpeed * rand(0.85, 1.15);
         const vy = -rand(40, 120);
+        node.style.transform = `translate3d(${x - r}px,${y - r}px,0)`;
         field.appendChild(node);
         targets.push({ node, x, y, vx, vy, r, bomb, life: 0 });
       }
@@ -59,7 +60,11 @@ export default {
         let hitT = null;
         for (const t of targets) if (!t.dead && Math.hypot(t.x - cx, t.y - cy) < t.r + 6) { hitT = t; break; }
         if (hitT) {
-          hitT.dead = true; hitT.node.classList.add(hitT.bomb ? 'boom' : 'pop');
+          hitT.dead = true;
+          // pin to its current spot so the scale/pop animation plays in place
+          hitT.node.style.transform = 'none';
+          hitT.node.style.left = (hitT.x - hitT.r) + 'px'; hitT.node.style.top = (hitT.y - hitT.r) + 'px';
+          hitT.node.classList.add(hitT.bomb ? 'boom' : 'pop');
           setTimeout(() => hitT.node.remove(), 160);
           if (hitT.bomb) { score = Math.max(0, score - 2); floatText(area, cx, cy, '💥 −2', 'bad'); S.bad(); buzz(70); field.classList.add('flash'); setTimeout(() => field.classList.remove('flash'), 120); }
           else { score++; scEl.textContent = score; sparkle(field, cx, cy, 7); floatText(area, cx, cy, 'HIT!', 'good'); S.star(); if (score >= goal) return finish(true); }
@@ -82,7 +87,7 @@ export default {
           const t = targets[i];
           if (t.dead) { if (!t.node.isConnected) targets.splice(i, 1); continue; }
           t.x += t.vx * dt; t.y += t.vy * dt; t.vy += H * 0.5 * dt; t.life += dt;
-          t.node.style.left = (t.x - t.r) + 'px'; t.node.style.top = (t.y - t.r) + 'px';
+          t.node.style.transform = `translate3d(${t.x - t.r}px,${t.y - t.r}px,0)`;
           if (t.x < -60 || t.x > W + 60 || t.y > H + 60) { t.node.remove(); targets.splice(i, 1); }
         }
         if (left <= 0) return finish(score >= goal);
