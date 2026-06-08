@@ -10,7 +10,7 @@ export default {
 
   play(area, ctx) {
     return new Promise(resolve => {
-      const hp0 = 3 + Math.floor(ctx.difficulty / 3);   // 3..6
+      const hp0 = 5 + Math.floor(ctx.difficulty / 2);   // tougher foe (≈5..9)
       let hp = hp0, shots = hp0 + 3, done = false;
       const rate = 0.6 + ctx.difficulty * 0.08;          // meter fill per second
       // the golden band jumps to a new height and size every shot
@@ -73,7 +73,7 @@ export default {
       function finish(win) {
         if (done) return; done = true; stop();
         (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7);
-        resolve({ win, stars: win ? (shots >= 3 ? 3 : 2) : 1 });
+        resolve({ win, stars: win ? (shots >= 4 ? 3 : 2) : 1 });
       }
     });
   }

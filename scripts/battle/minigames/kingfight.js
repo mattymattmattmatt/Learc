@@ -13,7 +13,7 @@ export default {
   play(area, ctx) {
     return new Promise(resolve => {
       const d = ctx.difficulty;                       // ~10 normal, ~6 story
-      const crownMax = clamp(Math.round(d * 0.5) + 1, 4, 6);
+      const crownMax = clamp(Math.round(d * 0.5) + 2, 5, 7);
       let crown = crownMax, hearts = 3, done = false;
 
       area.innerHTML = `
@@ -79,13 +79,13 @@ export default {
 
       function startWave() {
         phase = 'wave'; pattern = PATTERNS[waveIdx % PATTERNS.length]; waveIdx++;
-        timer = clamp(4.6 - broken() * 0.18, 3.2, 4.6); sacc = 0;
+        timer = clamp(6.8 - broken() * 0.2, 4.8, 6.8); sacc = 0;   // dodge longer before he's open to a strike
         king.classList.remove('stagger'); reticle.hidden = true;
         setBanner(banners[pattern]);
         field.dataset.phase = 'wave';
       }
       function enterStagger() {
-        phase = 'stagger'; timer = 1.9; projs.forEach(p => p.node.remove()); projs.length = 0;
+        phase = 'stagger'; timer = 1.6; projs.forEach(p => p.node.remove()); projs.length = 0;
         king.classList.add('stagger'); reticle.hidden = false;
         reticle.style.left = kx + 'px'; reticle.style.top = ky + 'px'; reticle.style.width = reticle.style.height = kr * 2.6 + 'px';
         setBanner('⚔ STRIKE THE CROWN!', 'strike');
