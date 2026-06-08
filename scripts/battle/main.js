@@ -240,7 +240,6 @@ async function runBattle(entry, foeDisp) {
   const hero = getPet(state.heroId);
   show(`<div class="screen battle"><div class="arena" id="arena"></div></div>`);
   const arena = byId('arena');
-  sfx(foeDisp.sfx, 0.7);
   await countdown(arena, 'FIGHT!');
   const game = getGame(entry.game);
   let res;
