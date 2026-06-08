@@ -42,13 +42,13 @@ export function setMuted(v) {
 export function toggleMute() { setMuted(!muted); return muted; }
 
 export function playMusic(name, vol = 0.28) {
-  if (musicName === name && music) return;
-  stopMusic(); musicName = name; musicVol = vol;
-  const a = new Audio(AUDIO(name)); a.loop = true; a.volume = muted ? 0 : vol;
-  a.addEventListener('error', () => {});
-  music = a; a.play().catch(() => {});
+  musicVol = vol;
+  if (!music) { music = new Audio(); music.loop = true; music.addEventListener('error', () => {}); }
+  if (musicName !== name) { musicName = name; music.src = AUDIO(name); try { music.currentTime = 0; } catch {} }
+  music.volume = muted ? 0 : vol;
+  if (music.paused) music.play().catch(() => {});
 }
-export function stopMusic() { try { music?.pause(); } catch {} music = null; musicName = ''; }
+export function stopMusic() { if (music) { try { music.pause(); } catch {} } musicName = ''; }
 
 /* play a sampled file (used for the creatures' own entrance roars) */
 export function sfx(file, vol = 0.8) {
@@ -97,6 +97,8 @@ export const S = {
   pad:   i => tone({ f: [330, 440, 554, 660][i % 4], dur: 0.16, type: 'sine', vol: 0.22 }),
   charge:lvl => tone({ f: 200 + lvl * 700, dur: 0.05, type: 'sawtooth', vol: 0.12 }),
   catch: () => tone({ f: 720, f2: 1080, dur: 0.08, type: 'triangle', vol: 0.2 }),
+  note:  f => tone({ f, dur: 0.2, type: 'triangle', vol: 0.24, release: 0.12 }),
+  splash:() => { noise({ dur: 0.3, vol: 0.3, lp: 1400, hp: 300 }); tone({ f: 380, f2: 120, dur: 0.25, type: 'sine', vol: 0.16 }); },
   win:   () => [523, 659, 784, 1047].forEach((f, i) => tone({ f, dur: 0.16, delay: i * 0.1, type: 'triangle', vol: 0.24 })),
   lose:  () => [392, 330, 262].forEach((f, i) => tone({ f, dur: 0.22, delay: i * 0.12, type: 'sawtooth', vol: 0.22 }))
 };

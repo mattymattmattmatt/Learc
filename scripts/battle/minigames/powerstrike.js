@@ -13,9 +13,9 @@ export default {
       const hp0 = 3 + Math.floor(ctx.difficulty / 3);     // 3..6
       let hp = hp0;
       let swings = hp0 + 3;
-      const speed = 0.9 + ctx.difficulty * 0.12;          // sweeps/sec
-      const zoneW = clamp(0.34 - ctx.difficulty * 0.022, 0.09, 0.34);
-      const bullW = zoneW * 0.34;
+      const speed = 0.55 + ctx.difficulty * 0.085;        // full sweeps/sec (constant, readable)
+      const zoneW = clamp(0.36 - ctx.difficulty * 0.022, 0.1, 0.36);
+      const bullW = zoneW * 0.36;
 
       area.innerHTML = `
         ${stageHTML(ctx, 'ps')}
@@ -35,7 +35,8 @@ export default {
       const stop = loop((dt) => {
         if (done) return false;
         t += dt * speed;
-        const x = (Math.sin(t * Math.PI * 2 - Math.PI / 2) + 1) / 2;  // 0..1 ping-pong
+        const p = t % 1, m = Math.floor(t) % 2;
+        const x = m === 0 ? p : 1 - p;          // constant-speed triangle sweep
         cur.style.left = (x * 100) + '%';
         cur._x = x;
       });
