@@ -1,72 +1,82 @@
-/* Break the Trance — the gaze freezes you in a sigil. DRAG your finger through
-   the glowing dots in order to trace each rune. Complete them all before the
-   timer runs out to snap free. */
-import { el, clamp, loop, sfx, buzz, sparkle, S } from '../util.js';
+/* Break the Trance — the gaze locks you in shifting sigils. DRAG your finger
+   through the glowing dots in order to trace each rune. Every rune is a
+   different shape — complete them all before the timer runs out to snap free. */
+import { el, clamp, loop, shuffle, sfx, buzz, sparkle, S } from '../util.js';
 
 const SHAPES = [
-  [[.12, .8], [.32, .2], [.5, .7], [.68, .2], [.88, .8]],        // M / crown
-  [[.15, .5], [.35, .18], [.55, .5], [.75, .82], [.9, .5]],      // wave
-  [[.2, .8], [.5, .18], [.8, .8], [.2, .8]],                     // triangle
-  [[.5, .12], [.85, .5], [.5, .88], [.15, .5], [.5, .12]],       // diamond
-  [[.15, .25], [.85, .25], [.3, .8], [.5, .2], [.7, .8], [.15, .25]] // star-ish zigzag
+  [[.5, .06], [.69, .66], [.16, .28], [.84, .28], [.31, .66], [.5, .06]],   // 5-point star
+  [[.2, .2], [.8, .2], [.8, .8], [.2, .8], [.2, .2]],                       // square
+  [[.15, .2], [.85, .2], [.15, .8], [.85, .8]],                            // Z
+  [[.12, .8], [.32, .2], [.5, .7], [.68, .2], [.88, .8]],                  // crown / M
+  [[.2, .85], [.2, .42], [.5, .15], [.8, .42], [.8, .85], [.2, .85]],      // house
+  [[.5, .12], [.85, .5], [.5, .88], [.15, .5], [.5, .12]],                 // diamond
+  [[.6, .1], [.36, .52], [.56, .52], [.34, .9]],                          // lightning bolt
+  [[.15, .5], [.35, .16], [.55, .5], [.75, .84], [.9, .5]],               // wave
+  [[.2, .8], [.5, .16], [.8, .8], [.3, .4], [.7, .4], [.2, .8]]            // tangled triangle
 ];
 
 export default {
   id: 'trace', name: 'Break the Trance', icon: '🌀',
-  howto: 'DRAG through the glowing dots in order to trace each rune before time runs out!',
+  howto: 'DRAG through the glowing dots in order. Each rune is different — trace them all in time!',
 
   play(area, ctx) {
     return new Promise(resolve => {
-      const need = 2 + Math.floor(ctx.difficulty / 4);     // sigils to complete
-      const TIME = clamp(16 - ctx.difficulty * 0.4, 9, 16);
-      let doneCount = 0, left = TIME, done = false;
+      const need = 3 + Math.floor(ctx.difficulty / 3);     // sigils to complete (3..6)
+      const TIME = clamp(20 - ctx.difficulty * 0.5, 11, 20);
+      let doneCount = 0, left = TIME, done = false, isDown = false;
+      let queue = shuffle(SHAPES.map((_, i) => i)), lastShape = -1;
 
       area.innerHTML = `
         <div class="tr-hud"><span>🌀 <b id="sc">0</b>/${need}</span>
           <div class="tr-time"><div class="tr-fill" id="tf"></div></div></div>
         <div class="tr-field" id="field"><svg class="tr-svg" id="svg"></svg></div>
-        <div class="dg-hint">Trace through the dots in order!</div>`;
+        <div class="dg-hint">Hold & drag through the dots in order!</div>`;
       const field = area.querySelector('#field'), svg = area.querySelector('#svg'), scEl = area.querySelector('#sc'), tf = area.querySelector('#tf');
 
       let W = 0, H = 0, pts = [], cur = 0, dots = [];
       const measure = () => { const r = field.getBoundingClientRect(); W = r.width; H = r.height; };
       measure(); window.addEventListener('resize', measure);
 
+      function nextShape() {
+        if (!queue.length) { queue = shuffle(SHAPES.map((_, i) => i)); if (queue[0] === lastShape) queue.push(queue.shift()); }
+        const idx = queue.shift(); lastShape = idx; return SHAPES[idx];
+      }
       function loadSigil() {
         svg.innerHTML = ''; dots.forEach(d => d.remove()); dots = []; cur = 0;
-        const shape = SHAPES[(Math.random() * SHAPES.length) | 0];
-        const pad = Math.min(W, H) * 0.16;
+        const shape = nextShape();
+        const pad = Math.min(W, H) * 0.15;
         pts = shape.map(([nx, ny]) => ({ x: pad + nx * (W - 2 * pad), y: pad + ny * (H - 2 * pad) }));
-        // faint full path
         const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
         poly.setAttribute('points', pts.map(p => `${p.x},${p.y}`).join(' '));
         poly.setAttribute('class', 'tr-path'); svg.appendChild(poly);
         const glow = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
         glow.setAttribute('class', 'tr-glow'); glow.id = 'glow'; svg.appendChild(glow);
-        pts.forEach((p, i) => { const d = el('div', 'tr-dot'); d.style.left = p.x + 'px'; d.style.top = p.y + 'px'; field.appendChild(d); dots.push(d); });
-        dots[0].classList.add('next');
+        pts.forEach((p, i) => { const d = el('div', 'tr-dot' + (i === 0 ? ' next' : '')); d.style.left = p.x + 'px'; d.style.top = p.y + 'px'; field.appendChild(d); dots.push(d); });
       }
       const updateGlow = () => { const g = svg.querySelector('#glow'); g.setAttribute('points', pts.slice(0, cur + 1).map(p => `${p.x},${p.y}`).join(' ')); };
       requestAnimationFrame(loadSigil);
 
-      const radius = () => clamp(Math.min(W, H) * 0.09, 30, 60);
+      const radius = () => clamp(Math.min(W, H) * 0.072, 24, 46);
       const test = e => {
         if (done || !pts.length) return; const r = field.getBoundingClientRect();
         const x = e.clientX - r.left, y = e.clientY - r.top;
         if (Math.hypot(x - pts[cur].x, y - pts[cur].y) < radius()) {
-          dots[cur].classList.remove('next'); dots[cur].classList.add('hit'); sparkle(field, pts[cur].x, pts[cur].y, 4); S.tick(); buzz(8);
+          dots[cur].classList.remove('next'); dots[cur].classList.add('hit');
+          sparkle(field, pts[cur].x, pts[cur].y, 4); S.tick(); buzz(8);
           cur++; updateGlow();
           if (cur >= pts.length) {
             doneCount++; scEl.textContent = doneCount; S.good(); buzz(20);
             if (doneCount >= need) return finish(true);
             loadSigil();
-          } else dots[cur].classList.add('next');
+          } else { dots[cur].classList.add('next'); }
         }
       };
-      const down = e => { test(e); e.preventDefault(); };
-      const move = e => { test(e); e.preventDefault(); };
+      const down = e => { isDown = true; test(e); e.preventDefault(); };
+      const move = e => { if (isDown) test(e); e.preventDefault(); };
+      const up = () => { isDown = false; };
       field.addEventListener('pointerdown', down);
       field.addEventListener('pointermove', move);
+      window.addEventListener('pointerup', up);
 
       const stop = loop((dt) => {
         if (done) return false;
@@ -76,7 +86,7 @@ export default {
 
       function finish(win) {
         if (done) return false; done = true; stop();
-        field.removeEventListener('pointerdown', down); field.removeEventListener('pointermove', move);
+        field.removeEventListener('pointerdown', down); field.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up);
         window.removeEventListener('resize', measure);
         (win ? S.win : S.lose)(); sfx(win ? ctx.hero.sfx : ctx.foe.sfx, 0.7);
         resolve({ win, stars: win ? (left > TIME * 0.4 ? 3 : 2) : 1 });
