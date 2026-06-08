@@ -452,10 +452,85 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg1);color:var
 .bi-attack{font-size:.92rem;color:var(--ink);margin-bottom:8px;}
 .bi-attack b{color:var(--bad);}
 
+/*──────── Freeze! ────────*/
+.ff-hud{width:100%;max-width:600px;padding-right:46px;font-size:1.2rem;letter-spacing:2px;}
+.ff-stage{flex:1;width:100%;max-width:600px;display:flex;flex-direction:column;align-items:center;gap:12px;justify-content:center;}
+.ff-watcher{position:relative;text-align:center;}
+.ff-watcher img{width:clamp(70px,20vw,108px);filter:drop-shadow(0 4px 8px rgba(0,0,0,.4));}
+.ff-eye{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);font-size:1.5rem;}
+.ff-light{font-family:"Cinzel",serif;font-weight:700;font-size:clamp(1.3rem,6.5vw,2rem);padding:4px 20px;border-radius:12px;}
+.ff-light.go{color:#0a3a22;background:var(--good);}
+.ff-light.warn{color:#3a2410;background:var(--gold);}
+.ff-light.red{color:#fff;background:var(--bad);animation:cdp .3s ease;}
+.ff-track{position:relative;width:92%;max-width:520px;height:68px;border-radius:14px;background:rgba(0,0,0,.25);border:2px solid rgba(255,255,255,.15);}
+.ff-flag{position:absolute;right:2%;top:50%;transform:translateY(-50%);font-size:1.8rem;}
+.ff-me{position:absolute;top:50%;margin-top:-24px;width:48px;height:48px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;transition:left .12s linear;
+  background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.4),rgba(92,198,255,.3));border:3px solid #fff;}
+.ff-me img{width:82%;height:82%;object-fit:contain;}
+.ff-me.caught{animation:hurt .4s ease;}
+
+/*──────── Windrider ────────*/
+.gl-hud{width:100%;max-width:600px;display:flex;justify-content:space-between;font-weight:600;padding-right:46px;}
+.gl-hud b{color:var(--gold);}
+.gl-field{position:relative;flex:1;width:100%;max-width:600px;border-radius:18px;overflow:hidden;margin:6px 0;background:linear-gradient(180deg,#bfe6ff,#eaf7ff);border:2px solid rgba(255,255,255,.2);}
+.gl-me{position:absolute;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:2;
+  background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.55),rgba(92,198,255,.35));border:3px solid #fff;box-shadow:0 0 10px rgba(0,0,0,.18);}
+.gl-me img{width:82%;height:82%;object-fit:contain;}
+.gl-me.flap{filter:brightness(1.25);}
+.gl-me.hurt{animation:hurt .4s ease;}
+.gl-wall{position:absolute;width:40px;background:linear-gradient(90deg,#7fc15a,#5b9a3e);border:2px solid rgba(0,0,0,.15);border-radius:7px;}
+
+/*──────── Ice Curling ────────*/
+.ic-hud{width:100%;max-width:600px;display:flex;justify-content:space-between;font-weight:600;padding-right:46px;}
+.ic-hud b{color:var(--gold);}
+.ic-field{position:relative;flex:1;width:100%;max-width:600px;border-radius:18px;overflow:hidden;margin:6px 0;background:linear-gradient(180deg,#e6f6ff,#bfe6ff);border:2px solid rgba(255,255,255,.35);}
+.ic-target{position:absolute;transform:translate(-50%,-50%);border-radius:50%;}
+.ic-target>div{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;}
+.ic-r3{width:100%;height:100%;background:rgba(92,198,255,.3);}
+.ic-r2{width:66%;height:66%;background:rgba(255,90,134,.35);}
+.ic-r1{width:33%;height:33%;background:rgba(255,210,63,.6);}
+.ic-aim{position:absolute;height:5px;background:linear-gradient(90deg,rgba(255,255,255,.15),#fff);transform-origin:0 50%;border-radius:3px;pointer-events:none;z-index:4;}
+.ic-me{position:absolute;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:3;
+  background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.55),rgba(92,198,255,.35));border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.25);}
+.ic-me img{width:82%;height:82%;object-fit:contain;}
+
+/*──────── Fin Smash ────────*/
+.pd-hud{width:100%;max-width:600px;display:flex;justify-content:space-between;font-weight:600;padding-right:46px;}
+.pd-hud b{color:var(--gold);}
+.pd-field{position:relative;flex:1;width:100%;max-width:600px;border-radius:18px;overflow:hidden;margin:6px 0;background:rgba(0,0,0,.3);border:2px solid rgba(255,255,255,.12);}
+.pd-ball{position:absolute;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#ffd23f);box-shadow:0 0 8px rgba(255,210,63,.8);}
+.pd-paddle{position:absolute;border-radius:8px;background:linear-gradient(180deg,#7fd0ff,#3f8fd0);box-shadow:0 2px 0 rgba(0,0,0,.3);}
+.pd-brick{position:absolute;border-radius:5px;box-shadow:inset 0 -3px 4px rgba(0,0,0,.2);}
+.pd-brick.pop{animation:orbPop .15s ease forwards;}
+
+/*──────── Sonic Shatter ────────*/
+.sr-acc{width:100%;max-width:600px;display:flex;justify-content:space-between;font-weight:600;padding-right:46px;}
+.sr-acc b{color:var(--gold);}
+.sr-field{position:relative;flex:1;width:100%;max-width:600px;border-radius:18px;overflow:hidden;margin:6px auto;background:radial-gradient(circle at 50% 50%,rgba(40,24,70,.6),rgba(10,6,24,.65));border:2px solid rgba(255,255,255,.14);}
+.sr-target{position:absolute;transform:translate(-50%,-50%);border:4px solid var(--gold);border-radius:50%;box-shadow:0 0 16px var(--gold);}
+.sr-ring{position:absolute;transform:translate(-50%,-50%);border:4px solid rgba(255,255,255,.6);border-radius:50%;pointer-events:none;}
+.sr-ring.shatter{animation:srShatter .25s ease forwards;}
+.sr-ring.miss{animation:srMiss .25s ease forwards;}
+@keyframes srShatter{to{opacity:0;border-color:var(--gold);transform:translate(-50%,-50%) scale(1.3)}}
+@keyframes srMiss{to{opacity:0}}
+
+/*──────── Dive Dodge ────────*/
+.dv-field{position:relative;flex:1;width:100%;max-width:600px;border-radius:18px;overflow:hidden;margin:6px 0;background:linear-gradient(180deg,#3a2c6b,#5b54a0);border:2px solid rgba(255,255,255,.12);}
+.dv-hero{position:absolute;top:0;left:0;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:3;will-change:transform;
+  background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.35),rgba(92,198,255,.28));border:3px solid #fff;box-shadow:0 0 10px rgba(0,0,0,.3);}
+.dv-hero img{width:82%;height:82%;object-fit:contain;}
+.dv-hero.hurt{animation:hurt .4s ease;}
+.dv-zone{position:absolute;transform:translate(-50%,-50%);border-radius:50%;border:3px dashed rgba(255,90,90,.7);background:rgba(255,90,90,.12);}
+.dv-zone.arm{border-style:solid;background:rgba(255,90,90,.28);animation:dvPulse .4s ease-in-out infinite;}
+.dv-zone.slam{animation:dvSlam .26s ease forwards;}
+@keyframes dvPulse{0%,100%{box-shadow:0 0 0 rgba(255,90,90,0)}50%{box-shadow:0 0 18px rgba(255,90,90,.75)}}
+@keyframes dvSlam{0%{transform:translate(-50%,-50%) scale(1);background:rgba(255,210,63,.6);border-color:#fff}100%{transform:translate(-50%,-50%) scale(1.15);opacity:0}}
+
 @media (max-height:560px){
   .story-portrait,.bi-foe,.res-foe{width:96px;height:auto;}
   .btn{padding:12px 16px;}
   .tap-pad{min-height:78px;}
+  .ff-watcher img{width:64px;}
 }
 
 /*──────── landscape: keep every game playable on its side ────────*/
