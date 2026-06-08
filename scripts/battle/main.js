@@ -231,7 +231,6 @@ function screenBattleIntro() {
         <button class=”btn btn-go” id=”begin”>Begin Battle ▸</button>
       </div>
     </div>`);
-  sfx(foe.sfx, 0.6);
   byId('begin').onclick = () => runBattle(entry, foe);
 }
 
@@ -271,7 +270,6 @@ function onBattleWon(entry, res, foeDisp) {
         <button class=”btn btn-go” id=”next”>Continue ▸</button>
       </div>
     </div>`);
-  sfx(foeDisp.sfx, 0.6);
   S.win();
   confetti(document.querySelector('.screen'), 36);
   // reveal earned stars one at a time, each with a little ding
