@@ -234,22 +234,25 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg1);color:var
 @keyframes orbPop{to{transform:scale(1.6);opacity:0}}
 @keyframes orbBoom{to{transform:scale(.2) rotate(40deg);opacity:0}}
 
-/* rhythm */
-.rh-hud{width:100%;max-width:600px;display:flex;justify-content:space-between;font-weight:600;}
-.rh-hud b{color:var(--gold);}
+/* rhythm — Guitar-Hero lanes */
 .rh-combo{color:#ff9a3f;font-weight:700;}
-.rh-lane{position:relative;flex:1;width:100%;max-width:300px;border-radius:16px;overflow:hidden;
-  background:linear-gradient(180deg,rgba(40,24,70,.6),rgba(10,6,24,.65));border:2px solid rgba(255,255,255,.14);margin:6px auto;}
-.rh-line{position:absolute;left:0;right:0;top:80%;height:4px;background:var(--gold);box-shadow:0 0 16px var(--gold);}
-.rh-ring{position:absolute;left:50%;top:80%;width:60px;height:60px;border:4px solid rgba(255,255,255,.5);border-radius:50%;transform:translate(-50%,-50%);}
-.rh-ring.beat{animation:ringBeat .28s ease;}
-@keyframes ringBeat{0%{transform:translate(-50%,-50%) scale(1.2);border-color:var(--gold)}100%{transform:translate(-50%,-50%) scale(1)}}
-.rh-gem{position:absolute;top:0;left:50%;width:46px;height:46px;border-radius:50%;will-change:transform;
-  box-shadow:0 0 12px rgba(255,255,255,.45),inset 0 -5px 7px rgba(0,0,0,.25),inset 0 5px 7px rgba(255,255,255,.45);}
-.rh-gem.hit{animation:gemHit .26s ease forwards;}
-.rh-gem.miss{animation:gemMiss .3s ease forwards;}
-@keyframes gemHit{0%{opacity:1}100%{opacity:0;box-shadow:0 0 28px 12px #fff}}
-@keyframes gemMiss{to{opacity:.15;filter:grayscale(1)}}
+.gh-hud{width:100%;max-width:520px;display:flex;justify-content:space-between;align-items:center;font-weight:600;gap:8px;}
+.gh-hud b{color:var(--gold);}
+.gh-song{font-weight:700;color:var(--gold);font-family:"Cinzel",serif;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.gh-board{position:relative;flex:1;width:100%;max-width:520px;display:flex;gap:4px;margin:6px 0;border-radius:14px;overflow:hidden;
+  background:linear-gradient(180deg,#13183a,#0a0d22);border:2px solid rgba(255,255,255,.12);}
+.gh-lane{position:relative;flex:1;cursor:pointer;touch-action:none;border-left:1px solid rgba(255,255,255,.05);border-right:1px solid rgba(255,255,255,.05);
+  background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--c) 12%,transparent));}
+.gh-gem{position:absolute;top:0;left:12%;width:76%;aspect-ratio:1;border-radius:50%;pointer-events:none;will-change:transform;
+  background:radial-gradient(circle at 35% 30%,#fff,var(--c) 72%);box-shadow:0 0 14px var(--c),inset 0 -4px 6px rgba(0,0,0,.25);}
+.gh-gem.hit{animation:ghHit .2s ease forwards;}
+.gh-gem.miss{animation:ghMiss .25s ease forwards;}
+@keyframes ghHit{0%{opacity:1}100%{opacity:0;box-shadow:0 0 26px 10px #fff}}
+@keyframes ghMiss{to{opacity:.2;filter:grayscale(1)}}
+.gh-hitline{position:absolute;left:0;right:0;height:4px;background:rgba(255,255,255,.6);box-shadow:0 0 14px rgba(255,255,255,.55);z-index:3;pointer-events:none;}
+.gh-fret{position:absolute;left:10%;right:10%;bottom:6px;height:30px;border-radius:10px;pointer-events:none;z-index:2;
+  background:rgba(255,255,255,.06);border:2px solid var(--c);box-shadow:0 0 10px var(--c) inset;transition:background .05s;}
+.gh-fret.active{background:var(--c);box-shadow:0 0 20px var(--c),0 0 8px var(--c) inset;}
 .floattext.good{color:var(--gold);font-size:1.3rem;}
 
 /* boss banner */
