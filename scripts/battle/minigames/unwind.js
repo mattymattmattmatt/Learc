@@ -1,63 +1,83 @@
-/* Wriggle Free — the coils are crushing you! Rapidly ALTERNATE tapping LEFT and
-   RIGHT to wriggle and shimmy loose. Same side twice does nothing — you have to
-   alternate. Fill the escape bar before the squeeze bar fills you. */
-import { clamp, loop, sfx, buzz, petImg, S } from '../util.js';
+/* Break Free — Chocker's coils have you! A sweep spins around the coil;
+   TAP the instant it lines up with a glowing link to snap it. Snap every
+   link to wriggle loose before the squeeze crushes you. Mistimed taps let
+   the coil tighten. */
+import { el, clamp, loop, rand, sfx, buzz, petImg, S } from '../util.js';
 
 export default {
-  id: 'unwind', name: 'Wriggle Free', icon: '🪱',
-  howto: 'Quickly ALTERNATE tapping LEFT ◀ and RIGHT ▶ to wriggle out before you’re crushed!',
+  id: 'unwind', name: 'Break Free', icon: '🌀',
+  howto: 'TAP the moment the spinning sweep lines up with a glowing link — snap them all before you’re crushed!',
 
   play(area, ctx) {
     return new Promise(resolve => {
-      let escape = 0, squeeze = 0, done = false, last = 0;
-      const step = 1 / (16 + ctx.difficulty * 1.4);
-      const squeezeRate = 0.052 + ctx.difficulty * 0.011;
+      const links = 4 + Math.floor(ctx.difficulty / 3);          // 4..7 links
+      let snapped = 0, squeeze = 0, done = false;
+      const spin = 1.7 + ctx.difficulty * 0.16;                  // sweep speed (rad/s)
+      const tol = clamp(0.42 - ctx.difficulty * 0.02, 0.16, 0.42); // angular hit window
+      const squeezeRate = 0.045 + ctx.difficulty * 0.006;
+      const slipPenalty = 0.06;
 
       area.innerHTML = `
-        <div class="wg-bars">
-          <div class="wg-bar"><span>Escape</span><div class="wg-track"><div class="wg-fill esc" id="esc"></div></div></div>
-          <div class="wg-bar"><span>Squeeze</span><div class="wg-track"><div class="wg-fill sq" id="sq"></div></div></div>
+        <div class="bf-hud"><span>Snap <b id="sn">0</b>/${links}</span>
+          <div class="bf-sqbar"><div class="bf-sqfill" id="sq"></div></div></div>
+        <div class="bf-field" id="field">
+          <div class="bf-ring" id="ring">
+            <div class="bf-hero"><img src="${petImg(ctx.hero)}" draggable="false"></div>
+            <div class="bf-ptr" id="ptr"></div>
+          </div>
         </div>
-        <div class="wg-field" id="field">
-          <div class="wg-coil" id="coil"></div>
-          <div class="wg-me" id="me"><img src="${petImg(ctx.hero)}"></div>
-        </div>
-        <div class="wg-pad">
-          <button class="wg-half" id="L">◀</button>
-          <button class="wg-half" id="R">▶</button>
-        </div>`;
-      const escEl = area.querySelector('#esc'), sqEl = area.querySelector('#sq');
-      const me = area.querySelector('#me'), coil = area.querySelector('#coil');
-      const Lb = area.querySelector('#L'), Rb = area.querySelector('#R');
+        <div class="dg-hint">Tap when the sweep hits a glowing link!</div>`;
+      const field = area.querySelector('#field'), ring = area.querySelector('#ring'), ptr = area.querySelector('#ptr');
+      const snEl = area.querySelector('#sn'), sqEl = area.querySelector('#sq');
 
-      const tap = side => {
-        if (done) return;
-        me.classList.remove('l', 'r'); void me.offsetWidth; me.classList.add(side < 0 ? 'l' : 'r');
-        if (side !== last) { escape += step; last = side; S.tick(); buzz(12); }
-        else { squeeze = clamp(squeeze + 0.01, 0, 1); }  // tiny penalty for not alternating
+      let ringR = 90, R = 70;
+      const linkData = [];
+      { const base = Math.random() * 6.283; for (let i = 0; i < links; i++) linkData.push({ angle: (base + i * (6.283 / links) + rand(-0.22, 0.22)) % 6.283, snapped: false, node: null }); }
+      const placeLinks = () => {
+        linkData.forEach(l => {
+          if (!l.node) { l.node = el('div', 'bf-link'); ring.appendChild(l.node); }
+          l.node.style.left = (ringR + Math.cos(l.angle) * R) + 'px';
+          l.node.style.top = (ringR + Math.sin(l.angle) * R) + 'px';
+        });
       };
-      const onL = e => { e.preventDefault(); tap(-1); };
-      const onR = e => { e.preventDefault(); tap(1); };
-      Lb.addEventListener('pointerdown', onL);
-      Rb.addEventListener('pointerdown', onR);
+      const measure = () => { const r = ring.getBoundingClientRect(); ringR = r.width / 2; R = ringR * 0.82; ptr.style.width = R + 'px'; placeLinks(); };
+      measure(); window.addEventListener('resize', measure);
 
-      const stop = loop((dt) => {
+      let ang = 0;
+      const norm = a => { a %= 6.283; if (a < 0) a += 6.283; return a; };
+      const adiff = (a, b) => { let d = Math.abs(norm(a) - norm(b)); if (d > 3.1416) d = 6.283 - d; return d; };
+
+      const onTap = e => {
+        e.preventDefault(); if (done) return;
+        let best = null, bd = 1e9;
+        for (const l of linkData) { if (l.snapped) continue; const d = adiff(ang, l.angle); if (d < bd) { bd = d; best = l; } }
+        if (best && bd <= tol) {
+          best.snapped = true; snapped++; snEl.textContent = snapped; best.node.classList.add('snapped');
+          S.tick(); buzz(20); ring.classList.remove('snap'); void ring.offsetWidth; ring.classList.add('snap');
+          if (snapped >= links) return finish(true);
+        } else {
+          squeeze = clamp(squeeze + slipPenalty, 0, 1); S.bad(); buzz(50);
+          ptr.classList.remove('slip'); void ptr.offsetWidth; ptr.classList.add('slip');
+        }
+      };
+      field.addEventListener('pointerdown', onTap);
+
+      const stop = loop(dt => {
         if (done) return false;
+        ang = norm(ang + spin * dt);
+        ptr.style.transform = `rotate(${ang}rad)`;
         squeeze = clamp(squeeze + squeezeRate * dt, 0, 1);
-        escEl.style.width = clamp(escape * 100, 0, 100) + '%';
         sqEl.style.width = squeeze * 100 + '%';
-        const tight = 1 - escape * 0.6 + squeeze * 0.15;
-        coil.style.transform = `translate(-50%,-50%) scale(${clamp(tight, 0.5, 1.3)})`;
-        coil.classList.toggle('danger', squeeze > 0.7);
-        if (escape >= 1) return finish(true);
+        ring.style.setProperty('--sq', (1 - squeeze * 0.16).toFixed(3));
+        ring.classList.toggle('danger', squeeze > 0.7);
         if (squeeze >= 1) return finish(false);
       });
 
       function finish(win) {
         if (done) return false; done = true; stop();
-        Lb.removeEventListener('pointerdown', onL); Rb.removeEventListener('pointerdown', onR);
+        field.removeEventListener('pointerdown', onTap); window.removeEventListener('resize', measure);
         (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7); buzz(win ? 30 : 80);
-        resolve({ win, stars: win ? (squeeze < 0.5 ? 3 : 2) : 1 });
+        resolve({ win, stars: win ? (squeeze < 0.45 ? 3 : 2) : 1 });
         return false;
       }
     });

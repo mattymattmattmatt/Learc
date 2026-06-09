@@ -1,82 +1,87 @@
-/* Sonic Shatter — sound rings ripple inward. TAP the instant a ring lines up
-   with the golden target ring to shatter it. Land enough clean shatters before
-   too many slip through. */
-import { el, clamp, loop, rand, sfx, buzz, floatText, S } from '../util.js';
-import { stageHTML, hitFlash } from './stage.js';
+/* Echo Smash — Yellogen's squawks burst from a grid of speakers.
+   SMASH the sound bursts 🔊 before they fade, but never hit a screech ⚡
+   (that costs a heart). Reach the quota before time runs out. */
+import { el, clamp, loop, sfx, buzz, sparkle, floatText, S } from '../util.js';
 
 export default {
-  id: 'sonicring', name: 'Sonic Shatter', icon: '🔊',
-  howto: 'TAP when a shrinking ring matches the golden ring. Perfect timing!',
+  id: 'sonicring', name: 'Echo Smash', icon: '🔊',
+  howto: 'SMASH the sound bursts 🔊 as they pop up — but never hit a screech ⚡!',
 
   play(area, ctx) {
     return new Promise(resolve => {
-      const total = 10 + ctx.difficulty;
-      const need = 0.7;                       // must shatter 70% to win
-      let spawned = 0, hits = 0, judged = 0, combo = 0, done = false;
+      const COLS = 3, ROWS = 3, N = COLS * ROWS;
+      const TIME = 18, goal = 12 + ctx.difficulty;
+      let score = 0, hearts = 3, left = TIME, done = false;
+      const life = clamp(1.25 - ctx.difficulty * 0.06, 0.55, 1.25);   // seconds a burst stays up
+      const gap = clamp(0.85 - ctx.difficulty * 0.05, 0.32, 0.85);    // spawn interval
+      const badChance = clamp(0.12 + ctx.difficulty * 0.03, 0.12, 0.45);
 
       area.innerHTML = `
-        ${stageHTML(ctx, 'sr')}
-        <div class="sr-acc"><span>💥 <b id="acc">0</b>/${total}</span><span id="combo" class="rh-combo"></span></div>
-        <div class="sr-field" id="field"><div class="sr-target" id="tg"></div></div>`;
-      const field = area.querySelector('#field'), tg = area.querySelector('#tg');
-      const accEl = area.querySelector('#acc'), comboEl = area.querySelector('#combo');
-      const heroEl = area.querySelector('.hero'), foeEl = area.querySelector('.foe');
+        <div class="es-hud"><span id="hearts">${'❤'.repeat(hearts)}</span>
+          <span>🔊 <b id="sc">0</b>/${goal}</span>
+          <div class="es-time"><div class="es-fill" id="tf"></div></div></div>
+        <div class="es-grid" id="grid">${Array.from({ length: N }, () => '<div class="es-hole"></div>').join('')}</div>
+        <div class="dg-hint">Smash 🔊 — never hit ⚡!</div>`;
+      const holes = [...area.querySelectorAll('.es-hole')];
+      const scEl = area.querySelector('#sc'), heartsEl = area.querySelector('#hearts'), tf = area.querySelector('#tf');
 
-      let W = 0, H = 0, cx = 0, cy = 0, TR = 60, tol = 22;
-      const measure = () => {
-        const r = field.getBoundingClientRect(); W = r.width; H = r.height; cx = W / 2; cy = H / 2;
-        TR = clamp(Math.min(W, H) * 0.15, 42, 86); tol = TR * 0.28;   // tighter timing window
-        tg.style.left = cx + 'px'; tg.style.top = cy + 'px'; tg.style.width = tg.style.height = TR * 2 + 'px';
-        field.dataset.tr = TR;
+      const occupied = new Array(N).fill(false);
+      const orbs = [];
+      let spawnAcc = 0.3;
+      const at = orb => { const r = orb.node.getBoundingClientRect(), a = area.getBoundingClientRect(); return [r.left - a.left + r.width / 2, r.top - a.top + r.height / 2]; };
+
+      const popOrb = (idx, bad) => {
+        occupied[idx] = true;
+        const o = el('div', 'es-orb' + (bad ? ' bad' : ''), bad ? '⚡' : '🔊');
+        holes[idx].appendChild(o);
+        const orb = { node: o, idx, bad, t: life, gone: false };
+        o.addEventListener('pointerdown', e => { e.preventDefault(); if (done || orb.gone) return; smash(orb); });
+        orbs.push(orb);
       };
-      measure(); window.addEventListener('resize', measure);
+      const removeOrb = (orb, cls) => {
+        if (orb.gone) return; orb.gone = true; occupied[orb.idx] = false;
+        if (cls) orb.node.classList.add(cls);
+        const n = orb.node; setTimeout(() => n.remove(), 160);
+        const i = orbs.indexOf(orb); if (i >= 0) orbs.splice(i, 1);
+      };
+      const smash = orb => {
+        const [x, y] = at(orb);
+        if (orb.bad) {
+          hearts--; heartsEl.textContent = '❤'.repeat(Math.max(0, hearts)); S.bad(); buzz(70);
+          floatText(area, x, y, '✖', 'bad'); removeOrb(orb, 'boom');
+          if (hearts <= 0) return end(false);
+        } else {
+          score++; scEl.textContent = score; S.star(); buzz(16);
+          sparkle(area, x, y, 6); floatText(area, x, y, '+1', 'good'); removeOrb(orb, 'pop');
+          if (score >= goal) return end(true);
+        }
+      };
 
-      const rings = [];
-      const approach = clamp(1.35 - ctx.difficulty * 0.07, 0.8, 1.35);  // rings close in faster
-      const gap = clamp(0.8 - ctx.difficulty * 0.045, 0.42, 0.8);       // and arrive more often
-      let t0 = performance.now(), nextSpawn = 0.5;
-
-      const stop = loop((dt, now) => {
+      const stop = loop(dt => {
         if (done) return false;
-        const elapsed = (now - t0) / 1000;
-        if (spawned < total && elapsed >= nextSpawn) {
-          spawned++; nextSpawn += gap;
-          const n = el('div', 'sr-ring'); n.style.left = cx + 'px'; n.style.top = cy + 'px';
-          field.appendChild(n); rings.push({ node: n, born: now, judged: false, r: 0 });
+        left -= dt; tf.style.width = clamp(left / TIME * 100, 0, 100) + '%';
+        spawnAcc -= dt;
+        if (spawnAcc <= 0) {
+          spawnAcc = gap;
+          const free = []; for (let i = 0; i < N; i++) if (!occupied[i]) free.push(i);
+          if (free.length) {
+            const idx = free[(Math.random() * free.length) | 0];
+            popOrb(idx, Math.random() < badChance);
+            if (ctx.difficulty >= 6 && free.length > 1 && Math.random() < 0.4) {
+              const rest = free.filter(x => x !== idx); const idx2 = rest[(Math.random() * rest.length) | 0];
+              popOrb(idx2, Math.random() < badChance);
+            }
+          }
         }
-        const R0 = Math.min(W, H) * 0.55;
-        for (let i = rings.length - 1; i >= 0; i--) {
-          const ring = rings[i]; const p = (now - ring.born) / (approach * 1000); // 0..1
-          const r = R0 * (1 - p); ring.r = r;
-          ring.node.style.width = ring.node.style.height = Math.max(0, r * 2) + 'px';
-          if (!ring.judged && r < TR - tol) { ring.judged = true; judged++; combo = 0; updateCombo(); ring.node.classList.add('miss'); hitFlash(heroEl); S.bad(); cleanup(ring, i); }
-        }
-        if (judged >= total) return end();
+        for (let i = orbs.length - 1; i >= 0; i--) { const orb = orbs[i]; orb.t -= dt; if (orb.t <= 0) removeOrb(orb, 'fade'); }
+        if (left <= 0) return end(score >= goal);
       });
-      function updateCombo() { comboEl.textContent = combo >= 2 ? `🔥 ${combo}` : ''; }
-      function cleanup(ring, i) { const nn = ring.node; setTimeout(() => nn.remove(), 200); if (i != null) rings.splice(i, 1); }
 
-      const onTap = e => {
-        e.preventDefault(); if (done) return;
-        let best = null, bd = 1e9, bi = -1;
-        rings.forEach((ring, i) => { if (ring.judged) return; const d = Math.abs(ring.r - TR); if (d < bd) { bd = d; best = ring; bi = i; } });
-        if (best && bd <= tol) {
-          best.judged = true; judged++; hits++; combo++;
-          const perfect = bd <= tol * 0.4;
-          best.node.classList.add('shatter'); hitFlash(foeEl); buzz(perfect ? 18 : 10); S.star();
-          floatText(area, cx, cy - TR, perfect ? 'PERFECT!' : 'good', perfect ? 'good' : '');
-          accEl.textContent = hits; updateCombo(); cleanup(best, bi);
-        }
-      };
-      field.addEventListener('pointerdown', onTap);
-
-      function end() {
+      function end(win) {
         if (done) return false; done = true; stop();
-        field.removeEventListener('pointerdown', onTap); window.removeEventListener('resize', measure);
-        rings.forEach(r => r.node.remove());
-        const acc = hits / total, win = acc >= need;
-        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7);
-        resolve({ win, stars: win ? (acc >= 0.9 ? 3 : 2) : 1 });
+        orbs.forEach(o => o.node.remove());
+        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7); buzz(win ? 30 : 60);
+        resolve({ win, stars: win ? (hearts >= 3 ? 3 : 2) : 1 });
         return false;
       }
     });

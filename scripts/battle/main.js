@@ -289,30 +289,14 @@ function onBattleWon(entry, res, foeDisp, opts = {}) {
 
 function onBattleLost(entry, foeDisp, opts = {}) {
   buzz(70); S.lose();
+
+  // The final boss: no life cost — go straight back to the select screen so the
+  // player can retry with the same champion or send a different one.
+  if (entry.id === 'king') return screenKingSelect(opts.heroId, true);
+
   const route = recordLoss();
   if (route === 'gameover') return screenGameOver();
   const lives = '❤'.repeat(state.lives) + '🖤'.repeat(Math.max(0, state.maxLives - state.lives));
-
-  // King loss: let the player rethink and pick a different freed champion.
-  if (entry.id === 'king') {
-    const A = state.kingAspect; const hero = getPet(opts.heroId);
-    show(`
-      <div class="screen result lose aspect-${A.id}">
-        <div class="result-card">
-          <div class="res-burst">💫</div>
-          <h2 class="res-title">The Crown Prevails…</h2>
-          <p class="res-line"><b>${hero ? hero.name : 'Your champion'}</b> fought bravely, but the Aspect of ${A.name} was too much.</p>
-          <p class="res-line">Hearts left: <b>${lives}</b></p>
-          <p class="res-hint">🔎 ${A.hint}</p>
-          <button class="btn btn-king" id="repick">Choose another champion ▸</button>
-          <button class="btn-link" id="map">Back to map</button>
-        </div>
-      </div>`);
-    byId('repick').onclick = () => screenKingSelect();
-    byId('map').onclick = () => screenMap();
-    return;
-  }
-
   show(`
     <div class="screen result lose">
       <div class="result-card">
@@ -378,9 +362,12 @@ function screenKingChallenge() {
 
 /* Strategic re-select: every freed champion is available — pick the counter. */
 let kingPick = null;
-function screenKingSelect() {
+function screenKingSelect(prevId = null, lost = false) {
   const A = state.kingAspect;
   kingPick = null;
+  const intro = lost
+    ? `The Aspect of ${A.name} bested your champion — try again, or send a different hero.`
+    : 'Read the King’s words, then pick the champion whose power answers his Aspect.';
   show(`
     <div class="screen select king-select aspect-${A.id}">
       <h2 class="screen-title">${A.element} The Final Battle</h2>
@@ -397,31 +384,31 @@ function screenKingSelect() {
           </button>`).join('')}
       </div>
       <div class="sel-bar" id="bar">
-        <div class="sel-info" id="info">Read the King’s words, then pick the champion whose power answers his Aspect.</div>
+        <div class="sel-info" id="info">${intro}</div>
         <button class="btn btn-king" id="begin" disabled>Challenge the King ⚔</button>
       </div>
     </div>`);
   const grid = byId('grid'), info = byId('info'), begin = byId('begin');
-  grid.querySelectorAll('.sel-cell').forEach(c => {
-    c.onclick = () => {
-      grid.querySelectorAll('.sel-cell').forEach(x => x.classList.remove('on'));
-      c.classList.add('on');
-      kingPick = c.dataset.id;
-      const p = getPet(kingPick);
-      const aff = aspectAffinity(p, A);
-      const read = aff === 'counter' ? '<span class="aff-good">A strong choice against this Aspect.</span>'
-        : aff === 'backfire' ? '<span class="aff-bad">This Aspect may turn their power against them…</span>'
-        : '<span class="aff-mid">A steady, neutral choice.</span>';
-      info.innerHTML = `<b>${p.name}</b> <i>${flavor(p.id).epithet}</i><br><small>${p.power}</small><br>${read}`;
-      begin.disabled = false;
-      sfx(p.sfx, 0.6);
-    };
-  });
+  const selectCell = (cell, quiet = false) => {
+    grid.querySelectorAll('.sel-cell').forEach(x => x.classList.remove('on'));
+    cell.classList.add('on');
+    kingPick = cell.dataset.id;
+    const p = getPet(kingPick);
+    const aff = aspectAffinity(p, A);
+    const read = aff === 'counter' ? '<span class="aff-good">A strong choice against this Aspect.</span>'
+      : aff === 'backfire' ? '<span class="aff-bad">This Aspect may turn their power against them…</span>'
+      : '<span class="aff-mid">A steady, neutral choice.</span>';
+    info.innerHTML = `<b>${p.name}</b> <i>${flavor(p.id).epithet}</i><br><small>${p.power}</small><br>${read}`;
+    begin.disabled = false;
+    if (!quiet) sfx(p.sfx, 0.6);
+  };
+  grid.querySelectorAll('.sel-cell').forEach(c => { c.onclick = () => selectCell(c); });
   begin.onclick = () => {
     if (!kingPick) return;
     const entry = currentFoe();    // king entry
     runBattle(entry, { id: 'king', name: 'The Gilded King', king: true }, { heroId: kingPick, aspect: A });
   };
+  if (prevId) { const cell = grid.querySelector(`.sel-cell[data-id="${prevId}"]`); if (cell) { selectCell(cell, true); cell.scrollIntoView({ block: 'center' }); } }
 }
 function screenKingDefeat() {
   dialogue({
