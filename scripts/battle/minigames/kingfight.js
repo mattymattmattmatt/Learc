@@ -30,13 +30,13 @@ export default {
       let hearts = isCounter ? 5 : isBack ? 2 : 3;
       const heartsMax = hearts;
       const stoneArmor = (A.id === 'stone' && !striker) ? 2 : 0;
-      let crown = clamp(Math.round(d * 0.5) + 2 + (isBack ? 1 : 0) - (striker ? 1 : 0) + stoneArmor, 4, 9);
+      let crown = clamp(Math.round(d * 0.55) + 3 + (isBack ? 1 : 0) - (striker ? 1 : 0) + stoneArmor, 5, 10);
       const crownMax = crown;
       const hitDmg = striker ? 2 : 1;
-      const hazMul = isCounter ? 0.6 : isBack ? 1.5 : 1;      // hazard cadence (lower = gentler)
+      const hazMul = isCounter ? 0.65 : isBack ? 1.5 : 1;     // hazard cadence (lower = gentler)
       const hazDmg = 1;                                       // every hit costs one heart (no one-shots)
-      const waveLen0 = isCounter ? 5.2 : 6.8;
-      const strikeLen = isCounter ? 2.0 : 1.6;
+      const waveLen0 = isCounter ? 5.5 : 7.0;
+      const strikeLen = isCounter ? 2.2 : 1.8;
       const maxWater = isCounter ? 0.42 : 0.58;               // leave a safe strip up top for non-fliers
       const windForce = (90 + d * 8) * (isCounter ? 0.4 : isBack ? 1.5 : 1);
 
@@ -102,7 +102,7 @@ export default {
       let shield = isCounter, shieldT = 0;
       const projs = [], bolts = [];
       const broken = () => crownMax - crown;
-      const pspeed = () => 120 + d * 12 + broken() * 14;
+      const pspeed = () => 180 + d * 16 + broken() * 22;     // faster, and ramps as the crown cracks
 
       function setBanner(txt, cls = '') { banner.textContent = txt; banner.className = 'kf-banner show ' + cls; setTimeout(() => banner.classList.remove('show'), 1100); }
 
@@ -161,25 +161,48 @@ export default {
         crown = Math.max(0, crown - hitDmg); crownEl.textContent = '♛'.repeat(crown);
         king.classList.remove('hit'); void king.offsetWidth; king.classList.add('hit');
         sparkle(field, kx, ky, 14); floatText(area, kx, ky, 'CRACK! −' + hitDmg, 'good'); S.hit(); buzz(60);
-        phase = 'gap'; timer = 0.7; reticle.hidden = true;
-        if (crown <= 0) finish(true);
+        if (crown <= 0) return finish(true);
+        // stays open — keep tapping to land more cracks before the window closes
       }
 
       /* ── per-frame hazard helpers ── */
+      function aimFromKing(sp, spread, emoji, scale) {
+        const h = heroC(); const a0 = Math.atan2(h.y - ky, h.x - kx);
+        for (let k = -1; k <= 1; k++) spawnProj(kx, ky, Math.cos(a0 + k * spread) * sp, Math.sin(a0 + k * spread) * sp, emoji, scale);
+      }
       function emit(dt) {
         const sp = pspeed();
+        const heavy = broken() >= Math.ceil(crownMax / 2);     // escalate past the half-way mark
+        const mode = waveIdx % 2;                              // alternate patterns each wave
         if (A.id === 'cinders') {
-          sacc -= dt; if (sacc <= 0) { sacc = clamp(0.5 - d * 0.02, 0.22, 0.5) / hazMul; const n = 1 + (broken() >= 3 ? 1 : 0); for (let i = 0; i < n; i++) spawnProj(rand(12, W - 12), -14, rand(-30, 30), sp * 0.95, '🔥'); }
+          sacc -= dt; if (sacc <= 0) {
+            sacc = clamp(0.34 - d * 0.012, 0.15, 0.34) / hazMul;
+            if (mode === 0) { const n = 1 + (heavy ? 1 : 0); for (let i = 0; i < n; i++) spawnProj(rand(12, W - 12), -14, rand(-45, 45), sp, '🔥'); }
+            else aimFromKing(sp, 0.22, '🔥');                  // a fanned volley aimed at you
+          }
         } else if (A.id === 'stone') {
-          sacc -= dt; if (sacc <= 0) { sacc = clamp(0.78 - d * 0.02, 0.42, 0.78) / hazMul; const h = heroC(); spawnProj(clamp(h.x + rand(-70, 70), 12, W - 12), -18, rand(-12, 12), sp * 0.78, '🪨', 1.5); }
+          sacc -= dt; if (sacc <= 0) {
+            sacc = clamp(0.52 - d * 0.015, 0.28, 0.52) / hazMul; const h = heroC();
+            if (mode === 0) spawnProj(clamp(h.x + rand(-60, 60), 12, W - 12), -18, rand(-12, 12), sp * 0.85, '🪨', 1.5);
+            else for (let k = -1; k <= 1; k++) spawnProj(clamp(h.x + k * 72, 12, W - 12), -18, 0, sp * 0.82, '🪨', 1.3);
+          }
         } else if (A.id === 'tempest') {
-          boltAcc -= dt; if (boltAcc <= 0) { boltAcc = clamp(1.15 - d * 0.03, 0.55, 1.15) / hazMul; spawnBolt(); }
+          boltAcc -= dt; if (boltAcc <= 0) { boltAcc = clamp(0.8 - d * 0.025, 0.38, 0.8) / hazMul; spawnBolt(); if (mode === 1 || heavy) spawnBolt(); }
         } else if (A.id === 'gale') {
-          sacc -= dt; if (sacc <= 0) { sacc = clamp(0.6 - d * 0.02, 0.3, 0.6) / hazMul; const fromL = wind > 0; spawnProj(fromL ? -14 : W + 14, rand(H * 0.32, H * 0.85), (fromL ? 1 : -1) * sp * 1.05, rand(-20, 20), '💨'); }
+          sacc -= dt; if (sacc <= 0) {
+            sacc = clamp(0.4 - d * 0.012, 0.2, 0.4) / hazMul; const fromL = wind > 0;
+            spawnProj(fromL ? -14 : W + 14, rand(H * 0.28, H * 0.9), (fromL ? 1 : -1) * sp * 1.15, rand(-30, 30), '💨');
+            if (mode === 1 || heavy) spawnProj(fromL ? -14 : W + 14, rand(H * 0.28, H * 0.9), (fromL ? 1 : -1) * sp * 1.15, rand(-30, 30), '🍃');
+          }
+        } else if (A.id === 'deluge') {
+          sacc -= dt; if (sacc <= 0) { sacc = clamp(0.55 - d * 0.015, 0.3, 0.55) / hazMul; spawnProj(rand(12, W - 12), H + 14, rand(-40, 40), -sp * 0.75, '💧'); }
         } else if (A.id === 'gloom') {
-          sacc -= dt; if (sacc <= 0) { sacc = clamp(0.55 - d * 0.02, 0.26, 0.55) / hazMul; const e = (Math.random() * 4) | 0; const h = heroC(); let x, y; if (e === 0) { x = rand(0, W); y = -14; } else if (e === 1) { x = W + 14; y = rand(0, H); } else if (e === 2) { x = rand(0, W); y = H + 14; } else { x = -14; y = rand(0, H); } const a = Math.atan2(h.y - y, h.x - x); spawnProj(x, y, Math.cos(a) * sp * 0.85, Math.sin(a) * sp * 0.85, '🟣'); }
+          sacc -= dt; if (sacc <= 0) {
+            sacc = clamp(0.42 - d * 0.012, 0.2, 0.42) / hazMul; const h = heroC(); const shots = (mode === 1 || heavy) ? 2 : 1;
+            for (let s = 0; s < shots; s++) { const e = (Math.random() * 4) | 0; let x, y; if (e === 0) { x = rand(0, W); y = -14; } else if (e === 1) { x = W + 14; y = rand(0, H); } else if (e === 2) { x = rand(0, W); y = H + 14; } else { x = -14; y = rand(0, H); } const a = Math.atan2(h.y - y, h.x - x); spawnProj(x, y, Math.cos(a) * sp * 0.95, Math.sin(a) * sp * 0.95, '🟣'); }
+          }
         } else {
-          sacc -= dt; if (sacc <= 0) { sacc = 0.4 / hazMul; spawnProj(rand(12, W - 12), -14, rand(-30, 30), sp, '✦'); }
+          sacc -= dt; if (sacc <= 0) { sacc = 0.3 / hazMul; spawnProj(rand(12, W - 12), -14, rand(-30, 30), sp, '✦'); }
         }
       }
 
