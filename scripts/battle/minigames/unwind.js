@@ -76,7 +76,7 @@ export default {
       function finish(win) {
         if (done) return false; done = true; stop();
         field.removeEventListener('pointerdown', onTap); window.removeEventListener('resize', measure);
-        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7); buzz(win ? 30 : 80);
+        if (!win) sfx(ctx.foe.sfx, 0.7); buzz(win ? 30 : 80);
         resolve({ win, stars: win ? (squeeze < 0.45 ? 3 : 2) : 1 });
         return false;
       }

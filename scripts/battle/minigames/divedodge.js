@@ -24,7 +24,7 @@ export default {
       let W = 0, H = 0, size = 52;
       const measure = () => { const r = field.getBoundingClientRect(); W = r.width; H = r.height; size = clamp(Math.min(W, H) * 0.15, 42, 70); me.style.width = me.style.height = size + 'px'; };
       measure(); window.addEventListener('resize', measure);
-      let px = W / 2 - size / 2, py = H / 2;
+      let px = W / 2 - size / 2, py = H / 2 - size / 2;
       const place = () => { me.style.transform = `translate(${px}px,${py}px)`; };
       place();
       const moveTo = (cx, cy) => { const r = field.getBoundingClientRect(); px = clamp(cx - r.left - size / 2, 0, W - size); py = clamp(cy - r.top - size / 2, 0, H - size); place(); };
@@ -35,6 +35,7 @@ export default {
       field.addEventListener('pointerdown', down);
       window.addEventListener('pointermove', move);
       window.addEventListener('pointerup', up);
+      window.addEventListener('pointercancel', up);
 
       const zones = [];
       const tele = clamp(1.2 - ctx.difficulty * 0.05, 0.6, 1.2);
@@ -76,9 +77,10 @@ export default {
       function end(win) {
         if (done) return false; done = true; stop();
         field.removeEventListener('pointerdown', down); window.removeEventListener('pointermove', move);
-        window.removeEventListener('pointerup', up); window.removeEventListener('resize', measure);
+        window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
+        window.removeEventListener('resize', measure);
         zones.forEach(z => z.node.remove());
-        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7);
+        if (!win) sfx(ctx.foe.sfx, 0.7);
         resolve({ win, stars: win ? (hearts >= 3 ? 3 : 2) : 1 });
         return false;
       }

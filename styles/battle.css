@@ -98,7 +98,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg1);color:var
 .map{justify-content:flex-start;}
 .map-top{width:100%;max-width:600px;display:flex;align-items:center;justify-content:space-between;padding:6px 48px 4px 4px;}
 /* keep top-right HUD content clear of the fixed mute button */
-.sl-hud,.ct-hud,.ss-hud,.dg-hud,.bz-hud,.sw-score,.rh-hud{padding-right:46px;}
+.sl-hud,.ct-hud,.ss-hud,.dg-hud,.bz-hud,.sw-score,.gh-hud{padding-right:46px;}
 .hero-chip{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.25);padding:5px 12px 5px 5px;border-radius:99px;}
 .hero-chip img{width:38px;height:38px;object-fit:contain;background:rgba(255,255,255,.1);border-radius:50%;}
 .hero-chip span{font-weight:600;}

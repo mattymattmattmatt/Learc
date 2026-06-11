@@ -95,6 +95,7 @@ export default {
       field.addEventListener('pointerdown', down);
       window.addEventListener('pointermove', move);
       window.addEventListener('pointerup', up);
+      window.addEventListener('pointercancel', up);
 
       /* ── state ── */
       let phase = 'intro', timer = 1.6, waveIdx = 0, iframe = 0;
@@ -265,9 +266,9 @@ export default {
         if (done) return false; done = true; stop();
         field.removeEventListener('pointerdown', down);
         window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up);
-        window.removeEventListener('resize', measure);
+        window.removeEventListener('pointercancel', up); window.removeEventListener('resize', measure);
         projs.forEach(p => p.node.remove()); bolts.forEach(b => b.node.remove());
-        (win ? S.win : S.lose)(); buzz(win ? 60 : 120);   // the King has no entrance voice yet
+        buzz(win ? 60 : 120);   // jingles play on the result screens (the King has no voice yet)
         resolve({ win, stars: win ? (hearts >= heartsMax ? 3 : 2) : 1 });
         return false;
       }

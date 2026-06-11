@@ -385,6 +385,7 @@ function revealStars(stars) {
 function onBattleWon(entry, res, foeDisp, opts = {}) {
   buzz(40);
   if (entry.id === 'king') {
+    S.win();                 // games leave the end jingles to the screens
     recordWin('king', res.stars || 3);
     award('crown');
     if (totalStars() >= 72) award('star-master');
