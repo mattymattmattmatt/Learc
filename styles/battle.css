@@ -785,3 +785,13 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg1);color:var
   .dex-art{width:84px;height:84px;}
   .ga-round-big{font-size:2rem;}
 }
+
+/*──────── critterdex practice chips ────────*/
+.dex-prac-row{display:flex;align-items:center;gap:6px;margin:8px 0 6px;}
+.dex-prac-label{font-size:.78rem;color:var(--muted);font-weight:600;white-space:nowrap;}
+.prac-btn{flex:1;border:none;border-radius:10px;padding:10px 4px;font-family:inherit;font-weight:700;
+  font-size:.8rem;color:#fff;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.35);}
+.prac-btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.35);}
+.prac-btn[data-d="2"]{background:linear-gradient(180deg,#49b86e,#2f8a4d);}
+.prac-btn[data-d="5"]{background:linear-gradient(180deg,#4a8fd0,#3568a8);}
+.prac-btn[data-d="8"]{background:linear-gradient(180deg,#d0604a,#a83a35);}
