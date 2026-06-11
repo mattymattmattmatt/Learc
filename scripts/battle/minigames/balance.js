@@ -93,7 +93,7 @@ export default {
       function end(win) { if (done) return false; done = true; stop();
         Lb.removeEventListener('pointerdown', onL); Rb.removeEventListener('pointerdown', onR); finish(win); return false; }
       function finish(win) {
-        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7);
+        if (!win) sfx(ctx.foe.sfx, 0.7);
         resolve({ win, stars: win ? 3 : 1 });
       }
     });

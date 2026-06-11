@@ -88,7 +88,6 @@ export default {
         // render claw + rope + bobbing items
         claw.style.left = (clawX - clawW / 2) + 'px'; claw.style.top = clawY + 'px';
         rope.style.left = clawX + 'px'; rope.style.height = Math.max(0, clawY - topY + 6) + 'px';
-        t += 0; // keep bob phase moving via left timer
         for (const it of items) { if (it === held) continue; it.bob += dt; it.node.style.left = (it.x - 14) + 'px'; it.node.style.top = (botY + Math.sin(it.bob * 2) * 5) + 'px'; }
         if (left <= 0) return finish(caught >= goal);
       });
@@ -97,7 +96,7 @@ export default {
         if (done) return false; done = true; stop();
         pad.removeEventListener('pointerdown', drop); window.removeEventListener('resize', measure);
         items.forEach(it => it.node.remove());
-        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7);
+        if (!win) sfx(ctx.foe.sfx, 0.7);
         resolve({ win, stars: win ? (left > TIME * 0.4 ? 3 : 2) : 1 });
         return false;
       }

@@ -1,7 +1,7 @@
 /* Tug of War — mash TAP to pull the rope. The foe pulls back harder as
    difficulty rises. Pull the marker to your side before time runs out. */
 import { clamp, loop, sfx, buzz, S } from '../util.js';
-import { stageHTML } from './stage.js';
+import { stageHTML, hitFlash } from './stage.js';
 
 export default {
   id: 'tugofwar', name: 'Tug of War', icon: '🪢',
@@ -51,6 +51,7 @@ export default {
       function end(win) {
         if (done) return false; done = true;
         pad.removeEventListener('pointerdown', onPad);
+        hitFlash(area.querySelector(win ? '.foe' : '.hero'));
         buzz(win ? 30 : 60); if (!win) sfx(ctx.foe.sfx, 0.7);
         // your star rating is how hard you pulled — total taps
         const stars = win ? (taps > 150 ? 3 : taps > 90 ? 2 : 1) : 1;

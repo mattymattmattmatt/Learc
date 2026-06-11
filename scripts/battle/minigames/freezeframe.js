@@ -1,7 +1,7 @@
 /* Freeze! — creep toward the goal while the foe isn't looking. HOLD to move,
    but the instant the eye snaps open you must let go — move while watched and
    you're caught and shoved back. Reach the flag before your hearts run out. */
-import { el, clamp, loop, rand, sfx, buzz, floatText, petImg, S } from '../util.js';
+import { clamp, loop, rand, sfx, buzz, floatText, petImg, S } from '../util.js';
 
 export default {
   id: 'freezeframe', name: 'Freeze!', icon: '🛑',
@@ -32,6 +32,7 @@ export default {
       const up = () => { holding = false; };
       pad.addEventListener('pointerdown', down);
       window.addEventListener('pointerup', up);
+      window.addEventListener('pointercancel', up);   // never leave the hero creeping on a lost pointer
 
       const place = () => { me.style.left = clamp(prog, 0, 1) * 86 + '%'; };
       place();
@@ -62,8 +63,9 @@ export default {
 
       function finish(win) {
         if (done) return false; done = true; stop();
-        pad.removeEventListener('pointerdown', down); window.removeEventListener('pointerup', up);
-        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7);
+        pad.removeEventListener('pointerdown', down);
+        window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
+        if (!win) sfx(ctx.foe.sfx, 0.7);
         resolve({ win, stars: win ? (hearts >= 3 ? 3 : 2) : 1 });
         return false;
       }

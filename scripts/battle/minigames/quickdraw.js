@@ -62,6 +62,7 @@ export default {
           if (done) return;
           armed = true; started = performance.now();
           z.classList.add('strike'); msg.textContent = 'STRIKE!';
+          S.go();                                  // hear the signal, not just see it
           // the foe also "draws" after its reaction time
           foeTimer = setTimeout(() => finishRound(false, `${ctx.foe.name} struck first!`), foeTime);
         }, delay);

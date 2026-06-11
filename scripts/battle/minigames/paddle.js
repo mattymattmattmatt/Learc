@@ -22,7 +22,7 @@ export default {
       let W = 0, H = 0, pw = 90, ph = 14, br = 9;
       const bricks = [];
       const cols = 5, rows = clamp(2 + Math.floor(ctx.difficulty / 4), 2, 4);
-      let px = 0, ball = { x: 0, y: 0, vx: 0, vy: 0 }, spd = 0, launched = false;
+      let px = 0, ball = { x: 0, y: 0, vx: 0, vy: 0 }, spd = 0;
       let held = 0, pendingA = 0;          // brief pause before a (re)served ball flies off
 
       const buildBricks = () => {
@@ -36,7 +36,7 @@ export default {
         }
         bkEl.textContent = bricks.length;
       };
-      const resetBall = () => { ball.x = px + pw / 2; ball.y = H - 60; ball.vx = 0; ball.vy = 0; pendingA = rand(-0.6, 0.6) - Math.PI / 2; held = 0.5; launched = true; };
+      const resetBall = () => { ball.x = px + pw / 2; ball.y = H - 60; ball.vx = 0; ball.vy = 0; pendingA = rand(-0.6, 0.6) - Math.PI / 2; held = 0.5; };
       const measure = () => {
         const r = field.getBoundingClientRect(); W = r.width; H = r.height;
         pw = clamp(W * 0.24, 70, 140); ph = 14; br = clamp(Math.min(W, H) * 0.028, 8, 13);
@@ -59,6 +59,7 @@ export default {
       field.addEventListener('pointerdown', down);
       window.addEventListener('pointermove', move);
       window.addEventListener('pointerup', up);
+      window.addEventListener('pointercancel', up);
 
       const stop = loop((dt) => {
         if (done) return false;
@@ -105,8 +106,9 @@ export default {
       function finish(win) {
         if (done) return false; done = true; stop();
         field.removeEventListener('pointerdown', down); window.removeEventListener('pointermove', move);
-        window.removeEventListener('pointerup', up); window.removeEventListener('resize', measure);
-        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7);
+        window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
+        window.removeEventListener('resize', measure);
+        if (!win) sfx(ctx.foe.sfx, 0.7);
         resolve({ win, stars: win ? (balls >= 3 ? 3 : 2) : 1 });
         return false;
       }

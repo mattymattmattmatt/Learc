@@ -67,14 +67,17 @@ export default {
         if (Math.max(adx, ady) < 24) return;     // too small — ignore (no penalty)
         judge(adx > ady ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
       };
+      const cancel = () => { tracking = false; };          // interrupted swipe — no penalty
       pad.addEventListener('pointerdown', down);
       window.addEventListener('pointerup', upH);
+      window.addEventListener('pointercancel', cancel);
 
       function end(win) {
         if (done) return; done = true;
         clearTimeout(timer); cancelAnimationFrame(raf);
-        pad.removeEventListener('pointerdown', down); window.removeEventListener('pointerup', upH);
-        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7);
+        pad.removeEventListener('pointerdown', down);
+        window.removeEventListener('pointerup', upH); window.removeEventListener('pointercancel', cancel);
+        if (!win) sfx(ctx.foe.sfx, 0.7);
         resolve({ win, stars: win ? (misses === 0 ? 3 : 2) : 1 });
       }
 

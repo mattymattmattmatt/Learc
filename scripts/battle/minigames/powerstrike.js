@@ -74,7 +74,7 @@ export default {
         if (done) return; done = true;
         stop(); pad.removeEventListener('pointerdown', strike);
         if (!win) sfx(ctx.foe.sfx, 0.7);
-        resolve({ win, stars: win ? (swings >= 3 ? 3 : swings >= 1 ? 2 : 2) : 1 });
+        resolve({ win, stars: win ? (swings >= 3 ? 3 : 2) : 1 });
       }
     });
   }

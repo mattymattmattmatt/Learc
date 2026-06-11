@@ -103,7 +103,7 @@ export default {
         window.removeEventListener('resize', measure);
         notes.forEach(n => n.node && n.node.remove());
         const acc = hits / total, win = acc >= need;
-        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7); buzz(win ? 30 : 60);
+        if (!win) sfx(ctx.foe.sfx, 0.7); buzz(win ? 30 : 60);
         resolve({ win, stars: win ? (acc >= 0.9 ? 3 : 2) : 1 });
         return false;
       }

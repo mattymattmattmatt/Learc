@@ -37,6 +37,7 @@ export default {
       field.addEventListener('pointerdown', down);
       window.addEventListener('pointermove', move);
       window.addEventListener('pointerup', up);
+      window.addEventListener('pointercancel', up);
 
       const items = [];
       const fall = 150 + ctx.difficulty * 24;
@@ -46,7 +47,7 @@ export default {
       const GOOD = (ctx.theme && ctx.theme.proj) || '⭐';
       function spawn() {
         const bomb = Math.random() < bombChance;
-        const n = el('div', 'ct-item' + (bomb ? ' bomb' : ''), bomb ? '💥' : GOOD);
+        const n = el('div', 'ct-item' + (bomb ? ' bomb' : ''), bomb ? '💣' : GOOD);
         const x = rand(10, Math.max(12, W - 40));
         n.style.left = x + 'px'; n.style.top = '-30px';
         field.appendChild(n);
@@ -74,8 +75,9 @@ export default {
         if (done) return false; done = true;
         stop(); field.removeEventListener('pointerdown', down);
         window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up);
+        window.removeEventListener('pointercancel', up);
         window.removeEventListener('resize', measure); items.forEach(it => it.n.remove());
-        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7);
+        if (!win) sfx(ctx.foe.sfx, 0.7);
         resolve({ win, stars: win ? (hearts >= 3 && left > 1 ? 3 : 2) : 1 });
         return false;
       }

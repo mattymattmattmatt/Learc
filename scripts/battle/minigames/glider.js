@@ -75,7 +75,7 @@ export default {
         if (done) return false; done = true; stop();
         field.removeEventListener('pointerdown', flapFn); window.removeEventListener('resize', measure);
         walls.forEach(w => { w.top.remove(); w.bot.remove(); });
-        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7);
+        if (!win) sfx(ctx.foe.sfx, 0.7);
         resolve({ win, stars: win ? (hearts >= 3 ? 3 : 2) : 1 });
         return false;
       }
