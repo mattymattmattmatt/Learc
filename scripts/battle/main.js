@@ -6,7 +6,7 @@ import {
 import { loadPets, getPet, allPets, flavor, REGIONS, BATTLES, KING_INTRO, KING_DEFEAT, pickKingAspect, aspectAffinity } from './data.js';
 import {
   state, startAdventure, currentFoe, currentRegion, recordWin, recordLoss, recordRematch,
-  hasSave, loadSave, totalFoes, clearedCount, totalStars,
+  hasSave, loadSave, savedHeroId, totalFoes, clearedCount, totalStars,
   effDiff, getMode, setMode, livesFor, maxStars, finalScore, getName, setName
 } from './state.js';
 import { getGame } from './minigames/index.js';
@@ -359,11 +359,13 @@ async function runBattle(entry, foeDisp, opts = {}) {
   show(`<div class="screen battle"><div class="arena" id="arena"></div></div>`);
   const arena = byId('arena');
   sfx(foeDisp.sfx, 0.7);
-  await countdown(arena, 'FIGHT!');
+  await countdown(arena, opts.goWord || 'FIGHT!');
   const game = getGame(entry.game);
   let res;
   try {
-    res = await game.play(arena, { difficulty: effDiff(entry.difficulty), hero, foe: foeDisp, theme: entry.theme || {}, aspect: opts.aspect });
+    // practice picks an exact level, so it skips the story-mode scaling
+    const difficulty = opts.rawDiff ? entry.difficulty : effDiff(entry.difficulty);
+    res = await game.play(arena, { difficulty, hero, foe: foeDisp, theme: entry.theme || {}, aspect: opts.aspect });
   } catch (e) {
     console.error('minigame error', e);
     res = { win: false, stars: 1 };
@@ -882,7 +884,7 @@ function screenDex() {
   show(`
     <div class="screen dex">
       <h2 class="screen-title">📖 Critterdex</h2>
-      <p class="dex-sub">All ${allPets().length} champions of Liitokala. Tap one to meet them — ★ is your best battle ever.</p>
+      <p class="dex-sub">All ${allPets().length} champions of Liitokala. Tap one to meet them and 🎯 practice their minigame — ★ is your best battle ever.</p>
       <div class="dex-grid">
         ${allPets().map(p => {
           const best = bestStarsFor(p.id);
@@ -926,13 +928,76 @@ function dexDetail(id) {
         <span><b>${b.act || 'Champion’s Trial'}</b><br><small>signature attack</small></span></div>
       <div class="dex-row"><span class="ic">${game.icon}</span>
         <span><b>${game.name}</b><br><small>${game.howto}</small></span></div>
+      <div class="dex-prac-row">
+        <span class="dex-prac-label">🎯 Practice</span>
+        <button class="prac-btn" data-d="2">😊 Easy</button>
+        <button class="prac-btn" data-d="5">⚔️ Medium</button>
+        <button class="prac-btn" data-d="8">🔥 Hard</button>
+      </div>
       <div class="dex-stars">${best ? 'Your best: ' + '★'.repeat(best) + '☆'.repeat(3 - best) : 'Not yet bested in battle…'}</div>
     </div>`);
   document.querySelector('.screen').appendChild(pop);
   sfx(p.sfx, 0.8);
+  pop.querySelectorAll('.prac-btn').forEach(b => b.onclick = () => {
+    S.ui(); pop.remove(); startPractice(id, +b.dataset.d);
+  });
   pop.addEventListener('pointerdown', e => {
     if (e.target === pop || e.target.closest('.dex-close')) pop.remove();
   });
+}
+
+/* ════════ PRACTICE MODE (from the Critterdex) ════════
+   Friendly training against any champion at a chosen level. Nothing is
+   recorded — no stars, badges or hearts — it's pure rehearsal. */
+const PRAC_LABEL = { 2: '😊 Easy', 5: '⚔️ Medium', 8: '🔥 Hard' };
+const PRAC_NEXT = { 2: 5, 5: 8 };
+
+function startPractice(foeId, diff) {
+  const foe = getPet(foeId); if (!foe) return screenDex();
+  const b = BATTLES[foeId] || {};
+  const entry = {
+    id: foeId, difficulty: diff, game: b.game || 'quickdraw',
+    theme: { proj: b.proj || '⭐', color: b.color || '#ffd23f', act: b.act || 'Champion’s Trial' }
+  };
+  // spar as your adventure hero when one is saved, else a random friend steps in
+  const saved = savedHeroId();
+  const heroId = (saved && saved !== foeId) ? saved
+    : pickOther(foeId);
+  runBattle(entry, foe, {
+    heroId, rawDiff: true, goWord: 'PRACTICE!',
+    onResult: res => screenPracticeResult(foeId, diff, res)
+  });
+}
+function pickOther(foeId) {
+  const others = allPets().filter(p => p.id !== foeId);
+  return others[(Math.random() * others.length) | 0].id;
+}
+
+function screenPracticeResult(foeId, diff, res) {
+  const foe = getPet(foeId);
+  const stars = res.stars || 1;
+  const next = PRAC_NEXT[diff];
+  const mastered = res.win && !next;
+  show(`
+    <div class="screen result ${res.win ? 'win' : 'lose'}">
+      <div class="result-card">
+        <div class="res-burst">🎯</div>
+        <h2 class="res-title">${res.win ? 'Practice Cleared!' : 'Good Practice!'}</h2>
+        <img class="res-foe ${res.win ? '' : 'dim'}" src="${SPRITE(foe.sprite)}">
+        ${res.win ? `<div class="res-stars" id="stars">${'<span class="star-slot">☆</span>'.repeat(3)}</div>` : ''}
+        <p class="res-line">${PRAC_LABEL[diff] || diff} · <b>${foe.name}</b><br>
+          ${mastered ? 'Mastered! Now show the realm ⚔️' : res.win ? 'Nicely done — fancy a tougher round?' : 'No harm done — practice never counts. Try again!'}</p>
+        <p class="end-sub">Just practice — no stars or records changed.</p>
+        <button class="btn btn-go" id="again">${res.win ? 'Once More ▸' : 'Try Again ▸'}</button>
+        ${res.win && next ? `<button class="btn btn-2" id="harder">Level Up: ${PRAC_LABEL[next]} ▸</button>` : ''}
+        <button class="btn-link" id="back">◂ Back to Critterdex</button>
+      </div>
+    </div>`);
+  if (res.win) { buzz(40); S.win(); confetti(document.querySelector('.screen'), 26); revealStars(stars); }
+  else S.bad();
+  byId('again').onclick = () => startPractice(foeId, diff);
+  const h = byId('harder'); if (h) h.onclick = () => startPractice(foeId, next);
+  byId('back').onclick = () => { screenDex(); dexDetail(foeId); };
 }
 
 /* ════════ shared dialogue ════════ */

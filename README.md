@@ -102,7 +102,10 @@ banks its stars. Fall (or retire to bank your score) and submit to the
 
 The **Critterdex** (from the title) is a gallery of all 24 creatures — art,
 epithet, power, signature attack, their microgame, and your **best-ever stars**
-against them, kept *across runs*. Tap a creature to hear its roar. Below it
+against them, kept *across runs*. Tap a creature to hear its roar — and use the
+**🎯 Practice** chips (Easy / Medium / Hard) on its card to rehearse that
+creature's minigame freely: no hearts, stars or records at stake, with a
+"level up" shortcut when you clear a round. Below it
 live **10 badges** (First Victory, Flawless, the three region liberations,
 Crown Breaker, Unbroken, Star Master, and two Gauntlet feats) — earned badges
 pop in with a golden toast mid-game and are remembered forever.
