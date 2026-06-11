@@ -53,18 +53,23 @@ export async function submitScore(entry) {
   } catch (err) { console.warn('[leaderboard] submit failed:', err?.message || err); return false; }
 }
 
-/* Top N scores. Falls back to the local board if the cloud is unreachable. */
-export async function topScores(n = 10) {
+/* Top N scores for one board: 'adventure' (default) or 'gauntlet'.
+   Both live in the same `scores` collection, told apart by `mode`;
+   entries from before gauntlet existed have no mode → adventure.
+   Falls back to the local board if the cloud is unreachable. */
+export async function topScores(n = 10, board = 'adventure') {
+  const isGauntlet = r => (r && r.mode) === 'gauntlet';
+  const want = r => (board === 'gauntlet') ? isGauntlet(r) : !isGauntlet(r);
   await init();
   if (db) {
     try {
       await authReady;
       const fs = await import('firebase/firestore');
-      const q = fs.query(fs.collection(db, 'scores'), fs.orderBy('score', 'desc'), fs.limit(n));
+      const q = fs.query(fs.collection(db, 'scores'), fs.orderBy('score', 'desc'), fs.limit(60));
       const snap = await fs.getDocs(q);
-      const rows = snap.docs.map(d => d.data());
+      const rows = snap.docs.map(d => d.data()).filter(want).slice(0, n);
       return { rows, source: 'cloud' };
     } catch (err) { console.warn('[leaderboard] read failed:', err?.message || err); }
   }
-  return { rows: localBoard().slice(0, n), source: 'local' };
+  return { rows: localBoard().filter(want).slice(0, n), source: 'local' };
 }
