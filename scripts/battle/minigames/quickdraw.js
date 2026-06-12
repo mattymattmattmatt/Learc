@@ -41,9 +41,9 @@ export default {
           z.classList.add(playerWon ? 'win' : 'lose');
           sc.textContent = `You ${pWins} — ${fWins} ${ctx.foe.name}`;
           setTimeout(() => {
-            if (pWins >= 2 || fWins >= 2) {
-              const win = pWins >= 2;
-              resolve({ win, stars: win ? (fWins === 0 ? 3 : 2) : 1 });
+            if (pWins >= 3 || fWins >= 3) {        // best of five — first to 3 wins
+              const win = pWins >= 3;
+              resolve({ win, stars: win ? (fWins <= 1 ? 3 : 2) : 1 });
             } else next();
           }, 850);
         };
