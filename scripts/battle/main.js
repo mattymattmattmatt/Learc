@@ -1,6 +1,6 @@
 /* main.js — Battle of the Realm: screen flow & glue */
 import {
-  byId, el, petImg, SPRITE, KING_GIF, playMusic, sfx, buzz, countdown,
+  byId, el, petImg, SPRITE, KING_GIF, playMusic, stopMusic, sfx, buzz, countdown,
   S, confetti, isMuted, toggleMute, shuffle, sparkle
 } from './util.js';
 import { loadPets, getPet, allPets, flavor, REGIONS, BATTLES, KING_INTRO, KING_DEFEAT, pickKingAspect, aspectAffinity } from './data.js';
@@ -48,7 +48,7 @@ function installChrome() {
 
 /* ════════ TITLE ════════ */
 function screenTitle() {
-  playMusic('bgm_intro.mp3');
+  stopMusic();   // the realm stays hushed — music begins with the adventure
   const cont = hasSave();
   const mode = getMode();
   show(`
@@ -73,6 +73,7 @@ function screenTitle() {
           <span class="mode-hint" id="modeHint">${mode === 'story' ? '5 hearts, gentler challenges — great for younger players.' : '3 hearts, the full challenge.'}</span>
         </div>
         <p class="foot">Free the realm from the Tarnished Crown.</p>
+        <button class="btn-link foot-credits" id="credits">✨ made with love — credits</button>
       </div>
     </div>`);
   drift(byId('drift'));
@@ -81,6 +82,7 @@ function screenTitle() {
   byId('gauntlet').onclick = () => screenGauntletSelect();
   byId('board').onclick = () => screenLeaderboard();
   byId('dex').onclick = () => screenDex();
+  byId('credits').onclick = () => screenCredits();
   APP.querySelectorAll('.seg-btn').forEach(b => b.onclick = () => {
     const m = b.dataset.mode; setMode(m); S.ui();
     APP.querySelectorAll('.seg-btn').forEach(x => x.classList.toggle('on', x === b));
@@ -120,7 +122,31 @@ const INTRO = [
   'Today, that brave creature is you. Choose your hero…'
 ];
 function screenIntro() {
+  playMusic('bgm_intro.mp3');   // the adventure — and its music — begin here
   dialogue({ portrait: KING_GIF, name: 'The Tale of the Realm', lines: INTRO, cls: 'intro', onDone: screenSelect });
+}
+
+/* ════════ CREDITS ════════ */
+function screenCredits() {
+  show(`
+    <div class="screen menu credits">
+      <div class="bg-drift" id="cdrift"></div>
+      <div class="menu-card credits-card">
+        <div class="cr-spark">✨</div>
+        <h1 class="title small">The Makers<br>of the Realm</h1>
+        <p class="cr-role">creature designers</p>
+        <h2 class="cr-names"><span class="cr-name">Leila</span> &amp; <span class="cr-name">Archie</span></h2>
+        <p class="cr-role">with trusty sidekick</p>
+        <h3 class="cr-uncle">Uncle Matty</h3>
+        <p class="cr-story">All 24 champions of Liitokala were dreamed up together on a
+          family adventure in <b>Bali</b> 🌴<br><span class="cr-when">mid 2025</span></p>
+        <p class="cr-hint">psst — tap the creatures floating by 👀</p>
+        <button class="btn btn-go" id="back">◂ Back</button>
+      </div>
+    </div>`);
+  drift(byId('cdrift'));
+  confetti(document.querySelector('.screen'), 24);
+  byId('back').onclick = () => screenTitle();
 }
 
 /* ════════ HERO SELECT ════════ */
@@ -575,6 +601,7 @@ function screenEnding() {
         </p>
         <div class="end-stars">Final Score: ★ ${score} / ${max}</div>
         <div class="end-sub">${state.mode === 'story' ? '😊 Story' : '⚔️ Normal'} mode${clean ? ' · clean run bonus +6 ✨' : ` · ${state.continues} continue${state.continues > 1 ? 's' : ''}`}</div>
+        <div class="end-credit">✨ creatures by <b>Leila &amp; Archie</b> ✨</div>
         <input class="name-input" id="name" maxlength="14" placeholder="Your name" value="${escapeHtml(getName())}">
         <button class="btn btn-go" id="submit">Submit to Leaderboard 🏆</button>
         <div class="btn-row">
@@ -880,7 +907,6 @@ function screenGauntletOver() {
 
 /* ════════ CRITTERDEX (collection + badges) ════════ */
 function screenDex() {
-  playMusic('bgm_intro.mp3');
   show(`
     <div class="screen dex">
       <h2 class="screen-title">📖 Critterdex</h2>
@@ -941,6 +967,7 @@ function dexDetail(id) {
   pop.querySelectorAll('.prac-btn').forEach(b => b.onclick = () => {
     S.ui(); pop.remove(); startPractice(id, +b.dataset.d);
   });
+  pop.querySelector('.dex-close').onclick = () => pop.remove();
   pop.addEventListener('pointerdown', e => {
     if (e.target === pop || e.target.closest('.dex-close')) pop.remove();
   });
