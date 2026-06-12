@@ -77,6 +77,7 @@ export default {
       field.addEventListener('pointerdown', down);
       field.addEventListener('pointermove', move);
       window.addEventListener('pointerup', up);
+      window.addEventListener('pointercancel', up);
 
       const stop = loop((dt) => {
         if (done) return false;
@@ -86,9 +87,10 @@ export default {
 
       function finish(win) {
         if (done) return false; done = true; stop();
-        field.removeEventListener('pointerdown', down); field.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up);
+        field.removeEventListener('pointerdown', down); field.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
         window.removeEventListener('resize', measure);
-        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7);
+        if (!win) sfx(ctx.foe.sfx, 0.7);
         resolve({ win, stars: win ? (left > TIME * 0.4 ? 3 : 2) : 1 });
         return false;
       }

@@ -99,6 +99,13 @@ export function recordWin(foeId, stars) {
   return 'next-foe';
 }
 
+/* friendly rematch of an already-freed champion: can only improve the
+   star record — never costs lives, never moves progression */
+export function recordRematch(foeId, stars) {
+  state.stars[foeId] = Math.max(state.stars[foeId] || 0, stars);
+  save();
+}
+
 /* returns 'retry' (lives remain) or 'gameover' */
 export function recordLoss() {
   state.lives--;
@@ -125,6 +132,10 @@ export function save() {
   } catch {}
 }
 export function hasSave() { try { return !!localStorage.getItem(LS); } catch { return false; } }
+/* peek the saved adventure's hero without loading the save (used by practice mode) */
+export function savedHeroId() {
+  try { const d = JSON.parse(localStorage.getItem(LS) || 'null'); return (d && d.heroId) || null; } catch { return null; }
+}
 export function loadSave() {
   let raw; try { raw = localStorage.getItem(LS); } catch { return false; }
   if (!raw) return false;

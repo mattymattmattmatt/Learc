@@ -94,9 +94,11 @@ export default {
         pull.x = anchor.x + dx; pull.y = anchor.y + dy;
         setPouch(pull.x, pull.y); drawBands(pull.x, pull.y); drawTraj();
       }
+      const cancelAim = () => { if (!aiming) return; aiming = false; traj.innerHTML = ''; clearBands(); restPouch(); };   // lost pointer ≠ a shot
       field.addEventListener('pointerdown', down);
       window.addEventListener('pointermove', move);
       window.addEventListener('pointerup', upH);
+      window.addEventListener('pointercancel', cancelAim);
 
       const stop = loop((dt, now) => {
         if (done) return false;
@@ -130,9 +132,9 @@ export default {
         if (done) return false; done = true; stop();
         field.removeEventListener('pointerdown', down);
         window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', upH);
-        window.removeEventListener('resize', measure);
-        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7);
-        resolve({ win, stars: win ? (stones >= 3 ? 3 : stones >= 1 ? 2 : 2) : 1 });
+        window.removeEventListener('pointercancel', cancelAim); window.removeEventListener('resize', measure);
+        if (!win) sfx(ctx.foe.sfx, 0.7);
+        resolve({ win, stars: win ? (stones >= 3 ? 3 : 2) : 1 });
         return false;
       }
     });

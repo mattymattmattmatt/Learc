@@ -22,7 +22,7 @@ export default {
 
       area.innerHTML = `
         ${stageHTML(ctx, 'mem')}
-        <div class="mem-status" id="st">Watch carefully…</div>
+        <div class="mem-status" id="st">Watch carefully — ${len} runes…</div>
         <div class="mem-grid">
           ${PADS.map((p, i) => `<button class="mem-pad ${p.c}" data-i="${i}" disabled>${p.e}</button>`).join('')}
         </div>`;
@@ -48,6 +48,7 @@ export default {
           if (i === seq[pos]) {
             pos++; buzz(12); S.pad(i);
             if (pos >= seq.length) finish(true);
+            else st.textContent = `${pos} / ${seq.length} — keep going!`;
           } else {
             hitFlash(heroEl); S.bad(); finish(false);
           }

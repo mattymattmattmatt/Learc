@@ -80,7 +80,7 @@ export default {
       function end(win) {
         if (done) return false; done = true; stop();
         orbs.forEach(o => o.node.remove());
-        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7); buzz(win ? 30 : 60);
+        if (!win) sfx(ctx.foe.sfx, 0.7); buzz(win ? 30 : 60);
         resolve({ win, stars: win ? (hearts >= 3 ? 3 : 2) : 1 });
         return false;
       }
