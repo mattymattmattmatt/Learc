@@ -66,7 +66,7 @@ to the creature that uses it.
 | 🐍 **Venom Trail** | a Snake game — eat orbs, don't cross your poison trail |
 | 🌀 **Unwind** | drag in circles to spin free of the coils |
 | ✍️ **Break the Trance** | trace the glowing sigil through its dots in order |
-| 👑 **The Gilded King** | bespoke boss duel — dodge the crown's attack waves, then strike it while exposed |
+| 👑 **The Gilded King** | bespoke boss duel — every wave mixes attack patterns from the crown's Aspect, and each opening allows exactly ONE strike before the King recovers; at half health he enrages with crown-shard bursts |
 
 ## Score, stars & leaderboard
 
@@ -161,5 +161,8 @@ The **Gilded King** is a bespoke 1-on-1 boss duel (see below), not a microgame.
 
 ## Credits
 
-All 24 creatures — names, designs, powers and personalities — were created by the
-game's young designer. This adventure was built to celebrate them. 💛
+All 24 creatures — names, designs, powers and personalities — were dreamed up by
+**Leila & Archie** (with trusty sidekick **Uncle Matty**) on a family adventure
+in Bali, mid 2025. This game was built to celebrate them. 💛
+There's a sparkly ✨ credits page on the title screen, too — tap the creatures
+floating past it to hear their roars.

@@ -795,3 +795,31 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg1);color:var
 .prac-btn[data-d="2"]{background:linear-gradient(180deg,#49b86e,#2f8a4d);}
 .prac-btn[data-d="5"]{background:linear-gradient(180deg,#4a8fd0,#3568a8);}
 .prac-btn[data-d="8"]{background:linear-gradient(180deg,#d0604a,#a83a35);}
+
+/*──────── credits (made with love) ────────*/
+.foot-credits{font-size:.78rem;opacity:.8;margin-top:0;}
+.credits-card{border-color:rgba(255,210,63,.45);box-shadow:0 0 44px rgba(255,210,63,.14),0 18px 50px rgba(0,0,0,.5);}
+.cr-spark{font-size:2rem;line-height:1;animation:bob 2s ease-in-out infinite;}
+.cr-role{color:var(--muted);text-transform:uppercase;font-size:.7rem;letter-spacing:3px;margin:12px 0 2px;}
+.cr-names{font-family:"Cinzel",serif;font-size:clamp(1.7rem,8vw,2.5rem);line-height:1.1;margin:0;color:var(--gold);}
+.cr-name{background:linear-gradient(100deg,#ffd23f 25%,#fff7d9 45%,#ffd23f 65%);background-size:220% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 2.8s linear infinite;}
+@keyframes shimmer{to{background-position:-220% 0}}
+.cr-uncle{font-family:"Cinzel",serif;color:var(--ink);font-size:1.3rem;margin:0 0 4px;}
+.cr-story{line-height:1.55;margin:12px 0 4px;}
+.cr-story b{color:var(--gold);}
+.cr-when{color:var(--gold);font-weight:700;letter-spacing:1px;font-size:.9rem;}
+.cr-hint{color:var(--muted);font-size:.76rem;margin:6px 0 10px;}
+.end-credit{color:var(--gold);font-size:.82rem;margin-bottom:8px;opacity:.92;}
+.end-credit b{letter-spacing:.5px;}
+
+/*──────── King revamp: slam zones, enrage, gloom pulse ────────*/
+.kf-zone{position:absolute;transform:translate(-50%,-50%);border-radius:50%;z-index:1;pointer-events:none;
+  border:3px dashed rgba(255,140,70,.9);background:rgba(255,100,40,.16);animation:dvPulse .5s ease-in-out infinite;}
+.kf-zone.slam{animation:kfSlam .24s ease forwards;border-style:solid;border-color:#fff;background:rgba(255,180,70,.55);}
+@keyframes kfSlam{to{transform:translate(-50%,-50%) scale(1.18);opacity:0}}
+.kf-field.enraged .kf-king img{filter:drop-shadow(0 0 24px rgba(255,90,50,.95)) saturate(1.35);}
+.kf-field.enraged{animation:enrageFlash .6s ease;}
+@keyframes enrageFlash{0%{box-shadow:inset 0 0 90px rgba(255,60,30,.75)}100%{box-shadow:none}}
+.kf-vignette.pulse{animation:gloomPulse .7s ease;}
+@keyframes gloomPulse{0%,100%{opacity:1}50%{opacity:1;filter:brightness(.55)}}
