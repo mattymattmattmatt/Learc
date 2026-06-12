@@ -967,6 +967,7 @@ function dexDetail(id) {
   pop.querySelectorAll('.prac-btn').forEach(b => b.onclick = () => {
     S.ui(); pop.remove(); startPractice(id, +b.dataset.d);
   });
+  pop.querySelector('.dex-close').onclick = () => pop.remove();
   pop.addEventListener('pointerdown', e => {
     if (e.target === pop || e.target.closest('.dex-close')) pop.remove();
   });

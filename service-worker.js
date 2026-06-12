@@ -1,9 +1,10 @@
-/* Battle of the Realm — offline-first service worker.
-   Precache the app shell (HTML/CSS/JS/data); creature art and audio are
-   cached on first use (stale-while-revalidate), after which the whole
-   game runs without a network. Bump CACHE to invalidate old caches. */
+/* Battle of the Realm — offline-capable service worker.
+   App shell (HTML/JS/CSS/data) is NETWORK-FIRST so new versions apply on
+   the next load, falling back to cache offline. Heavy media (creature art,
+   audio) is cache-first with a background refresh. Bump CACHE on breaking
+   changes to flush old caches. */
 
-const CACHE = 'botr-v1';
+const CACHE = 'botr-v2';
 
 const CORE = [
   './',
@@ -47,6 +48,11 @@ const CORE = [
   'scripts/battle/minigames/boss.js'
 ];
 
+/* the app shell: anything that defines game logic or layout */
+const isShell = url =>
+  url.pathname.endsWith('/') ||
+  /\.(html|js|css|json|webmanifest)$/.test(url.pathname);
+
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE)
@@ -63,25 +69,34 @@ self.addEventListener('activate', e => {
   );
 });
 
-/* same-origin GET → stale-while-revalidate; everything else (Google Fonts,
-   Firebase) goes straight to the network untouched. */
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  if (url.origin !== location.origin) return;
+  if (url.origin !== location.origin) return;   // fonts, Firebase → straight to network
+
   e.respondWith(caches.open(CACHE).then(async c => {
+    if (isShell(url)) {
+      // network-first: always current when online, cached when offline
+      try {
+        const res = await fetch(req);
+        if (res && res.ok) c.put(req, res.clone());
+        return res;
+      } catch {
+        const hit = await c.match(req);
+        if (hit) return hit;
+        if (req.mode === 'navigate') {
+          const shell = await c.match('index.html');
+          if (shell) return shell;
+        }
+        return Response.error();
+      }
+    }
+    // media: cache-first with a silent background refresh
     const hit = await c.match(req);
     const net = fetch(req)
       .then(res => { if (res && res.ok) c.put(req, res.clone()); return res; })
       .catch(() => null);
-    if (hit) return hit;
-    const fresh = await net;
-    if (fresh) return fresh;
-    if (req.mode === 'navigate') {
-      const shell = await c.match('index.html');
-      if (shell) return shell;
-    }
-    return Response.error();
+    return hit || (await net) || Response.error();
   }));
 });
