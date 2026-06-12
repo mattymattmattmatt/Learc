@@ -10,11 +10,11 @@ export default {
   play(area, ctx) {
     return new Promise(resolve => {
       const COLS = 3, ROWS = 3, N = COLS * ROWS;
-      const TIME = 18, goal = 12 + ctx.difficulty;
+      const TIME = 18, goal = 12 + Math.min(ctx.difficulty, 9);       // capped so enough bursts can even spawn
       let score = 0, hearts = 3, left = TIME, done = false;
-      const life = clamp(1.25 - ctx.difficulty * 0.06, 0.55, 1.25);   // seconds a burst stays up
-      const gap = clamp(0.85 - ctx.difficulty * 0.05, 0.32, 0.85);    // spawn interval
-      const badChance = clamp(0.12 + ctx.difficulty * 0.03, 0.12, 0.45);
+      const life = clamp(1.25 - ctx.difficulty * 0.06, 0.48, 1.25);   // seconds a burst stays up
+      const gap = clamp(0.85 - ctx.difficulty * 0.05, 0.28, 0.85);    // spawn interval
+      const badChance = clamp(0.12 + ctx.difficulty * 0.03, 0.12, 0.4);
 
       area.innerHTML = `
         <div class="es-hud"><span id="hearts">${'❤'.repeat(hearts)}</span>

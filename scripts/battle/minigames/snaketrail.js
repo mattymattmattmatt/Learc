@@ -27,7 +27,7 @@ export default {
 
       const pos = { x: W / 2, y: H / 2 }, dir = { a: -Math.PI / 2 };
       let target = dir.a, pointer = null;
-      const speed = 120 + ctx.difficulty * 12, turn = 4.5;
+      const speed = Math.min(276, 120 + ctx.difficulty * 12), turn = 4.5;
       const trail = [];                 // {x,y,node}
       let baseLen = 14, spacing = 0, distAcc = 0;
       const orb = { x: 0, y: 0 };

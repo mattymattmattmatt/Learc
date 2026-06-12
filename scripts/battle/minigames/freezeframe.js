@@ -37,8 +37,8 @@ export default {
       place();
       const setPhase = p => {
         phase = p; track.dataset.phase = p;
-        if (p === 'green') { light.textContent = 'GO!'; light.className = 'ff-light go'; eye.textContent = '😌'; timer = rand(1.3, 2.4) - ctx.difficulty * 0.05; }
-        else if (p === 'warn') { light.textContent = '…'; light.className = 'ff-light warn'; eye.textContent = '😐'; timer = clamp(0.6 - ctx.difficulty * 0.03, 0.25, 0.6); }
+        if (p === 'green') { light.textContent = 'GO!'; light.className = 'ff-light go'; eye.textContent = '😌'; timer = Math.max(0.55, rand(1.3, 2.4) - ctx.difficulty * 0.05); }
+        else if (p === 'warn') { light.textContent = '…'; light.className = 'ff-light warn'; eye.textContent = '😐'; timer = clamp(0.6 - ctx.difficulty * 0.03, 0.22, 0.6); }
         else { light.textContent = 'FREEZE!'; light.className = 'ff-light red'; eye.textContent = '👁️'; timer = rand(0.9, 1.8); S.bad(); }
       };
       setPhase('green');

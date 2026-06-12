@@ -11,7 +11,7 @@ export default {
   play(area, ctx) {
     return new Promise(resolve => {
       let pWins = 0, fWins = 0, round = 0;
-      const foeTime = clamp(640 - ctx.difficulty * 44, 150, 720); // ms
+      const foeTime = clamp(640 - ctx.difficulty * 40, 185, 720); // ms — 185 floor stays humanly beatable
 
       area.innerHTML = `
         ${stageHTML(ctx, 'qd')}

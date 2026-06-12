@@ -21,7 +21,7 @@ export function isEndless() { return state.mode === 'hard'; }    // Hard = no li
 /* scale a foe's base difficulty (1..10) by the chosen mode */
 export function effDiff(d) {
   if (state.mode === 'story') return Math.max(1, Math.round(d * 0.62));
-  if (state.mode === 'hard')  return Math.min(14, Math.round(d * 1.5) + 1);   // a lot harder
+  if (state.mode === 'hard')  return Math.min(14, d + 5);   // every battle plays ~5 tiers up, capped at 14
   return d;
 }
 

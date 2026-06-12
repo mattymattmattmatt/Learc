@@ -10,9 +10,9 @@ export default {
 
   play(area, ctx) {
     return new Promise(resolve => {
-      const hp0 = 5 + Math.floor(ctx.difficulty / 2);   // tougher foe (≈5..9)
+      const hp0 = Math.min(10, 5 + Math.floor(ctx.difficulty / 2));
       let hp = hp0, shots = hp0 + 3, done = false;
-      const rate = 0.6 + ctx.difficulty * 0.08;          // meter fill per second
+      const rate = Math.min(1.3, 0.6 + ctx.difficulty * 0.08);   // fill/s — capped so the band stays catchable
       // the golden band jumps to a new height and size every shot
       let bandW = 0.2, bandLo = 0.5, bandHi = 0.7;
       const placeBand = () => {

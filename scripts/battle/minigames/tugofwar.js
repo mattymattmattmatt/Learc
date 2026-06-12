@@ -23,7 +23,7 @@ export default {
       const TIME = 16;
       let left = TIME, done = false, taps = 0;
       const pull = 0.05;
-      const foeRate = 0.17 + ctx.difficulty * 0.045;
+      const foeRate = clamp(0.17 + ctx.difficulty * 0.045, 0, 0.4);   // 0.4 ≈ 8 taps/s just to hold — mash ceiling
 
       const place = () => { knot.style.left = (50 + pos * 46) + '%'; };
       place();

@@ -44,8 +44,8 @@ export default {
       window.addEventListener('pointerup', up);
 
       const projs = [];
-      const spawnEvery = clamp(0.9 - ctx.difficulty * 0.06, 0.28, 0.9);
-      const pspeed = 150 + ctx.difficulty * 26;
+      const spawnEvery = clamp(0.9 - ctx.difficulty * 0.06, 0.2, 0.9);   // keeps thickening up to d≈12
+      const pspeed = 150 + ctx.difficulty * 26;                          // d14 ≈ 514 px/s
       let acc = 0, iframe = 0;
 
       const PROJ = (ctx.theme && ctx.theme.proj) || '⭐';
@@ -71,7 +71,7 @@ export default {
         if (done) return false;
         left -= dt; iframe = Math.max(0, iframe - dt);
         tf.style.width = clamp((left / TIME) * 100, 0, 100) + '%';
-        acc += dt; if (acc >= spawnEvery) { acc = 0; spawn(); if (ctx.difficulty >= 6) spawn(); }
+        acc += dt; if (acc >= spawnEvery) { acc = 0; spawn(); if (ctx.difficulty >= 6) spawn(); if (ctx.difficulty >= 11) spawn(); }
 
         const hx = px + size / 2, hy = py + size / 2, hr = size * 0.46;   // matches the round token
         for (let i = projs.length - 1; i >= 0; i--) {

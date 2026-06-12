@@ -9,7 +9,7 @@ export default {
 
   play(area, ctx) {
     return new Promise(resolve => {
-      const goal = 9 + ctx.difficulty;
+      const goal = 9 + Math.min(ctx.difficulty, 10);   // capped — clip + reload throughput is the limit
       const TIME = 20, CLIP = 6;
       let score = 0, ammo = CLIP, reloading = false, left = TIME, done = false;
 
@@ -33,7 +33,7 @@ export default {
       const targets = [];
       const tSpeed = 140 + ctx.difficulty * 20;
       const bombChance = clamp((ctx.difficulty - 3) * 0.05, 0, 0.32);
-      let acc = 0, every = clamp(1.1 - ctx.difficulty * 0.06, 0.5, 1.1);
+      let acc = 0, every = clamp(1.1 - ctx.difficulty * 0.06, 0.42, 1.1);
 
       function spawn() {
         const bomb = Math.random() < bombChance;

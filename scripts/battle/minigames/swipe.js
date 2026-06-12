@@ -12,8 +12,8 @@ export default {
 
   play(area, ctx) {
     return new Promise(resolve => {
-      const need = 9 + ctx.difficulty;          // clean swipes to win
-      const perArrow = clamp(1600 - ctx.difficulty * 120, 550, 1600);  // ms allowed
+      const need = 9 + Math.min(ctx.difficulty, 11);    // clean swipes to win
+      const perArrow = clamp(1600 - ctx.difficulty * 120, 460, 1600);  // ms allowed
       let hits = 0, misses = 0, done = false, cur = null, timer = null, deadline = 0;
 
       area.innerHTML = `

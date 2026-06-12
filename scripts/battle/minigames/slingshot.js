@@ -48,7 +48,7 @@ export default {
       measure(); window.addEventListener('resize', measure);
       const b0 = bounds(); foe.x = (b0.x0 + b0.x1) / 2; foe.y = (b0.y0 + b0.y1) / 2; newWaypoint();
 
-      const foeSpd = 55 + ctx.difficulty * 16;          // flies faster with difficulty
+      const foeSpd = Math.min(240, 55 + ctx.difficulty * 16);   // flies faster, but stays leadable
       const wind = (ctx.difficulty >= 5 ? rand(-1, 1) * (ctx.difficulty - 4) * 14 : 0);
       let jitter = 0;
 

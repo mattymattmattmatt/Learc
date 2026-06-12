@@ -21,7 +21,7 @@ export default {
 
       let W = 0, H = 0, pw = 90, ph = 14, br = 9;
       const bricks = [];
-      const cols = 5, rows = clamp(2 + Math.floor(ctx.difficulty / 4), 2, 4);
+      const cols = 5, rows = clamp(2 + Math.floor(ctx.difficulty / 4), 2, 5);
       let px = 0, ball = { x: 0, y: 0, vx: 0, vy: 0 }, spd = 0, launched = false;
       let held = 0, pendingA = 0;          // brief pause before a (re)served ball flies off
 

@@ -10,11 +10,11 @@ export default {
 
   play(area, ctx) {
     return new Promise(resolve => {
-      const hp0 = 5 + Math.floor(ctx.difficulty / 2);     // tougher foe (≈5..9)
+      const hp0 = Math.min(9, 5 + Math.floor(ctx.difficulty / 2));
       let hp = hp0;
       let swings = hp0 + 3;
-      const speed = 0.95 + ctx.difficulty * 0.18;         // full sweeps/sec (constant, readable)
-      const zoneW = clamp(0.28 - ctx.difficulty * 0.024, 0.07, 0.28);
+      const speed = Math.min(2.45, 0.95 + ctx.difficulty * 0.18);   // sweeps/sec — capped so the zone stays hittable
+      const zoneW = clamp(0.28 - ctx.difficulty * 0.024, 0.085, 0.28);
       const bullW = zoneW * 0.34;
       // the target zone jumps to a new spot every swing — no camping the centre
       let zc = 0.5;

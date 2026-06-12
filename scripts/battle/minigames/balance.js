@@ -13,7 +13,7 @@ export default {
       const TIME = 14;
       let tilt = 0, vel = 0, left = TIME, done = false;
       let push = 0;
-      const pushMax = 0.45 + ctx.difficulty * 0.11;
+      const pushMax = clamp(0.45 + ctx.difficulty * 0.11, 0, 1.65);
       const impulse = 1.7, damp = 1.7;
       let shoveIn = rand(1.4, 2.6);
 
@@ -66,8 +66,8 @@ export default {
         push = clamp(push + rand(-1, 1) * dt * 1.4, -pushMax, pushMax);
         shoveIn -= dt;
         if (shoveIn <= 0) {
-          shoveIn = rand(1.3, 2.6) - ctx.difficulty * 0.08;
-          vel += (Math.random() < 0.5 ? -1 : 1) * (0.85 + ctx.difficulty * 0.12);
+          shoveIn = Math.max(0.55, rand(1.3, 2.6) - ctx.difficulty * 0.08);   // always a beat to recover
+          vel += (Math.random() < 0.5 ? -1 : 1) * Math.min(2.05, 0.85 + ctx.difficulty * 0.12);
           hitFlash(foeEl); S.bad();
         }
         vel += push * dt; vel *= (1 - damp * dt); tilt += vel * dt;
