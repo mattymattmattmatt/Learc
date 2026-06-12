@@ -11,12 +11,19 @@ export const MAX_LIVES = 3;
 const LS = 'realm:save';
 const MODE_LS = 'realm:mode';
 
-/* difficulty mode: 'story' (gentler, more hearts) or 'normal' */
-export function getMode() { try { return localStorage.getItem(MODE_LS) === 'story' ? 'story' : 'normal'; } catch { return 'normal'; } }
-export function setMode(m) { try { localStorage.setItem(MODE_LS, m === 'story' ? 'story' : 'normal'); } catch {} }
+/* difficulty mode: 'story' (gentle, more hearts), 'normal', or 'hard'
+   (brutal minigames, but no lives — you just continue from where you flopped). */
+const MODES = ['story', 'normal', 'hard'];
+export function getMode() { try { const m = localStorage.getItem(MODE_LS); return MODES.includes(m) ? m : 'normal'; } catch { return 'normal'; } }
+export function setMode(m) { try { localStorage.setItem(MODE_LS, MODES.includes(m) ? m : 'normal'); } catch {} }
 export function livesFor(mode) { return mode === 'story' ? 5 : 3; }
+export function isEndless() { return state.mode === 'hard'; }    // Hard = no lives, infinite continues
 /* scale a foe's base difficulty (1..10) by the chosen mode */
-export function effDiff(d) { return state.mode === 'story' ? Math.max(1, Math.round(d * 0.62)) : d; }
+export function effDiff(d) {
+  if (state.mode === 'story') return Math.max(1, Math.round(d * 0.62));
+  if (state.mode === 'hard')  return Math.min(14, Math.round(d * 1.5) + 1);   // a lot harder
+  return d;
+}
 
 export const state = {
   heroId: null,
@@ -126,7 +133,7 @@ export function loadSave() {
     if (!d.heroId) return false;
     state.heroId = d.heroId;
     state.adventure = buildAdventure(d.heroId);
-    state.mode = d.mode === 'story' ? 'story' : 'normal';
+    state.mode = MODES.includes(d.mode) ? d.mode : 'normal';
     state.maxLives = d.maxLives || livesFor(state.mode);
     state.region = d.region | 0;
     state.idx = d.idx | 0;

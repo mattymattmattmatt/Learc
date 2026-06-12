@@ -137,10 +137,10 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg1);color:var
   padding:max(8px,env(safe-area-inset-top)) 12px max(10px,env(safe-area-inset-bottom));gap:10px;overflow:hidden;}
 
 /* countdown */
-.cd{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;
-  font-family:"Cinzel",serif;font-size:clamp(4rem,26vw,9rem);font-weight:700;color:#fff;
+.cd{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:0 12px;text-align:center;
+  font-family:"Cinzel",serif;font-size:clamp(3.5rem,22vw,8rem);font-weight:700;color:#fff;white-space:nowrap;
   text-shadow:0 0 30px rgba(255,90,134,.8);pointer-events:none;}
-.cd.go{color:var(--gold);}
+.cd.go{color:var(--gold);font-size:clamp(1.9rem,13vw,5rem);}
 .cd-pulse{animation:cdp .55s ease;}
 @keyframes cdp{0%{transform:scale(.4);opacity:0}50%{transform:scale(1.15);opacity:1}100%{transform:scale(1)}}
 
@@ -365,9 +365,10 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg1);color:var
 .mode-pick{margin-top:14px;display:flex;flex-direction:column;align-items:center;gap:6px;}
 .mode-label{color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:2px;}
 .seg{display:flex;background:rgba(0,0,0,.3);border-radius:99px;padding:4px;gap:4px;}
-.seg-btn{border:none;background:transparent;color:var(--muted);font-family:inherit;font-weight:700;font-size:.95rem;padding:9px 18px;border-radius:99px;cursor:pointer;}
+.seg-btn{border:none;background:transparent;color:var(--muted);font-family:inherit;font-weight:700;font-size:.9rem;padding:9px 13px;border-radius:99px;cursor:pointer;white-space:nowrap;}
 .seg-btn.on{background:linear-gradient(180deg,#ff7aa2,var(--go));color:#fff;box-shadow:0 3px 0 var(--go-d);}
 .mode-hint{color:var(--muted);font-size:.78rem;min-height:2.4em;max-width:280px;}
+.hard-badge{font-weight:800;color:#ff7a3f;text-shadow:0 0 8px rgba(255,122,63,.6);letter-spacing:.5px;font-size:.9rem;white-space:nowrap;}
 
 /*──────── journey strip (map) ────────*/
 .journey{width:100%;max-width:520px;display:flex;align-items:center;justify-content:center;gap:2px;padding:4px 4px 0;}

@@ -64,8 +64,9 @@ function screenTitle() {
           <div class="seg">
             <button class="seg-btn ${mode === 'story' ? 'on' : ''}" data-mode="story">😊 Story</button>
             <button class="seg-btn ${mode === 'normal' ? 'on' : ''}" data-mode="normal">⚔️ Normal</button>
+            <button class="seg-btn ${mode === 'hard' ? 'on' : ''}" data-mode="hard">🔥 Hard</button>
           </div>
-          <span class="mode-hint" id="modeHint">${mode === 'story' ? '5 hearts, gentler challenges — great for younger players.' : '3 hearts, the full challenge.'}</span>
+          <span class="mode-hint" id="modeHint">${MODE_HINTS[mode]}</span>
         </div>
         <p class="foot">Free the realm from the Tarnished Crown.</p>
       </div>
@@ -77,11 +78,14 @@ function screenTitle() {
   APP.querySelectorAll('.seg-btn').forEach(b => b.onclick = () => {
     const m = b.dataset.mode; setMode(m); S.ui();
     APP.querySelectorAll('.seg-btn').forEach(x => x.classList.toggle('on', x === b));
-    byId('modeHint').textContent = m === 'story'
-      ? '5 hearts, gentler challenges — great for younger players.'
-      : '3 hearts, the full challenge.';
+    byId('modeHint').textContent = MODE_HINTS[m];
   });
 }
+const MODE_HINTS = {
+  story: '5 hearts, gentler challenges — great for younger players.',
+  normal: '3 hearts, the full challenge.',
+  hard: 'No lives — but the minigames turn brutal. Flop and just continue from where you are.'
+};
 function routeFromSave() {
   if (state.done) return screenEnding();
   if (state.region >= 3) return screenMap();
@@ -169,7 +173,9 @@ function screenMap() {
   const r = king ? null : currentRegion();
   const foe = currentFoe();
 
-  const lives = '❤'.repeat(state.lives) + '🖤'.repeat(Math.max(0, state.maxLives - state.lives));
+  const lives = state.mode === 'hard'
+    ? '<span class="hard-badge">🔥 HARD · ∞</span>'
+    : '❤'.repeat(state.lives) + '🖤'.repeat(Math.max(0, state.maxLives - state.lives));
   const J = [['🌳', 'Land'], ['🌊', 'Sea'], ['⛰️', 'Sky'], ['👑', 'King']];
   const journey = J.map((j, i) => {
     const st = i < state.region ? 'done' : i === state.region ? 'cur' : 'todo';
@@ -293,6 +299,24 @@ function onBattleLost(entry, foeDisp, opts = {}) {
   // The final boss: no life cost — go straight back to the select screen so the
   // player can retry with the same champion or send a different one.
   if (entry.id === 'king') return screenKingSelect(opts.heroId, true);
+
+  // Hard mode: no lives — just pick yourself up and try the same battle again.
+  if (state.mode === 'hard') {
+    show(`
+      <div class="screen result lose">
+        <div class="result-card">
+          <div class="res-burst">💢</div>
+          <h2 class="res-title">So close!</h2>
+          <img class="res-foe dim" src="${petImg(foeDisp)}">
+          <p class="res-line">No lives lost in Hard mode — shake it off and try again.</p>
+          <button class="btn btn-go" id="retry">Continue ▸</button>
+          <button class="btn-link" id="map">Back to map</button>
+        </div>
+      </div>`);
+    byId('retry').onclick = () => screenBattleIntro();
+    byId('map').onclick = () => screenMap();
+    return;
+  }
 
   const route = recordLoss();
   if (route === 'gameover') return screenGameOver();
