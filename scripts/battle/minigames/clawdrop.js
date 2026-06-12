@@ -9,7 +9,7 @@ export default {
 
   play(area, ctx) {
     return new Promise(resolve => {
-      const goal = 5 + Math.floor(ctx.difficulty * 0.6);
+      const goal = 5 + Math.floor(Math.min(ctx.difficulty, 9) * 0.6);   // capped so the crane cycles fit the timer
       const TIME = 24;
       let caught = 0, left = TIME, done = false;
 
@@ -49,7 +49,7 @@ export default {
       };
       for (let i = 0; i < 5; i++) spawnSlot();
 
-      const sweepSpd = 0.42 + ctx.difficulty * 0.05;
+      const sweepSpd = Math.min(1.05, 0.42 + ctx.difficulty * 0.05);
       let t = 0, phase = 'sweep', clawX = W / 2, clawY = topY, held = null;
       const dropV = H * 1.9;
 

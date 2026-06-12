@@ -10,11 +10,11 @@ export default {
 
   play(area, ctx) {
     return new Promise(resolve => {
-      const links = 4 + Math.floor(ctx.difficulty / 3);          // 4..7 links
+      const links = Math.min(8, 4 + Math.floor(ctx.difficulty / 3));   // 4..8 links
       let snapped = 0, squeeze = 0, done = false;
-      const spin = 1.7 + ctx.difficulty * 0.16;                  // sweep speed (rad/s)
-      const tol = clamp(0.42 - ctx.difficulty * 0.02, 0.16, 0.42); // angular hit window
-      const squeezeRate = 0.045 + ctx.difficulty * 0.006;
+      const spin = Math.min(3.6, 1.7 + ctx.difficulty * 0.16);         // sweep speed (rad/s)
+      const tol = clamp(0.42 - ctx.difficulty * 0.02, 0.15, 0.42);     // angular hit window
+      const squeezeRate = 0.045 + Math.min(ctx.difficulty, 12) * 0.006;
       const slipPenalty = 0.06;
 
       area.innerHTML = `

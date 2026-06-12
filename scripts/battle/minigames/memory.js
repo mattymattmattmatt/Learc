@@ -16,8 +16,8 @@ export default {
 
   play(area, ctx) {
     return new Promise(resolve => {
-      const len = Math.min(8, 3 + Math.floor(ctx.difficulty / 2));   // 3..8
-      const showMs = Math.max(280, 620 - ctx.difficulty * 34);
+      const len = Math.min(10, 3 + Math.floor(ctx.difficulty / 2));   // 3..10
+      const showMs = Math.max(240, 620 - ctx.difficulty * 34);
       const seq = Array.from({ length: len }, () => (Math.random() * 4) | 0);
 
       area.innerHTML = `

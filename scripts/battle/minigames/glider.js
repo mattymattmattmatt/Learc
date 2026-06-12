@@ -30,10 +30,10 @@ export default {
       y = H * 0.4;
       const grav = 1500, flap = -440;
       const speed = 150 + ctx.difficulty * 16;
-      const gapH = clamp(H * (0.42 - ctx.difficulty * 0.012), H * 0.24, H * 0.42);
+      const gapH = clamp(H * (0.42 - ctx.difficulty * 0.012), H * 0.21, H * 0.42);
 
       const walls = [];
-      let acc = 0, every = clamp(1.5 - ctx.difficulty * 0.06, 0.95, 1.5);
+      let acc = 0, every = clamp(1.5 - ctx.difficulty * 0.06, 0.78, 1.5);
       function spawn() {
         const gy = rand(gapH * 0.6, H - gapH * 0.6);
         const top = el('div', 'gl-wall'); top.style.cssText = `left:0;top:0;height:${gy - gapH / 2}px;transform:translate3d(${W}px,0,0)`;

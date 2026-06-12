@@ -8,7 +8,7 @@ export default {
 
   play(area, ctx) {
     return new Promise(resolve => {
-      const goal = 8 + ctx.difficulty;          // stars needed
+      const goal = 8 + Math.min(ctx.difficulty, 10);   // stars needed (capped so it fits the timer)
       const TIME = 16;
       let caught = 0, hearts = 3, left = TIME, done = false;
 
@@ -42,7 +42,7 @@ export default {
       const items = [];
       const fall = 150 + ctx.difficulty * 24;
       const bombChance = clamp((ctx.difficulty - 2) * 0.05, 0, 0.35);
-      let acc = 0, every = clamp(0.8 - ctx.difficulty * 0.04, 0.4, 0.8);
+      let acc = 0, every = clamp(0.8 - ctx.difficulty * 0.04, 0.3, 0.8);
 
       const GOOD = (ctx.theme && ctx.theme.proj) || '⭐';
       function spawn() {

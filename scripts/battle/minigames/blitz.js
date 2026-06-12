@@ -8,7 +8,7 @@ export default {
 
   play(area, ctx) {
     return new Promise(resolve => {
-      const goal = 10 + ctx.difficulty;            // hits needed
+      const goal = 10 + Math.min(ctx.difficulty, 12);   // hits needed (capped so it fits the timer)
       const TIME = 16;
       let score = 0, left = TIME, done = false;
 
@@ -25,10 +25,10 @@ export default {
       measure(); window.addEventListener('resize', measure);
 
       const targets = [];
-      const life = clamp(1.25 - ctx.difficulty * 0.07, 0.55, 1.25);
-      const size = clamp(74 - ctx.difficulty * 2.4, 44, 74);
+      const life = clamp(1.25 - ctx.difficulty * 0.07, 0.5, 1.25);
+      const size = clamp(74 - ctx.difficulty * 2.4, 40, 74);
       const bombChance = clamp((ctx.difficulty - 3) * 0.05, 0, 0.32);
-      let acc = 0, every = clamp(0.62 - ctx.difficulty * 0.03, 0.28, 0.62);
+      let acc = 0, every = clamp(0.62 - ctx.difficulty * 0.03, 0.24, 0.62);
 
       function spawn() {
         const bomb = Math.random() < bombChance;

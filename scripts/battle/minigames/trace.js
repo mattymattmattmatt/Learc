@@ -21,8 +21,8 @@ export default {
 
   play(area, ctx) {
     return new Promise(resolve => {
-      const need = 3 + Math.floor(ctx.difficulty / 3);     // sigils to complete (3..6)
-      const TIME = clamp(20 - ctx.difficulty * 0.5, 11, 20);
+      const need = Math.min(6, 3 + Math.floor(ctx.difficulty / 3));   // sigils to complete (3..6)
+      const TIME = clamp(21 - ctx.difficulty * 0.4, 14.5, 21);        // ~2.4s per sigil at worst
       let doneCount = 0, left = TIME, done = false, isDown = false;
       let queue = shuffle(SHAPES.map((_, i) => i)), lastShape = -1;
 
