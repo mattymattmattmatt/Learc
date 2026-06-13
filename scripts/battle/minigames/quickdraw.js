@@ -13,14 +13,25 @@ export default {
       let pWins = 0, fWins = 0, round = 0;
       const foeTime = clamp(640 - ctx.difficulty * 40, 185, 720); // ms — 185 floor stays humanly beatable
 
+      const RKEY = 'realm:rt';
+      const getRec = () => { try { return parseInt(localStorage.getItem(RKEY) || '0', 10) || 0; } catch { return 0; } };
+      let record = getRec();
+
       area.innerHTML = `
         ${stageHTML(ctx, 'qd')}
         <div class="qd-zone" id="z">
           <div class="qd-msg" id="msg">Get ready…</div>
         </div>
-        <div class="qd-score" id="sc">You 0 — 0 ${ctx.foe.name}</div>`;
+        <div class="qd-score" id="sc">You 0 — 0 ${ctx.foe.name}</div>
+        <div class="qd-record" id="rec"></div>`;
       const z = area.querySelector('#z'), msg = area.querySelector('#msg'), sc = area.querySelector('#sc');
+      const recEl = area.querySelector('#rec');
       const heroEl = area.querySelector('.hero'), foeEl = area.querySelector('.foe');
+      const renderRec = flash => {
+        recEl.innerHTML = record ? `🏆 Fastest draw: <b>${record}ms</b>` : '🏆 Fastest draw: <b>—</b>';
+        if (flash) { recEl.classList.remove('nr'); void recEl.offsetWidth; recEl.classList.add('nr'); }
+      };
+      renderRec(false);
 
       const next = () => {
         round++;
@@ -51,10 +62,14 @@ export default {
         const onTap = () => {
           if (done) return;
           if (!armed) { finishRound(false, 'Too early! You flinched 😵'); return; }
-          const rt = performance.now() - started;
-          finishRound(rt < foeTime, rt < foeTime
-            ? `STRIKE! ${Math.round(rt)}ms — you win!`
-            : `${Math.round(rt)}ms… too slow!`);
+          const rt = Math.round(performance.now() - started);
+          if (record === 0 || rt < record) {            // a new personal fastest draw!
+            record = rt; try { localStorage.setItem(RKEY, String(rt)); } catch {}
+            renderRec(true); S.star();
+            finishRound(rt < foeTime, `🏆 NEW RECORD! ${rt}ms`);
+            return;
+          }
+          finishRound(rt < foeTime, rt < foeTime ? `STRIKE! ${rt}ms — you win!` : `${rt}ms… too slow!`);
         };
         z.addEventListener('pointerdown', onTap);
 

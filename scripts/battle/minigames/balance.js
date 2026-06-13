@@ -12,17 +12,18 @@ export default {
       const TIME = 14;
       let p = 0, vel = 0, left = TIME, done = false, cleanRun = true, roll = 0, slope = 0;
       const impulse = 0.34;                             // small nudge per tap — fine control
-      const damp = 2.2;                                 // velocity bleeds fast so taps feel responsive
-      const drift = 0.25 + ctx.difficulty * 0.04;       // how fast the log's tilt wanders
-      const shoveBase = 0.14 + ctx.difficulty * 0.03;   // foe shove strength
-      let shoveIn = rand(1.0, 1.9);
+      const damp = 2.0;                                 // velocity bleeds fast so taps feel responsive
+      const drift = 0.34 + ctx.difficulty * 0.05;       // how fast the log's tilt wanders
+      const shoveBase = 0.22 + ctx.difficulty * 0.04;   // foe shove strength
+      let shoveIn = rand(0.9, 1.6);
 
       area.innerHTML = `
         <div class="lr-time"><div class="lr-fill" id="tf"></div></div>
         <div class="lr-arena" id="arena">
           <div class="lr-water"><span class="lr-croc a">🐊</span><span class="lr-croc b">🐊</span><span class="lr-croc c">🐊</span></div>
-          <div class="lr-beam" id="beam"></div>
-          <div class="lr-ball" id="ball"><img src="${petImg(ctx.hero)}" draggable="false"></div>
+          <div class="lr-beam" id="beam">
+            <div class="lr-ball" id="ball"><img src="${petImg(ctx.hero)}" draggable="false"></div>
+          </div>
           <div class="lr-pivot">▲</div>
         </div>
         <div class="lr-pad">
@@ -38,10 +39,10 @@ export default {
       Lb.addEventListener('pointerdown', onL); Rb.addEventListener('pointerdown', onR);
 
       const render = () => {
-        const w = arena.getBoundingClientRect().width || 320;
-        const x = p * (w * 0.40);
-        ball.style.transform = `translateX(calc(-50% + ${x}px)) translateY(-50%) rotate(${roll}rad)`;
-        beam.style.transform = `translate(-50%,-50%) rotate(${p * 9}deg)`;   // log tips toward the ball
+        const bw = beam.offsetWidth || 300;             // layout width (unaffected by rotation)
+        const x = p * (bw * 0.42);                       // roll along the log surface
+        beam.style.transform = `translate(-50%,-50%) rotate(${p * 11}deg)`;   // log tips toward the ball
+        ball.style.transform = `translateX(calc(-50% + ${x}px)) rotate(${roll}rad)`;
         const danger = Math.abs(p) > 0.66;
         ball.classList.toggle('danger', danger);
         arena.classList.toggle('danger', danger);
@@ -54,14 +55,14 @@ export default {
         slope = clamp(slope + rand(-1, 1) * dt * drift, -1, 1);
         shoveIn -= dt;
         if (shoveIn <= 0) {
-          shoveIn = Math.max(0.55, rand(1.0, 1.9) - ctx.difficulty * 0.06);
+          shoveIn = Math.max(0.5, rand(0.9, 1.7) - ctx.difficulty * 0.06);
           vel += (Math.random() < 0.5 ? -1 : 1) * shoveBase;
           arena.classList.remove('shove'); void arena.offsetWidth; arena.classList.add('shove'); S.bad();
         }
-        vel += slope * dt * 0.6;                        // the tilting log keeps rolling you
+        vel += slope * dt * 0.95;                        // the tilting log keeps rolling you
         vel *= (1 - damp * dt);
         p += vel * dt;
-        roll += vel * dt * 6;                           // the ball spins as it rolls
+        roll += vel * dt * 6;                            // the ball spins as it rolls
         if (Math.abs(p) > 0.66) cleanRun = false;
         render();
         if (Math.abs(p) >= 1) return fall();
@@ -72,7 +73,7 @@ export default {
         if (done) return false; done = true; stop(); cleanup();
         const dir = p > 0 ? 1 : -1;
         ball.style.transition = 'transform .5s cubic-bezier(.5,0,.9,.6)';
-        ball.style.transform = `translateX(calc(-50% + ${dir * 170}px)) translateY(150px) rotate(${dir * 12}rad)`;
+        ball.style.transform = `translateX(calc(-50% + ${dir * 130}px)) translateY(180px) rotate(${dir * 12}rad)`;
         S.splash(); buzz(120); setTimeout(() => finish(false), 520);
         return false;
       }
