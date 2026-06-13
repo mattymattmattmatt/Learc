@@ -101,7 +101,7 @@ export default {
         window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', cancelAim);
         window.removeEventListener('resize', measure);
         if (!win) sfx(ctx.foe.sfx, 0.7);
-        resolve({ win, stars: win ? (score >= goal + 3 ? 3 : 2) : 1 });
+        resolve({ win, stars: win ? (shots >= 2 ? 3 : 2) : 1 });   // 3★ = reached the goal with slides to spare
         return false;
       }
     });

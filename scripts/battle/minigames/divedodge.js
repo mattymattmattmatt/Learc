@@ -38,12 +38,12 @@ export default {
       window.addEventListener('pointercancel', up);
 
       const zones = [];
-      const tele = clamp(1.2 - ctx.difficulty * 0.05, 0.5, 1.2);
-      let acc = 0, every = clamp(1.3 - ctx.difficulty * 0.07, 0.42, 1.3), iframe = 0;
+      const tele = clamp(1.05 - ctx.difficulty * 0.055, 0.42, 1.05);
+      let acc = 0, every = clamp(1.1 - ctx.difficulty * 0.07, 0.38, 1.1), iframe = 0;
       function spawnWave() {
-        const k = 1 + Math.floor(Math.min(ctx.difficulty, 12) / 4) + (Math.random() < 0.4 ? 1 : 0);
+        const k = 1 + Math.floor(Math.min(ctx.difficulty, 12) / 3) + (Math.random() < 0.5 ? 1 : 0);
         for (let i = 0; i < k; i++) {
-          const r = clamp(Math.min(W, H) * (0.16 + ctx.difficulty * 0.006), 50, 130);
+          const r = clamp(Math.min(W, H) * (0.17 + ctx.difficulty * 0.007), 50, 135);
           const x = rand(r, W - r), y = rand(r, H - r);
           const n = el('div', 'dv-zone'); n.style.left = x + 'px'; n.style.top = y + 'px'; n.style.width = n.style.height = r * 2 + 'px';
           field.appendChild(n);

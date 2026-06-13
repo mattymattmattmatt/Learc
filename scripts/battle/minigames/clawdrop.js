@@ -66,6 +66,7 @@ export default {
           if (clawY >= botY) { clawY = botY;
             let hit = -1, bd = grabW;
             items.forEach((it, i) => { if (it.grabbed) return; const d = Math.abs(it.x - clawX); if (d < bd) { bd = d; hit = i; } });
+            claw.classList.add('grab'); setTimeout(() => claw.classList.remove('grab'), 220);
             if (hit >= 0) { held = items[hit]; held.grabbed = true; S.good(); buzz(20); }
             else { S.bad(); }
             phase = 'up';
