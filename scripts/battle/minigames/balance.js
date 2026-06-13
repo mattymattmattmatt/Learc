@@ -13,9 +13,9 @@ export default {
       let p = 0, vel = 0, left = TIME, done = false, cleanRun = true, roll = 0, slope = 0;
       const impulse = 0.34;                             // small nudge per tap — fine control
       const damp = 2.0;                                 // velocity bleeds fast so taps feel responsive
-      const drift = 0.34 + ctx.difficulty * 0.05;       // how fast the log's tilt wanders
-      const shoveBase = 0.22 + ctx.difficulty * 0.04;   // foe shove strength
-      let shoveIn = rand(0.9, 1.6);
+      const drift = 0.46 + ctx.difficulty * 0.07;       // how fast the log's tilt wanders
+      const shoveBase = 0.5 + ctx.difficulty * 0.10;    // foe shove strength
+      let shoveIn = rand(0.6, 1.1);
 
       area.innerHTML = `
         <div class="lr-time"><div class="lr-fill" id="tf"></div></div>
@@ -55,7 +55,7 @@ export default {
         slope = clamp(slope + rand(-1, 1) * dt * drift, -1, 1);
         shoveIn -= dt;
         if (shoveIn <= 0) {
-          shoveIn = Math.max(0.5, rand(0.9, 1.7) - ctx.difficulty * 0.06);
+          shoveIn = Math.max(0.35, rand(0.6, 1.2) - ctx.difficulty * 0.05);
           vel += (Math.random() < 0.5 ? -1 : 1) * shoveBase;
           arena.classList.remove('shove'); void arena.offsetWidth; arena.classList.add('shove'); S.bad();
         }
