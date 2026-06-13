@@ -61,9 +61,11 @@ export default {
         aim.hidden = false; aim.style.left = start.x + 'px'; aim.style.top = start.y + 'px';
         aim.style.width = len * 1.6 + 'px'; aim.style.transform = `translateY(-50%) rotate(${ang}rad)`;
       }
+      const cancelAim = () => { if (!aiming) return; aiming = false; aim.hidden = true; };   // lost pointer ≠ a slide
       field.addEventListener('pointerdown', down);
       window.addEventListener('pointermove', move);
       window.addEventListener('pointerup', up);
+      window.addEventListener('pointercancel', cancelAim);
 
       const stop = loop((dt) => {
         if (done) return false;
@@ -96,8 +98,9 @@ export default {
       function finish(win) {
         if (done) return false; done = true; stop();
         field.removeEventListener('pointerdown', down); window.removeEventListener('pointermove', move);
-        window.removeEventListener('pointerup', up); window.removeEventListener('resize', measure);
-        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7);
+        window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', cancelAim);
+        window.removeEventListener('resize', measure);
+        if (!win) sfx(ctx.foe.sfx, 0.7);
         resolve({ win, stars: win ? (shots >= 2 ? 3 : 2) : 1 });   // 3★ = reached the goal with slides to spare
         return false;
       }

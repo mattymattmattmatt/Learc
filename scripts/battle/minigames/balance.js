@@ -78,7 +78,7 @@ export default {
       }
       function end(win) { if (done) return false; done = true; stop(); cleanup(); finish(win); return false; }
       function cleanup() { Lb.removeEventListener('pointerdown', onL); Rb.removeEventListener('pointerdown', onR); }
-      function finish(win) { (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7); buzz(win ? 30 : 80); resolve({ win, stars: win ? (cleanRun ? 3 : 2) : 1 }); }
+      function finish(win) { if (!win) sfx(ctx.foe.sfx, 0.7); buzz(win ? 30 : 80); resolve({ win, stars: win ? (cleanRun ? 3 : 2) : 1 }); }
     });
   }
 };

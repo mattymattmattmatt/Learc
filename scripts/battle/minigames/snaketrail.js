@@ -34,7 +34,6 @@ export default {
       const placeOrb = () => { orb.x = rand(W * 0.12, W * 0.88); orb.y = rand(H * 0.12, H * 0.88); orbEl.style.left = orb.x + 'px'; orbEl.style.top = orb.y + 'px'; };
       placeOrb();
 
-      const r0 = field.getBoundingClientRect();
       const setPointer = e => { const r = field.getBoundingClientRect(); pointer = { x: e.clientX - r.left, y: e.clientY - r.top }; };
       const down = e => { setPointer(e); e.preventDefault(); };
       const move = e => { if (pointer) setPointer(e); e.preventDefault(); };
@@ -42,6 +41,7 @@ export default {
       field.addEventListener('pointerdown', down);
       window.addEventListener('pointermove', move);
       window.addEventListener('pointerup', up);
+      window.addEventListener('pointercancel', up);
 
       const stop = loop((dt) => {
         if (done) return false;
@@ -80,10 +80,11 @@ export default {
       function finish(win) {
         if (done) return false; done = true; stop();
         field.removeEventListener('pointerdown', down); window.removeEventListener('pointermove', move);
-        window.removeEventListener('pointerup', up); window.removeEventListener('resize', measure);
+        window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
+        window.removeEventListener('resize', measure);
         trail.forEach(s => s.node.remove());
-        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7); buzz(win ? 30 : 70);
-        resolve({ win, stars: win ? (eaten >= goal ? 3 : 2) : 1 });
+        if (!win) sfx(ctx.foe.sfx, 0.7); buzz(win ? 30 : 70);
+        resolve({ win, stars: win ? 3 : 1 });   // a win means the full feast
         return false;
       }
     });

@@ -69,10 +69,11 @@ export default {
       pad.addEventListener('pointerdown', startC);
       pad.addEventListener('pointerup', () => release(false));
       pad.addEventListener('pointerleave', () => { if (charging) release(false); });
+      pad.addEventListener('pointercancel', () => { if (charging) release(false); });
 
       function finish(win) {
         if (done) return; done = true; stop();
-        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7);
+        if (!win) sfx(ctx.foe.sfx, 0.7);
         resolve({ win, stars: win ? (shots >= 4 ? 3 : 2) : 1 });
       }
     });

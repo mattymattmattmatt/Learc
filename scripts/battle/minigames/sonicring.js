@@ -82,7 +82,7 @@ export default {
       function end(w) {
         if (done) return false; done = true; stop(); pad.removeEventListener('pointerdown', onTap);
         const acc = hits / Math.max(1, total);
-        (w ? S.win : S.lose)(); if (!w) sfx(ctx.foe.sfx, 0.7); buzz(w ? 30 : 60);
+        if (!w) sfx(ctx.foe.sfx, 0.7); buzz(w ? 30 : 60);
         resolve({ win: w, stars: w ? (acc >= 0.9 ? 3 : 2) : 1 });
         return false;
       }

@@ -66,7 +66,7 @@ to the creature that uses it.
 | 🐍 **Venom Trail** | a Snake game — eat orbs, don't cross your poison trail |
 | 🌀 **Unwind** | drag in circles to spin free of the coils |
 | ✍️ **Break the Trance** | trace the glowing sigil through its dots in order |
-| 👑 **The Gilded King** | bespoke boss duel — dodge the crown's attack waves, then strike it while exposed |
+| 👑 **The Gilded King** | bespoke boss duel — every wave mixes attack patterns from the crown's Aspect, and each opening allows exactly ONE strike before the King recovers; at half health he enrages with crown-shard bursts |
 
 ## Score, stars & leaderboard
 
@@ -76,11 +76,39 @@ perfect 72, plus a **+6 clean-run bonus** if you never use a continue. At the en
 you enter a name and submit to a **🏆 leaderboard** (viewable from the title), so
 players can compete for the most stars. The board uses the project's Firebase
 (anonymous auth + a `scores` collection) and falls back to an on-device board when
-offline, so it never blocks play.
+offline, so it never blocks play. There's also a **📣 Share** button to send your
+score to friends.
 
-> Note: cloud scores need the Firestore rules to allow the `scores` collection
-> (read + create for signed-in users). If writes are denied, the local board
-> still works.
+> Cloud scores need the Firestore rules in `firebase/firestore.rules` deployed
+> (public read, validated create for signed-in users). If writes are denied,
+> the local board still works.
+
+## 🤝 Friendly rematches
+
+Freed champions stay friendly! On the map, **tap any freed champion** (the 🤝
+badge) to replay their microgame and improve your stars — rematches never cost
+hearts. The **journey strip is navigation**: tap a cleared region (Land/Sea/Sky)
+to revisit its champions, perfect your ★ total, then return to the live quest —
+even right before facing the King.
+
+## 🔥 Endless Gauntlet
+
+A second mode from the title screen: champions arrive in **random order with
+ever-climbing difficulty**, you keep your hearts across rounds, and every win
+banks its stars. Fall (or retire to bank your score) and submit to the
+**separate Gauntlet leaderboard**. How deep can you go?
+
+## 📖 Critterdex & 🏅 badges
+
+The **Critterdex** (from the title) is a gallery of all 24 creatures — art,
+epithet, power, signature attack, their microgame, and your **best-ever stars**
+against them, kept *across runs*. Tap a creature to hear its roar — and use the
+**🎯 Practice** chips (Easy / Medium / Hard) on its card to rehearse that
+creature's minigame freely: no hearts, stars or records at stake, with a
+"level up" shortcut when you clear a round. Below it
+live **10 badges** (First Victory, Flawless, the three region liberations,
+Crown Breaker, Unbroken, Star Master, and two Gauntlet feats) — earned badges
+pop in with a golden toast mid-game and are remembered forever.
 
 Every microgame scales with difficulty (faster, smaller targets, longer patterns,
 denser attacks) so the journey ramps from gentle to brutal.
@@ -107,22 +135,34 @@ The **Gilded King** is a bespoke 1-on-1 boss duel (see below), not a microgame.
   full challenge), chosen on the title screen and remembered.
 - **Journey & story beats** — a Land → Sea → Sky → King progress strip on the map,
   and a freed-champions montage with a cheer line each time a region is liberated.
+- **Installable & offline (PWA)** — a service worker precaches the game shell and
+  caches art/audio as you play, so after the first visit it runs with no network
+  and can be added to the home screen.
+- **Little secrets** — tap the creatures drifting up the title screen to hear
+  their roars; story scenes have a **Skip** for replayers; battle intros have a
+  back button so you're never locked in.
 
 ## Code layout
 
 | Path | What |
 |------|------|
 | `index.html` | **Battle of the Realm** (the main game) |
-| `scripts/battle/main.js` | screen flow (title → story → select → map → battles → King → ending) |
+| `scripts/battle/main.js` | screen flow (title → story → select → map → battles → King → ending), Gauntlet, Critterdex, rematches |
 | `scripts/battle/data.js` | creatures, region ladder, difficulty curve, story flavor |
 | `scripts/battle/state.js` | progress, lives, region checkpoints, save |
-| `scripts/battle/minigames/` | the seven microgames + the boss gauntlet |
+| `scripts/battle/meta.js` | cross-run progress: best stars per champion, badges, gauntlet record |
+| `scripts/battle/minigames/` | the 24 microgames + the boss gauntlet |
 | `scripts/battle/util.js` | audio, RNG, countdown, FX helpers |
 | `styles/battle.css` | all styling |
 | `scripts/data/pets.json` | the 24 creatures (name, sprite, sound, power) |
+| `service-worker.js` | offline cache (precached shell + cache-as-you-play assets) |
+| `firebase/firestore.rules` | leaderboard security rules (deploy to enable cloud scores) |
 | `crittercatch.html`, `kingsgold.html` | earlier games, still playable |
 
 ## Credits
 
-All 24 creatures — names, designs, powers and personalities — were created by the
-game's young designer. This adventure was built to celebrate them. 💛
+All 24 creatures — names, designs, powers and personalities — were dreamed up by
+**Leila & Archie** (with trusty sidekick **Uncle Matty**) on a family adventure
+in Bali, mid 2025. This game was built to celebrate them. 💛
+There's a sparkly ✨ credits page on the title screen, too — tap the creatures
+floating past it to hear their roars.

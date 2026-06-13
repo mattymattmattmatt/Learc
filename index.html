@@ -27,6 +27,18 @@
 <body>
   <div id="app"></div>
   <script type="module" src="scripts/battle/main.js"></script>
+  <script>
+    // installable + offline after the first visit; when an updated worker
+    // takes over (new deploy), reload once so the fresh code is running
+    if ('serviceWorker' in navigator) {
+      addEventListener('load', () => navigator.serviceWorker.register('service-worker.js').catch(() => {}));
+      let reloaded = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (reloaded) return; reloaded = true;
+        location.reload();
+      });
+    }
+  </script>
   <!-- Earlier games still live at /crittercatch.html and /kingsgold.html -->
 </body>
 </html>

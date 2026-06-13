@@ -98,7 +98,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg1);color:var
 .map{justify-content:flex-start;}
 .map-top{width:100%;max-width:600px;display:flex;align-items:center;justify-content:space-between;padding:6px 48px 4px 4px;}
 /* keep top-right HUD content clear of the fixed mute button */
-.sl-hud,.ct-hud,.ss-hud,.dg-hud,.bz-hud,.sw-score,.rh-hud{padding-right:46px;}
+.sl-hud,.ct-hud,.ss-hud,.dg-hud,.bz-hud,.sw-score,.gh-hud{padding-right:46px;}
 .hero-chip{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.25);padding:5px 12px 5px 5px;border-radius:99px;}
 .hero-chip img{width:38px;height:38px;object-fit:contain;background:rgba(255,255,255,.1);border-radius:50%;}
 .hero-chip span{font-weight:600;}
@@ -711,3 +711,142 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg1);color:var
   .sel-grid{grid-template-columns:repeat(auto-fill,minmax(74px,1fr));}
   .mute-btn{width:36px;height:36px;line-height:36px;font-size:1rem;}
 }
+
+/*══════════════ NEW: gauntlet · rematch · critterdex · badges ══════════════*/
+
+/*──────── title extras: button row, tappable drifters ────────*/
+.btn-row{display:flex;gap:9px;width:100%;max-width:330px;margin:9px auto 0;}
+.btn-row .btn{flex:1;margin:0;}
+.menu-card,.bi-card,.result-card,.end-card{max-height:96vh;overflow-y:auto;}
+.drifter{pointer-events:auto;cursor:pointer;transition:filter .2s;}
+.drifter.boing{filter:brightness(1.9) drop-shadow(0 0 16px rgba(255,210,63,.95)) !important;}
+
+/*──────── badge toast (slides in from the top) ────────*/
+.badge-toast{position:fixed;top:max(10px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:80;
+  display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,#3a2c6b,#241a44);border:2px solid var(--gold);
+  border-radius:16px;padding:10px 16px;box-shadow:0 8px 30px rgba(0,0,0,.5),0 0 18px rgba(255,210,63,.35);
+  animation:btIn .4s cubic-bezier(.3,1.6,.5,1);}
+.badge-toast.out{animation:btOut .4s ease forwards;}
+.bt-icon{font-size:1.7rem;}
+.bt-txt{font-size:.92rem;line-height:1.25;text-align:left;}
+.bt-txt b{color:var(--gold);}
+@keyframes btIn{from{transform:translate(-50%,-90px)}to{transform:translate(-50%,0)}}
+@keyframes btOut{to{transform:translate(-50%,-90px);opacity:0}}
+
+/*──────── map: region browsing + rematch affordances ────────*/
+.jstep.link{cursor:pointer;}
+.jstep.link:active .jicon{transform:scale(.9);}
+.jstep.view .jicon{box-shadow:0 0 0 3px rgba(255,255,255,.7);}
+.node.link{cursor:pointer;}
+.node.done.link:active{transform:scale(.94);}
+.node-redo{position:absolute;top:-7px;right:-7px;font-size:.8rem;width:22px;height:22px;display:flex;align-items:center;justify-content:center;
+  background:rgba(20,12,40,.92);border:1px solid rgba(255,255,255,.35);border-radius:50%;}
+
+/*──────── rematch intro ────────*/
+.bi-rematch{display:inline-block;background:rgba(95,227,154,.16);border:1px solid var(--good);color:var(--good);
+  border-radius:99px;padding:6px 14px;font-size:.85rem;font-weight:600;margin-bottom:8px;}
+.bi-best{color:var(--gold);font-size:.9rem;margin-bottom:10px;letter-spacing:1px;}
+
+/*──────── gauntlet ────────*/
+.ga-sub{color:var(--muted);text-align:center;max-width:440px;margin:0 14px 8px;font-size:.92rem;line-height:1.4;}
+.ga-sub b{color:var(--gold);}
+.ga-hud{display:flex;justify-content:space-between;gap:10px;background:rgba(0,0,0,.28);border-radius:12px;
+  padding:8px 14px;margin-bottom:10px;font-size:.95rem;}
+.ga-hud b{color:var(--gold);}
+.ga-round-big{font-family:"Cinzel",serif;font-size:2.6rem;color:var(--gold);line-height:1;
+  text-shadow:0 0 18px rgba(255,210,63,.5);}
+.ga-best{color:var(--good);font-weight:700;margin-bottom:8px;}
+
+/*──────── leaderboard tabs ────────*/
+.lb-tabs{width:max-content;margin:0 auto 10px;}
+
+/*──────── critterdex ────────*/
+.dex{display:block;overflow-y:auto;padding:max(12px,env(safe-area-inset-top)) 12px max(24px,env(safe-area-inset-bottom));}
+.dex .screen-title{margin-top:4px;}
+.dex-sub{color:var(--muted);text-align:center;font-size:.9rem;margin:0 auto 10px;max-width:460px;}
+.dex-grid{width:100%;max-width:600px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:9px;}
+.dex-cell{background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);border-radius:14px;padding:8px 4px 6px;
+  display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;font-family:inherit;color:var(--ink);}
+.dex-cell img{width:100%;max-width:58px;aspect-ratio:1;object-fit:contain;}
+.dex-cell:active{transform:scale(.96);}
+.dex-name{font-size:.74rem;font-weight:600;}
+.dex-best{font-size:.68rem;color:var(--gold);min-height:1em;letter-spacing:1px;}
+.dex-badges-title{font-family:"Cinzel",serif;color:var(--gold);text-align:center;margin:18px 0 8px;font-size:1.15rem;}
+.dex-badges-title span{color:var(--muted);font-family:"Fredoka",sans-serif;font-size:.85rem;}
+.badge-grid{width:100%;max-width:600px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;}
+.badge-item{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+  border-radius:12px;padding:8px 10px;text-align:left;}
+.badge-item .bi2-icon{font-size:1.5rem;}
+.badge-item .bi2-name{font-weight:700;font-size:.82rem;}
+.badge-item .bi2-desc{font-size:.7rem;color:var(--muted);line-height:1.2;}
+.badge-item.locked{opacity:.5;filter:grayscale(.8);}
+.badge-item.earned{border-color:rgba(255,210,63,.55);box-shadow:0 0 10px rgba(255,210,63,.18);}
+.dex-foot{max-width:330px;margin:16px auto 0;}
+/* creature detail pop-over */
+.dex-pop{position:fixed;inset:0;z-index:60;background:rgba(10,6,24,.74);display:flex;align-items:center;justify-content:center;
+  padding:max(18px,env(safe-area-inset-top)) 18px max(18px,env(safe-area-inset-bottom));animation:pop .25s ease;}
+.dex-card{position:relative;width:100%;max-width:380px;max-height:92vh;overflow-y:auto;
+  background:linear-gradient(180deg,#3a2c6b,#241a44);border:2px solid rgba(255,210,63,.5);border-radius:20px;
+  padding:18px;text-align:center;box-shadow:0 18px 50px rgba(0,0,0,.55);}
+.dex-close{position:absolute;top:8px;right:8px;width:42px;height:42px;border:none;border-radius:50%;z-index:3;
+  background:rgba(255,255,255,.16);color:#fff;font-size:1.15rem;cursor:pointer;line-height:42px;padding:0;}
+.dex-close:active{transform:scale(.92);background:rgba(255,255,255,.28);}
+@media (max-height:760px){
+  .dex-art{width:100px;height:100px;}
+  .dex-card{padding:14px 14px 12px;}
+  .dex-row{padding:7px 10px;margin-bottom:5px;}
+  .dex-power{margin-bottom:6px;}
+}
+.dex-art{width:130px;height:130px;object-fit:contain;margin:2px auto 6px;animation:bob 2.2s ease-in-out infinite;
+  filter:drop-shadow(0 6px 12px rgba(0,0,0,.4));}
+.dex-hab{display:inline-block;background:rgba(0,0,0,.3);border-radius:99px;padding:3px 12px;font-size:.78rem;margin:4px 0 8px;}
+.dex-power{font-size:.95rem;margin-bottom:8px;}
+.dex-row{display:flex;align-items:center;gap:10px;text-align:left;background:rgba(0,0,0,.28);border-radius:12px;
+  padding:8px 12px;margin-bottom:6px;font-size:.85rem;}
+.dex-row .ic{font-size:1.4rem;}
+.dex-row small{color:var(--muted);}
+.dex-stars{color:var(--gold);font-weight:700;margin-top:6px;letter-spacing:1px;}
+
+@media (orientation:landscape) and (max-height:560px){
+  .dex-grid{grid-template-columns:repeat(auto-fill,minmax(74px,1fr));}
+  .dex-art{width:84px;height:84px;}
+  .ga-round-big{font-size:2rem;}
+}
+
+/*──────── critterdex practice chips ────────*/
+.dex-prac-row{display:flex;align-items:center;gap:6px;margin:8px 0 6px;}
+.dex-prac-label{font-size:.78rem;color:var(--muted);font-weight:600;white-space:nowrap;}
+.prac-btn{flex:1;border:none;border-radius:10px;padding:10px 4px;font-family:inherit;font-weight:700;
+  font-size:.8rem;color:#fff;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.35);}
+.prac-btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.35);}
+.prac-btn[data-d="2"]{background:linear-gradient(180deg,#49b86e,#2f8a4d);}
+.prac-btn[data-d="5"]{background:linear-gradient(180deg,#4a8fd0,#3568a8);}
+.prac-btn[data-d="8"]{background:linear-gradient(180deg,#d0604a,#a83a35);}
+
+/*──────── credits (made with love) ────────*/
+.foot-credits{font-size:.78rem;opacity:.8;margin-top:0;}
+.credits-card{border-color:rgba(255,210,63,.45);box-shadow:0 0 44px rgba(255,210,63,.14),0 18px 50px rgba(0,0,0,.5);}
+.cr-spark{font-size:2rem;line-height:1;animation:bob 2s ease-in-out infinite;}
+.cr-role{color:var(--muted);text-transform:uppercase;font-size:.7rem;letter-spacing:3px;margin:12px 0 2px;}
+.cr-names{font-family:"Cinzel",serif;font-size:clamp(1.7rem,8vw,2.5rem);line-height:1.1;margin:0;color:var(--gold);}
+.cr-name{background:linear-gradient(100deg,#ffd23f 25%,#fff7d9 45%,#ffd23f 65%);background-size:220% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 2.8s linear infinite;}
+@keyframes shimmer{to{background-position:-220% 0}}
+.cr-uncle{font-family:"Cinzel",serif;color:var(--ink);font-size:1.3rem;margin:0 0 4px;}
+.cr-story{line-height:1.55;margin:12px 0 4px;}
+.cr-story b{color:var(--gold);}
+.cr-when{color:var(--gold);font-weight:700;letter-spacing:1px;font-size:.9rem;}
+.cr-hint{color:var(--muted);font-size:.76rem;margin:6px 0 10px;}
+.end-credit{color:var(--gold);font-size:.82rem;margin-bottom:8px;opacity:.92;}
+.end-credit b{letter-spacing:.5px;}
+
+/*──────── King revamp: slam zones, enrage, gloom pulse ────────*/
+.kf-zone{position:absolute;transform:translate(-50%,-50%);border-radius:50%;z-index:1;pointer-events:none;
+  border:3px dashed rgba(255,140,70,.9);background:rgba(255,100,40,.16);animation:dvPulse .5s ease-in-out infinite;}
+.kf-zone.slam{animation:kfSlam .24s ease forwards;border-style:solid;border-color:#fff;background:rgba(255,180,70,.55);}
+@keyframes kfSlam{to{transform:translate(-50%,-50%) scale(1.18);opacity:0}}
+.kf-field.enraged .kf-king img{filter:drop-shadow(0 0 24px rgba(255,90,50,.95)) saturate(1.35);}
+.kf-field.enraged{animation:enrageFlash .6s ease;}
+@keyframes enrageFlash{0%{box-shadow:inset 0 0 90px rgba(255,60,30,.75)}100%{box-shadow:none}}
+.kf-vignette.pulse{animation:gloomPulse .7s ease;}
+@keyframes gloomPulse{0%,100%{opacity:1}50%{opacity:1;filter:brightness(.55)}}
