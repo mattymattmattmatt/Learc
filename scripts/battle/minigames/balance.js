@@ -1,101 +1,84 @@
-/* Balance Beam — you're perched on a log over croc-infested water! The foe
-   keeps shoving you. TAP the LEFT or RIGHT side to lean back to the middle.
-   Slide too far and you topple in — snap! Stay up until time runs out. */
-import { clamp, loop, rand, sfx, buzz, wait, petImg, S } from '../util.js';
-import { stageHTML, hitFlash } from './stage.js';
+/* Log Roll — you're a ball balancing on a floating log over croc water!
+   The log keeps tipping and the foe shoves you; TAP ◀ / ▶ to roll back toward
+   the middle. Roll off either end and you splash in. Stay on till time's up. */
+import { clamp, loop, rand, sfx, buzz, petImg, S } from '../util.js';
 
 export default {
-  id: 'balance', name: 'Balance Beam', icon: '⚖️',
-  howto: 'TAP LEFT or RIGHT to stay balanced on the log. Don’t fall to the crocs!',
+  id: 'balance', name: 'Log Roll', icon: '🪵',
+  howto: 'TAP ◀ / ▶ to roll your ball back to the middle of the log — don’t roll off into the water!',
 
   play(area, ctx) {
     return new Promise(resolve => {
       const TIME = 14;
-      let tilt = 0, vel = 0, left = TIME, done = false;
-      let push = 0;
-      const pushMax = clamp(0.45 + ctx.difficulty * 0.11, 0, 1.65);
-      const impulse = 1.7, damp = 1.7;
-      let shoveIn = rand(1.4, 2.6);
+      let p = 0, vel = 0, left = TIME, done = false, cleanRun = true, roll = 0, slope = 0;
+      const impulse = 0.34;                             // small nudge per tap — fine control
+      const damp = 2.2;                                 // velocity bleeds fast so taps feel responsive
+      const drift = 0.25 + ctx.difficulty * 0.04;       // how fast the log's tilt wanders
+      const shoveBase = 0.14 + ctx.difficulty * 0.03;   // foe shove strength
+      let shoveIn = rand(1.0, 1.9);
 
       area.innerHTML = `
-        ${stageHTML(ctx, 'bl')}
-        <div class="bl-time"><div class="bl-fill" id="tf"></div></div>
-        <div class="bl-stage">
-          <div class="bl-meter"><div class="bl-needle" id="needle"></div><div class="bl-center"></div></div>
-          <div class="bl-arena" id="arena">
-            <div class="bl-creature" id="cr"><img src="${petImg(ctx.hero)}" draggable="false"></div>
-            <div class="bl-log" id="log"></div>
-            <div class="bl-pivot">▲</div>
-            <div class="bl-water">
-              <span class="croc c1">🐊</span><span class="croc c2">🐊</span><span class="croc c3">🐊</span>
-              <div class="bl-waves"></div>
-            </div>
-          </div>
+        <div class="lr-time"><div class="lr-fill" id="tf"></div></div>
+        <div class="lr-arena" id="arena">
+          <div class="lr-water"><span class="lr-croc a">🐊</span><span class="lr-croc b">🐊</span><span class="lr-croc c">🐊</span></div>
+          <div class="lr-beam" id="beam"></div>
+          <div class="lr-ball" id="ball"><img src="${petImg(ctx.hero)}" draggable="false"></div>
+          <div class="lr-pivot">▲</div>
         </div>
-        <div class="bl-pad">
-          <button class="bl-half" id="L">◀ LEAN</button>
-          <button class="bl-half" id="R">LEAN ▶</button>
+        <div class="lr-pad">
+          <button class="lr-half" id="L">◀ ROLL</button>
+          <button class="lr-half" id="R">ROLL ▶</button>
         </div>`;
-      const tf = area.querySelector('#tf'), foeEl = area.querySelector('.foe');
-      const cr = area.querySelector('#cr'), log = area.querySelector('#log'), needle = area.querySelector('#needle');
-      const arena = area.querySelector('#arena');
-
-      const nudge = dir => { if (done) return; vel += dir * impulse; S.tick(); buzz(10);
-        cr.classList.remove('lean'); void cr.offsetWidth; cr.classList.add('lean'); };
+      const tf = area.querySelector('#tf'), beam = area.querySelector('#beam'), ball = area.querySelector('#ball'), arena = area.querySelector('#arena');
       const Lb = area.querySelector('#L'), Rb = area.querySelector('#R');
-      const onL = e => { e.preventDefault(); nudge(-1); };
-      const onR = e => { e.preventDefault(); nudge(1); };
-      Lb.addEventListener('pointerdown', onL);
-      Rb.addEventListener('pointerdown', onR);
+
+      const push = dir => { if (done) return; vel += dir * impulse; S.tick(); buzz(10); };
+      const onL = e => { e.preventDefault(); push(-1); };
+      const onR = e => { e.preventDefault(); push(1); };
+      Lb.addEventListener('pointerdown', onL); Rb.addEventListener('pointerdown', onR);
 
       const render = () => {
         const w = arena.getBoundingClientRect().width || 320;
-        const slide = tilt * w * 0.40;                 // creature slides toward the low side
-        cr.style.transform = `translate(-50%,0) translateX(${slide}px) rotate(${tilt * 26}deg)`;
-        log.style.transform = `rotate(${tilt * 12}deg)`;
-        needle.style.transform = `translateX(-50%) rotate(${tilt * 60}deg)`;
-        const danger = Math.abs(tilt) > 0.62;
-        cr.classList.toggle('danger', danger);
+        const x = p * (w * 0.40);
+        ball.style.transform = `translateX(calc(-50% + ${x}px)) translateY(-50%) rotate(${roll}rad)`;
+        beam.style.transform = `translate(-50%,-50%) rotate(${p * 9}deg)`;   // log tips toward the ball
+        const danger = Math.abs(p) > 0.66;
+        ball.classList.toggle('danger', danger);
         arena.classList.toggle('danger', danger);
       };
       render();
 
-      const stop = loop((dt) => {
+      const stop = loop(dt => {
         if (done) return false;
-        left -= dt; tf.style.width = clamp((left / TIME) * 100, 0, 100) + '%';
-        push = clamp(push + rand(-1, 1) * dt * 1.4, -pushMax, pushMax);
+        left -= dt; tf.style.width = clamp(left / TIME * 100, 0, 100) + '%';
+        slope = clamp(slope + rand(-1, 1) * dt * drift, -1, 1);
         shoveIn -= dt;
         if (shoveIn <= 0) {
-          shoveIn = Math.max(0.55, rand(1.3, 2.6) - ctx.difficulty * 0.08);   // always a beat to recover
-          vel += (Math.random() < 0.5 ? -1 : 1) * Math.min(2.05, 0.85 + ctx.difficulty * 0.12);
-          hitFlash(foeEl); S.bad();
+          shoveIn = Math.max(0.55, rand(1.0, 1.9) - ctx.difficulty * 0.06);
+          vel += (Math.random() < 0.5 ? -1 : 1) * shoveBase;
+          arena.classList.remove('shove'); void arena.offsetWidth; arena.classList.add('shove'); S.bad();
         }
-        vel += push * dt; vel *= (1 - damp * dt); tilt += vel * dt;
+        vel += slope * dt * 0.6;                        // the tilting log keeps rolling you
+        vel *= (1 - damp * dt);
+        p += vel * dt;
+        roll += vel * dt * 6;                           // the ball spins as it rolls
+        if (Math.abs(p) > 0.66) cleanRun = false;
         render();
-        if (Math.abs(tilt) >= 1) return fall();
+        if (Math.abs(p) >= 1) return fall();
         if (left <= 0) return end(true);
       });
 
-      async function fall() {
-        if (done) return false; done = true; stop();
-        Lb.removeEventListener('pointerdown', onL); Rb.removeEventListener('pointerdown', onR);
-        const dir = tilt > 0 ? 1 : -1;
-        cr.style.transition = 'transform .5s cubic-bezier(.5,0,.9,.6)';
-        cr.style.transform = `translate(-50%,0) translateX(${dir * 130}px) translateY(180px) rotate(${dir * 220}deg)`;
-        S.splash(); buzz(120);
-        await wait(360);
-        const croc = area.querySelector(dir > 0 ? '.croc.c3' : '.croc.c1');
-        if (croc) croc.classList.add('chomp');
-        await wait(450);
-        finish(false);
+      function fall() {
+        if (done) return false; done = true; stop(); cleanup();
+        const dir = p > 0 ? 1 : -1;
+        ball.style.transition = 'transform .5s cubic-bezier(.5,0,.9,.6)';
+        ball.style.transform = `translateX(calc(-50% + ${dir * 170}px)) translateY(150px) rotate(${dir * 12}rad)`;
+        S.splash(); buzz(120); setTimeout(() => finish(false), 520);
         return false;
       }
-      function end(win) { if (done) return false; done = true; stop();
-        Lb.removeEventListener('pointerdown', onL); Rb.removeEventListener('pointerdown', onR); finish(win); return false; }
-      function finish(win) {
-        (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7);
-        resolve({ win, stars: win ? 3 : 1 });
-      }
+      function end(win) { if (done) return false; done = true; stop(); cleanup(); finish(win); return false; }
+      function cleanup() { Lb.removeEventListener('pointerdown', onL); Rb.removeEventListener('pointerdown', onR); }
+      function finish(win) { (win ? S.win : S.lose)(); if (!win) sfx(ctx.foe.sfx, 0.7); buzz(win ? 30 : 80); resolve({ win, stars: win ? (cleanRun ? 3 : 2) : 1 }); }
     });
   }
 };

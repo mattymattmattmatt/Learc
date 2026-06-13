@@ -39,10 +39,10 @@ export default {
         cr = r; cc = c; placeMe(); S.ui(); buzz(8);
       });
 
-      let acc = 0, every = clamp(1.25 - ctx.difficulty * 0.06, 0.48, 1.25), iframe = 0;
-      const tele = clamp(1.1 - ctx.difficulty * 0.05, 0.48, 1.1);
+      let acc = 0, every = clamp(1.05 - ctx.difficulty * 0.055, 0.4, 1.05), iframe = 0;
+      const tele = clamp(0.95 - ctx.difficulty * 0.05, 0.4, 0.95);
       function warnWave() {
-        const k = Math.min(6, 2 + Math.floor(ctx.difficulty / 3));   // always ≥3 safe tiles
+        const k = Math.min(9, 3 + Math.floor(ctx.difficulty / 2));   // more tiles erupt, always ≥7 safe
         const pool = tiles.filter(t => t.state === 'cool');
         for (let i = 0; i < k && pool.length; i++) {
           const idx = (Math.random() * pool.length) | 0; const t = pool.splice(idx, 1)[0];

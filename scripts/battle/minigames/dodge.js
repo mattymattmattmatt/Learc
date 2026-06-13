@@ -100,7 +100,7 @@ export default {
         window.removeEventListener('resize', measure);
         projs.forEach(p => p.node.remove());
         if (!win) sfx(ctx.foe.sfx, 0.7);
-        resolve({ win, stars: win ? (hp >= 3 ? 3 : hp >= 2 ? 2 : 2) : 1 });
+        resolve({ win, stars: win ? (hp >= 3 ? 3 : 2) : 1 });
         return false;
       }
     });
