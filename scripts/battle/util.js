@@ -1,11 +1,26 @@
 /* util.js — shared helpers for Battle of the Realm
    Pure helpers + a tiny audio layer. Everything fails soft. */
 
-export const SPRITE = p => `assets/img/characters/${p}`;
+export const SPRITE = p => `assets/img/characters/${encodeURIComponent(p)}`;
 export const AUDIO  = f => `assets/audio/${f}`;
+export const ANIM   = f => `assets/Char_Anim/${encodeURIComponent(f)}`;
 export const KING_GIF = 'assets/img/king_intro.gif';
-/* image URL for a combatant (creatures or the King) */
-export const petImg = pet => (pet && pet.king ? KING_GIF : SPRITE(pet.sprite));
+/* the character-select / story animation clip for a creature (derived from its
+   sprite filename, e.g. char_roger-dodger.webp → roger-dodger_Anim.mp4) */
+export const petAnim = pet => (pet && pet.anim)
+  ? ANIM(pet.anim)
+  : (pet && pet.sprite) ? ANIM(pet.sprite.replace(/^char_/, '').replace(/\.webp$/, '') + '_Anim.mp4') : '';
+/* image URL for a combatant (creatures, henchmen or the King) */
+export const petImg = pet => (pet && pet.img) ? SPRITE(pet.img) : (pet && pet.king ? KING_GIF : SPRITE(pet.sprite));
+
+/* an autoplaying, looping, muted clip with a still-image poster fallback.
+   Used on the select screen and battle intros so champions & bosses move. */
+export function animTag(cls, animUrl, posterUrl, alt = '') {
+  return `<video class="${cls}" playsinline autoplay loop muted preload="auto"
+    poster="${posterUrl}" aria-label="${alt}"
+    onerror="this.replaceWith(Object.assign(new Image(),{src:this.poster,className:this.className}))"
+    ><source src="${animUrl}" type="video/mp4"></video>`;
+}
 
 /* ── math / rng ───────────────────────────────────────────────── */
 export const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));

@@ -1,8 +1,10 @@
 /* data.js — creatures, the adventure ladder, difficulty & story
    ----------------------------------------------------------------
-   Loads the 24 creatures, groups foes into 3 regions by habitat
-   (Land → Sea → Sky), then the King. Difficulty ramps across the
-   whole journey; the King is hardest.
+   Loads the 24 creatures (the captured champions), groups foes into 3
+   regions by habitat (Land → Sea → Sky). At the end of each region one
+   of Evil King Glob's three henchmen guards the way; clear all three and
+   the road to Glob's throne opens. Difficulty ramps the whole journey;
+   Glob is hardest of all.
 */
 
 let PETS = null;          // id → pet
@@ -16,16 +18,56 @@ export async function loadPets() {
 export const getPet = id => PETS[id];
 export const allPets = () => Object.values(PETS);
 
-export const KING = {
-  id: 'king', name: 'The Gilded King', sprite: null,
-  epithet: 'Bearer of the Tarnished Crown'
+/* ── the new villains ──────────────────────────────────────────────
+   Evil King Glob and his three henchmen. Each henchman guards one region;
+   Glob waits at the end. `img`/`anim` are the painted portraits + clips the
+   designer added; `boss` is the tuning the boss-duel engine reads. */
+export const GLOB = {
+  id: 'glob', name: 'Evil King Glob', kind: 'glob',
+  img: 'Evil King Glob.png', anim: 'Evil King Glob_Anim.mp4',
+  epithet: 'the Spoiled Tyrant', color: '#b06bff',
+  game: 'bossduel',
+  boss: { id: 'glob', hearts: 3, crown: 9, hitDmg: 1, enrage: true }
 };
 
-/* region metadata */
+export const BOSSES = {
+  minyar: {
+    id: 'minyar', name: 'Minyar', kind: 'boss', region: 'land',
+    img: 'Minyar.png', anim: 'Minyar_Anim.mp4',
+    epithet: 'the Tantrum', color: '#7ad17a',
+    taunt: 'You woke them up?! That\'s MINE! Give them BACK or I\'ll SCREAM this forest down!',
+    defeat: 'Nngh… no fair, no FAIR! …fine. Take your stupid forest. I\'m telling Glob!',
+    game: 'bossduel',
+    boss: { id: 'minyar', hearts: 3, crown: 6, hitDmg: 1 }
+  },
+  demonder: {
+    id: 'demonder', name: 'Demonder', kind: 'boss', region: 'sea',
+    img: 'Demonder.png', anim: 'Demonder_Anim.mp4',
+    epithet: 'the Bruiser', color: '#ff6b3f',
+    taunt: 'Heh. Little hero wants a fight? Put up your fins. Nobody slips past Demonder\'s gloves.',
+    defeat: 'Tch… good hands, kid. Real good hands. The tide\'s yours. I\'m done swinging.',
+    game: 'bossduel',
+    boss: { id: 'demonder', hearts: 3, crown: 7, hitDmg: 1 }
+  },
+  clubbo: {
+    id: 'clubbo', name: 'Clubbo', kind: 'boss', region: 'sky',
+    img: 'Clubbo.png', anim: 'Clubbo_Anim.mp4',
+    epithet: 'the Crusher', color: '#5fd47a',
+    taunt: 'CLUBBO SMASH! You climb my mountain, you get the club. Nobody reach the King. NOBODY.',
+    defeat: 'Ooogh… Clubbo dizzy. You hit hard, little one. Go on… go get the baby king.',
+    game: 'bossduel',
+    boss: { id: 'clubbo', hearts: 3, crown: 8, hitDmg: 1 }
+  }
+};
+export const bossOfRegion = key => Object.values(BOSSES).find(b => b.region === key);
+export const getBoss = id => (id === 'glob' ? GLOB : BOSSES[id]);
+export const isVillain = id => id === 'glob' || !!BOSSES[id];
+
+/* region metadata — each now names the henchman who holds it */
 export const REGIONS = [
-  { key: 'land', name: 'The Verdant Reach', theme: 'land', blurb: 'Forests and plains where the land-champions stand bound.' },
-  { key: 'sea',  name: 'The Sunken Tides',  theme: 'sea',  blurb: 'Reefs and trenches ruled by the tide-champions.' },
-  { key: 'sky',  name: 'The Stormcrown Peaks', theme: 'sky', blurb: 'Cloud-wreathed summits where the sky-champions soar.' }
+  { key: 'land', name: 'The Verdant Reach', theme: 'land', blurb: 'Forests and plains where the land-champions sleep under Glob\'s spell — and Minyar throws his tantrums.' },
+  { key: 'sea',  name: 'The Sunken Tides',  theme: 'sea',  blurb: 'Reefs and trenches where the tide-champions march in a daze — and Demonder guards the deep.' },
+  { key: 'sky',  name: 'The Stormcrown Peaks', theme: 'sky', blurb: 'Cloud-wreathed summits where the sky-champions soar in chains of magic — and Clubbo blocks the climb.' }
 ];
 
 /* interleaved fallback order (only used if a creature isn't mapped below) */
@@ -68,162 +110,124 @@ export const BATTLES = {
 };
 
 /* Build the full adventure for a chosen hero.
-   Returns { regions:[{...meta, foes:[{id,difficulty,game}]}], king } */
+   Returns { heroId, regions:[{...meta, foes:[...], boss}], glob } */
 export function buildAdventure(heroId) {
   const byHab = { land: [], sea: [], sky: [] };
   for (const p of allPets()) if (p.id !== heroId) byHab[p.habitat].push(p.id);
 
   // count total foes for a smooth difficulty curve
   const ordered = [...byHab.land, ...byHab.sea, ...byHab.sky];
-  const total = ordered.length;            // 23 (or 24 if hero were excluded oddly)
+  const total = ordered.length;            // 23
   const diffOf = gi => Math.max(1, Math.min(9, 1 + Math.round((gi / (total - 1)) * 8)));
 
   let gi = 0;
   const regions = REGIONS.map((r, ri) => {
-    const foes = byHab[r.theme].map((id, i) => {
+    const foes = byHab[r.theme].map((id) => {
       const b = BATTLES[id] || { game: MINIGAMES[gi % MINIGAMES.length] };
       let difficulty = diffOf(gi);
       if (ri === 0) difficulty = Math.min(9, difficulty + 1);   // first region starts a notch harder
       const entry = {
-        id, difficulty, game: b.game,
+        id, kind: 'champion', difficulty, game: b.game,
         theme: { proj: b.proj || '⭐', color: b.color || '#ffd23f', act: b.act || 'Champion’s Trial' }
       };
       gi++;
       return entry;
     });
-    return { ...r, foes };
+    // the henchman who guards this region — a notch harder than its champions
+    const bm = bossOfRegion(r.theme);
+    const boss = {
+      id: bm.id, kind: 'boss', game: bm.game,
+      difficulty: Math.min(10, 6 + ri * 2),
+      theme: { proj: '💥', color: bm.color, act: bm.epithet }
+    };
+    return { ...r, foes, boss };
   });
 
-  return { heroId, regions, king: { id: 'king', difficulty: 10, game: 'kingfight', theme: { proj: '👑', color: '#ffd23f', act: 'The Tarnished Crown' } } };
+  const glob = {
+    id: 'glob', kind: 'glob', game: GLOB.game, difficulty: 11,
+    theme: { proj: '👑', color: GLOB.color, act: 'The Obedience Crown' }
+  };
+  return { heroId, regions, glob };
 }
 
-/* ── flavour: epithet + taunt (under the Tarnish) + freed (warm) ── */
+/* ── flavour: epithet + spellbound taunt + freed (warm, themselves again) ──
+   Under Glob's Obedience Spell the champions are hollow and glassy-eyed;
+   winning snaps them awake. */
 export const FLAVOR = {
-  fertle:      { epithet: 'the Ember Tongue',   taunt: 'Step closer and taste my fire, little spark!', freed: 'Heh… my flame burns warmer now. Go free the others!' },
-  fygar:       { epithet: 'the Blur',           taunt: 'Catch me? You can barely see me move!', freed: 'You kept up with me! Run on, friend — I\'ll cheer you home.' },
-  waterwolf:   { epithet: 'the Tidecaller',     taunt: 'The river bends to me. You will not pass.', freed: 'The water feels clean again. Thank you for the calm.' },
-  chomper:     { epithet: 'the Iron Jaw',       taunt: 'One bite is all it takes. Come here!', freed: 'Ha! Tougher than you look. The Reach is yours to cross.' },
-  fixie:       { epithet: 'the Frostmaker',     taunt: 'I\'ll freeze that brave little grin right off you.', freed: 'You thawed something in me. Onward — the King awaits.' },
-  chunky:      { epithet: 'the Vine King',      taunt: 'Swing into my jungle and you swing into trouble.', freed: 'Nicely done! Take a vine for luck and keep climbing.' },
-  skyjumper:   { epithet: 'the High Leap',      taunt: 'I touch the clouds. You\'ll never reach me.', freed: 'You jumped higher than your fear. I\'m with you.' },
-  cliggy:      { epithet: 'the Eggshell Bomber',taunt: 'Mind the eggs — they don\'t hatch, they BANG!', freed: 'No more bangs. Just a friend at your back now.' },
+  fertle:      { epithet: 'the Ember Tongue',   taunt: 'The King… commands… you will burn. (the eyes glow empty)', freed: 'Wha—? My head was full of grey fog! You burned it away. Go free the others!' },
+  fygar:       { epithet: 'the Blur',           taunt: 'Catch the hero. Catch. Catch. (a blur, with empty eyes)', freed: 'I was running and running and didn\'t know why… thank you. I\'ll cheer you home!' },
+  waterwolf:   { epithet: 'the Tidecaller',     taunt: 'The river… serves the King now. You will not pass.', freed: 'The water feels clean again — and so do I. The spell is broken. Onward!' },
+  chomper:     { epithet: 'the Iron Jaw',       taunt: 'Bite the intruder. The crown says bite.', freed: 'Ha! You knocked the fog right out of my skull. The Reach is yours to cross.' },
+  fixie:       { epithet: 'the Frostmaker',     taunt: 'Freeze. Obey. Freeze. (frost drips from a blank stare)', freed: 'You thawed me out of that nightmare. Onward — Glob can\'t hold us all!' },
+  chunky:      { epithet: 'the Vine King',      taunt: 'Tangle the hero for the King…', freed: 'Phew, my mind\'s my own again! Take a vine for luck and keep climbing.' },
+  skyjumper:   { epithet: 'the High Leap',      taunt: 'Crush from above. The crown wills it.', freed: 'I jumped higher than the spell could reach — because of you. I\'m with you!' },
+  cliggy:      { epithet: 'the Eggshell Bomber',taunt: 'Bombs for the King. Bombs, bombs. (eyes flicker)', freed: 'No more bangs for that brat. Just a friend at your back now.' },
 
-  peeta_heater:{ epithet: 'the Scald',          taunt: 'These tides boil at my command. Turn back!', freed: 'The heat fades… and so does my anger. Swim on.' },
-  snapper:     { epithet: 'the Great Claw',     taunt: 'Snip-snap! I\'ll pinch that courage in two.', freed: 'A worthy catch slips my claws. Good — go free us all.' },
-  swack:       { epithet: 'the Finstorm',       taunt: 'One whack of my fin and you\'re tomorrow\'s tide.', freed: 'You rolled with every hit. The trench is open to you.' },
-  zappo:       { epithet: 'the Live Wire',      taunt: 'Touch the water and feel the spark, hero.', freed: 'You weathered my storm. Take this charge of hope.' },
-  yelp:        { epithet: 'the Sonic Maw',      taunt: 'My roar shakes the reef. Cover your ears!', freed: 'You stood firm in the noise. Quiet, gentle friend.' },
-  sixter:      { epithet: 'the Venom Bloom',    taunt: 'Breathe deep — my clouds are oh so sweet.', freed: 'The poison clears. You breathe easy now; so do I.' },
-  chocker:     { epithet: 'the Coil',           taunt: 'Let me wrap you up nice and tight…', freed: 'You slipped my grip. Go — loosen the King\'s, too.' },
-  gus:         { epithet: 'the Dread Stare',    taunt: 'Look into my eyes. I dare you not to freeze.', freed: 'You met my stare without fear. That… moved me.' },
+  peeta_heater:{ epithet: 'the Scald',          taunt: 'These tides boil for the King. Turn back.', freed: 'The heat fades… and the fog with it. Swim on, brave one.' },
+  snapper:     { epithet: 'the Great Claw',     taunt: 'Snip the hero. Obey. Snip.', freed: 'A worthy catch slips my claws — and snaps me awake. Go free us all!' },
+  swack:       { epithet: 'the Finstorm',       taunt: 'One whack for the crown and you\'re gone.', freed: 'You rolled with every hit and broke the spell. The trench is open to you.' },
+  zappo:       { epithet: 'the Live Wire',      taunt: 'Spark the trespasser. The King commands.', freed: 'You weathered my storm and cleared my head. Take this charge of hope!' },
+  yelp:        { epithet: 'the Sonic Maw',      taunt: 'Roar for the King. Roar. (a hollow, ringing cry)', freed: 'You stood firm in the noise. The quiet in my mind is back — thank you.' },
+  sixter:      { epithet: 'the Venom Bloom',    taunt: 'Poison the hero for the crown…', freed: 'The poison clears, the fog clears. You breathe easy now; so do I.' },
+  chocker:     { epithet: 'the Coil',           taunt: 'Wrap them up for the King. Tight.', freed: 'You slipped my grip and Glob\'s — go loosen his hold on everyone!' },
+  gus:         { epithet: 'the Dread Stare',    taunt: 'Look into the crown\'s eyes. Freeze.', freed: 'You met my stare without fear — and shattered the spell behind it. Onward!' },
 
-  bo:          { epithet: 'the Prism',          taunt: 'My rainbow blinds the bold. Shield your eyes!', freed: 'Such bright spirit! Let my colors light your path.' },
-  roger_dodger:{ epithet: 'the Untouchable',    taunt: 'Hit me? Ha! I dodge before you even swing.', freed: 'You finally clipped me! Fly true to the summit.' },
-  yellogen:    { epithet: 'the Screech',        taunt: 'My squawk splits stone. You\'ll crumble too!', freed: 'You out-sang the storm. The peaks salute you.' },
-  whipper:     { epithet: 'the Galewing',       taunt: 'I am the headwind you cannot climb.', freed: 'Ride my tailwind now, brave one. Go!' },
-  diver:       { epithet: 'the Skyfall',        taunt: 'I strike from the sun. You won\'t see me coming.', freed: 'A clean dive — and a cleaner heart. I\'m freed!' },
-  stinger:     { epithet: 'the Quickpoint',     taunt: 'One jab, faster than blinking. Ready? No?', freed: 'Sharp reflexes, sharper kindness. Onward!' },
-  flick:       { epithet: 'the Deadeye',        taunt: 'I never miss. You\'re already done for.', freed: 'You dodged the un-dodgeable. The King is near.' },
-  creeper:     { epithet: 'the Hollow Gaze',    taunt: 'My gaze paralyses the brave. Don\'t look away…', freed: 'You broke my trance with warmth. Thank you, hero.' }
+  bo:          { epithet: 'the Prism',          taunt: 'Blind the hero for the King.', freed: 'Such bright spirit cut right through the fog! Let my colors light your path.' },
+  roger_dodger:{ epithet: 'the Untouchable',    taunt: 'Dodge. Strike. Obey. (a dead-eyed dance)', freed: 'You finally clipped me — and snapped me awake! Fly true to the summit.' },
+  yellogen:    { epithet: 'the Screech',        taunt: 'Screech for the crown. Crumble them.', freed: 'You out-sang the spell itself. The peaks salute you!' },
+  whipper:     { epithet: 'the Galewing',       taunt: 'Blow the hero off the mountain. The King wills it.', freed: 'Ride my tailwind now, friend — the fog is gone. Go!' },
+  diver:       { epithet: 'the Skyfall',        taunt: 'Strike from the sun for the crown.', freed: 'A clean dive woke a cleaner heart. I\'m free — thank you!' },
+  stinger:     { epithet: 'the Quickpoint',     taunt: 'Jab the trespasser. Obey, obey.', freed: 'Sharp reflexes snapped me out of it. Onward, hero!' },
+  flick:       { epithet: 'the Deadeye',        taunt: 'Never miss. The crown never misses.', freed: 'You dodged the un-dodgeable and freed me. Glob is near — go!' },
+  creeper:     { epithet: 'the Hollow Gaze',    taunt: 'Stare. Paralyse. Serve the King.', freed: 'You broke my trance with warmth. Thank you, brave one.' }
 };
-export const flavor = id => FLAVOR[id] || { epithet: 'the Champion', taunt: 'Prove yourself!', freed: 'Well fought.' };
+export const flavor = id => FLAVOR[id] || { epithet: 'the Champion', taunt: 'The King commands!', freed: 'Well fought.' };
 
-/* King dialogue (the heartfelt twist) */
-export const KING_INTRO = [
-  'So… the little hero who freed my champions stands before me at last.',
-  'I am the Gilded King. Long ago I guarded this realm — until the Tarnish crept into my crown.',
-  'It whispered that only strength could keep the realm safe. So I bound them all. For their own good.',
-  'Defeat me, if you can. But know this: my crown does not yield easily.'
-];
-export const KING_DEFEAT = [
-  'The crown… it cracks. The whispering stops.',
-  'I see them now — every champion, free and smiling. I had forgotten what that looked like.',
-  'You did not beat me with fury. You beat me with heart. That, the Tarnish could never understand.',
-  'Rise, young guardian. The realm is free — and it chose well.'
+/* ── INTRO: the new tale ─────────────────────────────────────────── */
+export const STORY_CAPTURED = 'assets/img/Extra_Images/Captured.png';
+export const STORY_WIN = 'assets/img/Extra_Images/Win.png';
+
+export const INTRO = [
+  'In the bright realm of Liitokala, twenty-four wondrous creatures were wished into being by the Heartspring — guardians born to keep the Land, the Sea and the Sky full of song.',
+  'But one grey dawn a spoiled little tyrant marched into town: Evil King Glob, who decided every creature in the realm should belong to him.',
+  'At his heels came three henchmen — Minyar the Tantrum, Demonder the Bruiser, and Clubbo the Crusher — and together they threw one great net over the whole realm.',
+  'Glob laid an Obedience Spell on his captives. Their eyes went empty, and one by one the champions bowed to his will.',
+  'Yet the spell needs a heart that will kneel — and YOUR chosen champion would never kneel. The magic slid right off. You alone are free.',
+  'Win a duel and a creature snaps awake. Free them all, beat Glob\'s three henchmen, climb to his throne — and set the whole realm free. Choose your hero…'
 ];
 
-/* ── THE KING'S ASPECTS ──────────────────────────────────────────────
-   For the final battle the crown takes one random Aspect. The King's
-   speech leaks clues about WHAT he'll do and WHERE; the player then
-   returns to the select screen and picks ANY freed champion. The right
-   traits (counter) make the fight far kinder; the wrong ones (backfire)
-   make it brutal. `threat` is the plain clue shown on the select screen;
-   `hint` is a gentle nudge for younger players.                         */
+/* boss dialogue helpers */
+export const bossIntroLines = id => {
+  const b = getBoss(id);
+  return [b.taunt || 'You shall not pass!'];
+};
+export const bossDefeatLines = id => {
+  const b = getBoss(id);
+  return [b.defeat || 'You win this round…'];
+};
+
+export const GLOB_INTRO = [
+  'So… the little hero who keeps WAKING UP my toys has come all the way to my throne. How RUDE.',
+  'I am King Glob, and EVERYTHING is mine. The land, the sea, the sky, all the lovely creatures — mine, mine, MINE!',
+  'My crown holds the stolen might of the whole realm. Fire, flood, storm, shadow — it gives me whatever tantrum I please.',
+  'You woke a few of them up? Cute. But you cannot wake the crown. Come closer, hero — let me show you a REAL spell.'
+];
+export const GLOB_DEFEAT = [
+  'No… no no NO! My crown — it\'s CRACKING! Stop it! I\'m the KING! You have to do what I—',
+  'The fog… it\'s lifting off all of them at once. They\'re looking at me. They\'re… not afraid anymore.',
+  'You didn\'t beat me with a bigger tantrum. You beat me with a braver heart. That\'s just… not FAIR.',
+  'Take it. Take the realm. I only ever wanted someone to play with anyway… (the crown goes dark)'
+];
+
+/* ── GLOB'S CROWN ASPECTS ─────────────────────────────────────────
+   Glob's crown cycles through stolen "Aspects" during the final duel, so
+   his attacks keep changing. (Kept for the boss-duel engine's variety.) */
 export const KING_ASPECTS = [
-  {
-    id: 'cinders', name: 'Cinders', element: '🔥',
-    counter: ['water', 'ice', 'cold'], backfire: ['fire', 'heat'],
-    speech: [
-      'Feel the heat of my crown? The very floor shall run with molten gold.',
-      'Embers will rain from on high, and where they fall the ground erupts in flame.',
-      'Bring me one who does not fear the cold… if such a friend still stands with you.'
-    ],
-    threat: 'The floor erupts in flame and embers rain from above.',
-    hint: 'Something cool — water or ice — smothers the fire. Fiery champions only feed it.'
-  },
-  {
-    id: 'deluge', name: 'the Deluge', element: '🌊',
-    counter: ['flight', 'jump'], backfire: ['strength'],
-    speech: [
-      'The tides answer to me now — watch the water climb toward my throne.',
-      'Only those who leave the ground stay dry; the heavy will sink and be swept away.',
-      'Choose a champion of the air, or one with a mighty leap.'
-    ],
-    threat: 'Water floods the arena from below, rising higher and higher.',
-    hint: 'Wings or a big jump keep you above the flood. Heavy, strong champions sink.'
-  },
-  {
-    id: 'tempest', name: 'the Tempest', element: '⚡',
-    counter: ['agility', 'speed', 'flight'], backfire: ['electric', 'water'],
-    speech: [
-      'I crown the sky with lightning, and it will hunt you across the floor.',
-      'Pillars of thunder fall where you stand — only the swift slip away in time.',
-      'Bring nothing that drinks the spark, or it will light you up like a candle.'
-    ],
-    threat: 'Lightning hammers down in telegraphed columns.',
-    hint: 'Fast, nimble or flying champions dodge the bolts. Electric or watery ones attract them.'
-  },
-  {
-    id: 'gale', name: 'the Gale', element: '🌪️',
-    counter: ['flight', 'wind', 'strength'], backfire: ['agility', 'speed'],
-    speech: [
-      'A wind howls from my crown, strong enough to move mountains.',
-      'It will shove you from your feet each time you reach to strike me.',
-      'Bring wings to ride it — or the brute strength to stand against it.'
-    ],
-    threat: 'A relentless wind shoves you away from the King.',
-    hint: 'Fliers ride it and the strong stand firm. Light, quick champions get blown around.'
-  },
-  {
-    id: 'stone', name: 'Stone', element: '⛰️',
-    counter: ['strength', 'bite', 'explosive'], backfire: ['calm', 'light'],
-    speech: [
-      'My crown turns to living rock; boulders will rain down upon you.',
-      'And its shell — no gentle touch will ever leave a mark.',
-      'Only raw strength, a crushing bite, or a blast can break through.'
-    ],
-    threat: 'Boulders crash down and the crown is armored in rock.',
-    hint: 'Strength, a hard bite or explosives shatter the shell. Gentle champions can’t dent it.'
-  },
-  {
-    id: 'gloom', name: 'the Gloom', element: '🌑',
-    counter: ['light', 'calm'], backfire: ['fear'],
-    speech: [
-      'I will drown your sight in shadow and pour fear into your heart.',
-      'You will never see my blows coming through the dark.',
-      'Only a calm and shining spirit can pierce the gloom.'
-    ],
-    threat: 'Darkness smothers the arena — you can barely see the attacks.',
-    hint: 'A radiant or calm champion lights the way. Fearful champions deepen the dark.'
-  }
+  { id: 'cinders', name: 'Cinders',     element: '🔥' },
+  { id: 'deluge',  name: 'the Deluge',  element: '🌊' },
+  { id: 'tempest', name: 'the Tempest', element: '⚡' },
+  { id: 'gale',    name: 'the Gale',    element: '🌪️' },
+  { id: 'stone',   name: 'Stone',       element: '⛰️' },
+  { id: 'gloom',   name: 'the Gloom',   element: '🌑' }
 ];
-
 export function pickKingAspect() { return KING_ASPECTS[(Math.random() * KING_ASPECTS.length) | 0]; }
-
-/* How a hero fares against an Aspect: 'counter' (great), 'backfire' (bad), or 'neutral'. */
-export function aspectAffinity(hero, aspect) {
-  const tags = (hero && hero.tags) || [];
-  if (aspect.counter.some(t => tags.includes(t)))  return 'counter';
-  if (aspect.backfire.some(t => tags.includes(t))) return 'backfire';
-  return 'neutral';
-}

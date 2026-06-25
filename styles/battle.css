@@ -859,3 +859,101 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg1);color:var
 @keyframes enrageFlash{0%{box-shadow:inset 0 0 90px rgba(255,60,30,.75)}100%{box-shadow:none}}
 .kf-vignette.pulse{animation:gloomPulse .7s ease;}
 @keyframes gloomPulse{0%,100%{opacity:1}50%{opacity:1;filter:brightness(.55)}}
+
+/*══════════════════════════════════════════════════════════════
+  OVERHAUL — Evil King Glob, henchmen bosses & animations
+══════════════════════════════════════════════════════════════*/
+
+/* story scene splash (Captured) + win scene (the freed realm) */
+.story-scene,.end-scene{width:min(96%,440px);border-radius:14px;margin:2px auto 10px;display:block;
+  border:2px solid rgba(255,255,255,.18);box-shadow:0 10px 30px rgba(0,0,0,.5);animation:pop .35s ease;}
+.story-scene.hide{display:none;}
+.end-scene{box-shadow:0 0 34px rgba(255,210,63,.35),0 12px 34px rgba(0,0,0,.5);}
+
+/* video portraits/clips reuse image sizing; keep them tidy */
+video.story-portrait{object-fit:contain;background:rgba(0,0,0,.25);}
+video.bi-foe{object-fit:contain;background:transparent;}
+video.king-throne{object-fit:contain;}
+
+/* ── hero-select live animation preview ── */
+.sel-preview{display:flex;align-items:center;gap:10px;margin-bottom:6px;text-align:left;}
+.sel-anim{flex:0 0 auto;width:64px;height:64px;}
+.sel-anim:empty{display:none;}
+.sel-anim-vid{width:64px;height:64px;object-fit:contain;border-radius:12px;background:rgba(0,0,0,.25);
+  border:2px solid rgba(255,210,63,.5);box-shadow:0 0 14px rgba(255,210,63,.35);animation:pop .3s ease;}
+.sel-preview .sel-info{margin-bottom:0;flex:1;}
+
+/* mode badge on the map (replaces the old hearts row) */
+.mode-badge{font-size:.82rem;font-weight:700;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.18);
+  padding:4px 10px;border-radius:99px;color:var(--ink);letter-spacing:.3px;}
+
+/* ── henchman boss gate on the map path ── */
+.node-boss{width:76px;border:2px solid rgba(255,255,255,.14);}
+.node-boss img{width:60px;height:60px;}
+.node-boss.todo img{filter:brightness(.4) saturate(.5) opacity(.5);}
+.node-boss.todo .node-stars{visibility:visible;color:var(--muted);}
+.node-boss.done img{filter:none;}
+.node-boss.done .node-stars{color:var(--good);}
+.node-boss.boss-cur{border-color:var(--bad);background:rgba(255,90,90,.16);cursor:pointer;
+  animation:bossPulse 1.1s ease-in-out infinite;}
+.node-boss.boss-cur .node-stars{color:#fff;font-weight:800;}
+@keyframes bossPulse{0%,100%{box-shadow:0 0 0 rgba(255,90,90,0)}50%{box-shadow:0 0 18px rgba(255,90,90,.8)}}
+
+/* ── boss intro card ── */
+.boss-intro .bi-card{border-color:rgba(255,255,255,.18);box-shadow:0 0 38px var(--accent,#ffd23f),0 18px 50px rgba(0,0,0,.5);}
+.bi-card.boss-card .bi-vs{color:var(--accent,#ffd23f);font-weight:700;}
+video.boss-foe{width:150px;height:150px;filter:drop-shadow(0 8px 14px rgba(0,0,0,.5));}
+.bi-taunt{font-style:italic;color:var(--muted);margin:4px 0 10px;line-height:1.4;}
+.king-dlg.boss-dlg .story-card,.king-dlg.glob-dlg .story-card{
+  border-color:rgba(255,120,120,.4);box-shadow:0 0 40px rgba(255,90,90,.2),0 18px 50px rgba(0,0,0,.5);}
+
+/*──────── Boss Duel (Glob + henchmen) ────────*/
+.bd-hud{width:100%;max-width:600px;display:flex;justify-content:space-between;align-items:center;font-weight:600;padding-right:46px;gap:8px;}
+.bd-hearts{font-size:1.2rem;letter-spacing:2px;}
+.bd-name{font-family:"Cinzel",serif;font-weight:700;color:#fff;text-shadow:0 0 10px rgba(0,0,0,.6);font-size:.95rem;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bd-crown{font-size:1.1rem;color:var(--accent,#ffd23f);letter-spacing:2px;text-shadow:0 0 8px var(--accent,#ffd23f);}
+.bd-field{position:relative;flex:1;width:100%;max-width:600px;border-radius:18px;overflow:hidden;margin:6px 0;
+  background:radial-gradient(circle at 50% 22%,#4a3a66,#1a1230 78%);border:2px solid var(--accent,rgba(255,210,63,.3));}
+.bd-field.boss-minyar{background:radial-gradient(circle at 50% 22%,#244a2c,#0e1f12 78%);}
+.bd-field.boss-demonder{background:radial-gradient(circle at 50% 22%,#3a1f12,#150a06 78%);}
+.bd-field.boss-clubbo{background:radial-gradient(circle at 50% 22%,#2c3a1f,#10160a 78%);}
+.bd-field.boss-glob{background:radial-gradient(circle at 50% 22%,#3a2a5a,#140a26 78%);}
+.bd-boss{position:absolute;will-change:left,top;filter:drop-shadow(0 0 16px var(--accent,rgba(255,210,63,.5)));transition:filter .2s;z-index:2;}
+.bd-boss img{width:100%;height:100%;object-fit:contain;}
+.bd-boss.stagger{filter:drop-shadow(0 0 28px rgba(255,90,134,.95)) brightness(1.25) saturate(1.2);}
+.bd-boss.hit{animation:hit .3s ease;}
+.bd-reticle{position:absolute;transform:translate(-50%,-50%);border:4px solid var(--bad);border-radius:50%;z-index:4;pointer-events:none;
+  box-shadow:0 0 18px var(--bad);animation:retPulse .8s ease-in-out infinite;}
+.bd-hero{position:absolute;top:0;left:0;border-radius:50%;overflow:hidden;will-change:transform;display:flex;align-items:center;justify-content:center;z-index:3;
+  background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.35),rgba(92,198,255,.28));border:3px solid rgba(255,255,255,.9);box-shadow:0 0 12px rgba(92,198,255,.7);}
+.bd-hero img{width:82%;height:82%;object-fit:contain;}
+.bd-hero.hurt{animation:hurt .4s ease;}
+.bd-proj{position:absolute;transform:translate(-50%,-50%);z-index:2;font-size:1.25rem;line-height:1;pointer-events:none;filter:drop-shadow(0 0 6px rgba(0,0,0,.5));will-change:left,top;}
+.bd-bolt{position:absolute;top:0;bottom:0;z-index:1;pointer-events:none;border-radius:6px;}
+.bd-bolt.warn{background:repeating-linear-gradient(180deg,rgba(255,225,90,.18) 0 10px,transparent 10px 20px);border:2px dashed rgba(255,225,90,.7);}
+.bd-bolt.strike{background:linear-gradient(180deg,#fff,#ffe15a 40%,#ffae3f);box-shadow:0 0 22px rgba(255,225,90,.95);animation:boltFlash .2s ease;}
+.bd-zone{position:absolute;transform:translate(-50%,-50%);border-radius:50%;z-index:1;pointer-events:none;
+  border:3px dashed rgba(255,120,90,.85);background:radial-gradient(circle,rgba(255,90,60,.22),transparent 70%);}
+.bd-zone.arm{border-style:solid;background:radial-gradient(circle,rgba(255,90,60,.4),transparent 72%);}
+.bd-zone.slam{animation:zoneSlam .26s ease;background:radial-gradient(circle,rgba(255,200,120,.95),rgba(255,90,40,.5) 60%,transparent 75%);border-color:#fff;}
+@keyframes zoneSlam{0%{transform:translate(-50%,-50%) scale(1.08);filter:brightness(1.6)}100%{transform:translate(-50%,-50%) scale(1)}}
+/* Minyar's shockwave rings */
+.bd-ring{position:absolute;transform:translate(-50%,-50%);border-radius:50%;z-index:1;pointer-events:none;
+  border:6px solid rgba(120,209,122,.9);box-shadow:0 0 18px rgba(120,209,122,.7),0 0 18px rgba(120,209,122,.6) inset;}
+/* Clubbo's club sweeps */
+.bd-sweep{position:absolute;z-index:1;pointer-events:none;border-radius:8px;}
+.bd-sweep.warn{background:repeating-linear-gradient(45deg,rgba(255,225,90,.16) 0 12px,transparent 12px 24px);border:2px dashed rgba(255,225,90,.7);}
+.bd-sweep.go{background:linear-gradient(90deg,rgba(150,90,40,.5),rgba(120,70,30,.92),rgba(150,90,40,.5));
+  box-shadow:0 0 22px rgba(120,70,30,.8);border:2px solid rgba(80,45,18,.9);}
+.bd-water{position:absolute;left:0;right:0;bottom:0;height:0;z-index:1;pointer-events:none;border-top:3px solid rgba(220,245,255,.85);
+  background:linear-gradient(180deg,rgba(90,180,255,.5),rgba(30,100,205,.78));box-shadow:0 -4px 18px rgba(90,180,255,.5);}
+.bd-vignette{position:absolute;inset:0;z-index:4;pointer-events:none;
+  background:radial-gradient(circle var(--gr,130px) at var(--gx,50%) var(--gy,60%),transparent 0,transparent calc(var(--gr,130px) * .55),rgba(3,5,18,.94) var(--gr,130px));}
+.bd-vignette.pulse{animation:gloomPulse .7s ease;}
+.bd-banner{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%) scale(.6);opacity:0;z-index:5;pointer-events:none;
+  font-family:"Cinzel",serif;font-size:clamp(1.2rem,6vw,1.9rem);color:#fff;text-shadow:0 0 16px rgba(0,0,0,.85);white-space:nowrap;}
+.bd-banner.show{animation:kfBanner 1.1s ease;}
+.bd-banner.strike{color:var(--gold);}
+.bd-field.enraged{animation:enrageFlash .6s ease;}
+.bd-field.enraged .bd-boss img{filter:drop-shadow(0 0 24px rgba(255,90,50,.95)) saturate(1.35);}

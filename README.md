@@ -1,12 +1,16 @@
 # ⚔️ Battle of the Realm
 
 A heart-and-courage battle adventure starring **24 hand-designed creatures**.
-Pick your hero, then duel your way across three regions — **Land → Sea → Sky** —
-defeating every champion in a different **microgame** before facing the final
-boss: the **Gilded King** and his Tarnished Crown.
+**Evil King Glob** has marched into Liitokala, netted every creature, and put an
+**Obedience Spell** on them — but the spell slid right off the one hero *you*
+choose. Duel your way across three regions — **Land → Sea → Sky** — snapping each
+spellbound champion awake, beat Glob's three henchmen (**Minyar**, **Demonder**,
+**Clubbo**), then face **Evil King Glob** himself.
 
 Inspired by the bite-sized minigames of *Pokémon mini* / WarioWare. **Mobile-first**
 (pure touch, portrait or landscape), no backend — runs from static files.
+Every creature and boss also has its own **animated clip** that plays on the
+select screen and before each battle.
 
 ## Play
 
@@ -21,16 +25,23 @@ python3 -m http.server 8000
 
 ## The adventure
 
-1. **Choose your hero** from all 24 creatures.
-2. Battle the other champions across **3 regions** (grouped by Land / Sea / Sky).
-   Each champion is a different microgame, and difficulty climbs the whole way.
-3. Beat all three regions to **challenge the Gilded King** — a 3-phase gauntlet,
-   the hardest fight in the game.
-4. A heartfelt ending: the realm is freed and your hero is crowned its guardian.
+1. **Choose your hero** from all 24 creatures — the one creature Glob's spell
+   can't touch. (Watch their animation play when you tap them.)
+2. Battle the other (spellbound) champions across **3 regions** (Land / Sea / Sky).
+   Each champion is a different microgame; **winning breaks their spell** and frees
+   them. Difficulty climbs the whole way.
+3. At the end of each region, fight the henchman who guards it — **Minyar** (Land),
+   **Demonder** (Sea), **Clubbo** (Sky) — each a bespoke **boss duel** with its own
+   signature attacks.
+4. Clear all three to **challenge Evil King Glob** — whose crown cycles the realm's
+   stolen powers, the hardest fight in the game.
+5. A heartfelt ending: the spell shatters, every creature wakes, and your hero is
+   raised up as the realm's new guardian.
 
-**Lives & checkpoints:** you start each region with 3 ❤. Lose a battle and you
-lose a heart and retry it. Run out and the **current region restarts** with full
-hearts (earlier regions stay cleared). Win battles cleanly to earn up to ★★★.
+**No lives, no going back:** you play your chosen hero until you win. Lose a
+battle and you simply **try that very same battle again** — your progress is never
+lost. Win battles cleanly to earn up to ★★★, and finish without losing a single
+duel for a clean-run bonus.
 
 ## A unique game for every creature
 
@@ -66,13 +77,13 @@ to the creature that uses it.
 | 🐍 **Venom Trail** | a Snake game — eat orbs, don't cross your poison trail |
 | 🌀 **Unwind** | drag in circles to spin free of the coils |
 | ✍️ **Break the Trance** | trace the glowing sigil through its dots in order |
-| 👑 **The Gilded King** | bespoke boss duel — every wave mixes attack patterns from the crown's Aspect, and each opening allows exactly ONE strike before the King recovers; at half health he enrages with crown-shard bursts |
+| 💥 **Boss Duel** | the four bespoke boss fights — **DRAG** to survive each wave, then **TAP** the boss when it reels (ONE strike per opening) until its guard is fully broken. Each boss has a signature mechanic: Minyar's expanding **shockwave rings**, Demonder's boxing **glove jabs & haymakers**, Clubbo's full-width **club sweeps & ground slams**, and Glob's crown, which **cycles every stolen Aspect** (fire/flood/storm/wind/stone/shadow) and enrages at half guard |
 
 ## Score, stars & leaderboard
 
-Every battle earns **1–3 stars**. Your run total is shown on the map (`★ X / 72`)
+Every battle earns **1–3 stars** (the boss duels included). Your run total is shown on the map (`★ X / 81`)
 and becomes your **final score** — collect three stars in all 24 battles for a
-perfect 72, plus a **+6 clean-run bonus** if you never use a continue. At the end
+perfect run, plus a **+6 clean-run bonus** if you never lose a single battle. At the end
 you enter a name and submit to a **🏆 leaderboard** (viewable from the title), so
 players can compete for the most stars. The board uses the project's Firebase
 (anonymous auth + a `scores` collection) and falls back to an on-device board when
@@ -89,7 +100,7 @@ Freed champions stay friendly! On the map, **tap any freed champion** (the 🤝
 badge) to replay their microgame and improve your stars — rematches never cost
 hearts. The **journey strip is navigation**: tap a cleared region (Land/Sea/Sky)
 to revisit its champions, perfect your ★ total, then return to the live quest —
-even right before facing the King.
+even right before facing Glob.
 
 ## 🔥 Endless Gauntlet
 
@@ -121,7 +132,7 @@ target you must lead with the Slingshot, Cliggy bombards you with explosive eggs
 attack each creature uses is named on the pre-battle screen, so your niece's
 designs drive the whole game.
 
-The **Gilded King** is a bespoke 1-on-1 boss duel (see below), not a microgame.
+**Evil King Glob** and his three henchmen are bespoke 1-on-1 boss duels (see below), not microgames.
 
 ## Polish
 
@@ -133,7 +144,7 @@ The **Gilded King** is a bespoke 1-on-1 boss duel (see below), not a microgame.
 - **🔊 Mute toggle** (top-right, remembered between sessions).
 - **Difficulty modes** — **Story** (5 hearts, gentler) or **Normal** (3 hearts,
   full challenge), chosen on the title screen and remembered.
-- **Journey & story beats** — a Land → Sea → Sky → King progress strip on the map,
+- **Journey & story beats** — a Land → Sea → Sky → Glob progress strip on the map,
   and a freed-champions montage with a cheer line each time a region is liberated.
 - **Installable & offline (PWA)** — a service worker precaches the game shell and
   caches art/audio as you play, so after the first visit it runs with no network
@@ -147,14 +158,16 @@ The **Gilded King** is a bespoke 1-on-1 boss duel (see below), not a microgame.
 | Path | What |
 |------|------|
 | `index.html` | **Battle of the Realm** (the main game) |
-| `scripts/battle/main.js` | screen flow (title → story → select → map → battles → King → ending), Gauntlet, Critterdex, rematches |
-| `scripts/battle/data.js` | creatures, region ladder, difficulty curve, story flavor |
-| `scripts/battle/state.js` | progress, lives, region checkpoints, save |
+| `scripts/battle/main.js` | screen flow (title → story → select → map → battles → henchman bosses → Glob → ending), Gauntlet, Critterdex, rematches |
+| `scripts/battle/data.js` | creatures, the bosses (Glob + Minyar/Demonder/Clubbo), region ladder, difficulty curve, story |
+| `scripts/battle/state.js` | progress, boss/region progression, save (no lives) |
 | `scripts/battle/meta.js` | cross-run progress: best stars per champion, badges, gauntlet record |
-| `scripts/battle/minigames/` | the 24 microgames + the boss gauntlet |
-| `scripts/battle/util.js` | audio, RNG, countdown, FX helpers |
+| `scripts/battle/minigames/` | the 24 microgames + `bossduel.js` (the four boss fights) |
+| `scripts/battle/util.js` | audio, RNG, countdown, FX, animation/sprite helpers |
 | `styles/battle.css` | all styling |
-| `scripts/data/pets.json` | the 24 creatures (name, sprite, sound, power) |
+| `scripts/data/pets.json` | the 24 creatures (name, sprite, sound, power, tags) |
+| `assets/Char_Anim/` | per-character & per-boss animation clips (play on select / pre-battle) |
+| `assets/img/Extra_Images/` | story art — `Captured.png` (intro) and `Win.png` (finale) |
 | `service-worker.js` | offline cache (precached shell + cache-as-you-play assets) |
 | `firebase/firestore.rules` | leaderboard security rules (deploy to enable cloud scores) |
 | `crittercatch.html`, `kingsgold.html` | earlier games, still playable |
