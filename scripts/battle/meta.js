@@ -23,9 +23,9 @@ export const BADGES = [
   { id: 'land-free',   icon: '🌳', name: 'Land Liberator',   desc: 'Free every champion of the Verdant Reach.' },
   { id: 'sea-free',    icon: '🌊', name: 'Tide Turner',      desc: 'Free every champion of the Sunken Tides.' },
   { id: 'sky-free',    icon: '⛰️', name: 'Storm Breaker',    desc: 'Free every champion of the Stormcrown Peaks.' },
-  { id: 'crown',       icon: '👑', name: 'Crown Breaker',    desc: 'Defeat the Gilded King and free the realm.' },
-  { id: 'unbroken',    icon: '🛡️', name: 'Unbroken',         desc: 'Finish an adventure without a single continue.' },
-  { id: 'star-master', icon: '💫', name: 'Star Master',      desc: 'Finish an adventure with all 72 stars.' },
+  { id: 'crown',       icon: '👑', name: 'Crown Breaker',    desc: 'Defeat Evil King Glob and free the realm.' },
+  { id: 'unbroken',    icon: '🛡️', name: 'Unbroken',         desc: 'Finish an adventure without losing a single battle.' },
+  { id: 'star-master', icon: '💫', name: 'Star Master',      desc: 'Finish an adventure with every star.' },
   { id: 'gauntlet-5',  icon: '🔥', name: 'Gauntlet Hero',    desc: 'Clear 5 rounds in one Gauntlet run.' },
   { id: 'gauntlet-12', icon: '⚡', name: 'Gauntlet Legend',  desc: 'Clear 12 rounds in one Gauntlet run.' }
 ];

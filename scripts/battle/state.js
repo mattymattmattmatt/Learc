@@ -1,27 +1,28 @@
-/* state.js — adventure progress, lives, and save
+/* state.js — adventure progress & save
    ----------------------------------------------------------------
-   Lives are checkpoints: you start a region with MAX_LIVES; losing a
-   battle costs a life and you retry it. Run out → game over and the
-   whole CURRENT REGION restarts (earlier regions stay cleared).
+   No more lives! You play your chosen champion until you win — lose a
+   battle and you simply try that same battle again (no going back to the
+   start). Difficulty modes only change how hard the minigames play.
+   Each region ends with one of Glob's henchmen; clear all three to face
+   Glob himself.
 */
 
 import { buildAdventure } from './data.js';
 
-export const MAX_LIVES = 3;
 const LS = 'realm:save';
 const MODE_LS = 'realm:mode';
 
-/* difficulty mode: 'story' (gentle, more hearts), 'normal', or 'hard'
-   (brutal minigames, but no lives — you just continue from where you flopped). */
+/* difficulty mode: 'story' (gentle), 'normal', or 'hard' (brutal minigames).
+   All modes now have infinite retries — the mode only scales the challenge. */
 const MODES = ['story', 'normal', 'hard'];
 export function getMode() { try { const m = localStorage.getItem(MODE_LS); return MODES.includes(m) ? m : 'normal'; } catch { return 'normal'; } }
 export function setMode(m) { try { localStorage.setItem(MODE_LS, MODES.includes(m) ? m : 'normal'); } catch {} }
+/* the Gauntlet (a separate, optional mode) still uses lives */
 export function livesFor(mode) { return mode === 'story' ? 5 : 3; }
-export function isEndless() { return state.mode === 'hard'; }    // Hard = no lives, infinite continues
-/* scale a foe's base difficulty (1..10) by the chosen mode */
+/* scale a foe's base difficulty (1..11) by the chosen mode */
 export function effDiff(d) {
   if (state.mode === 'story') return Math.max(1, Math.round(d * 0.62));
-  if (state.mode === 'hard')  return Math.min(14, d + 5);   // every battle plays ~5 tiers up, capped at 14
+  if (state.mode === 'hard')  return Math.min(15, d + 5);   // every battle plays ~5 tiers up
   return d;
 }
 
@@ -29,18 +30,20 @@ export const state = {
   heroId: null,
   adventure: null,     // built from hero
   mode: 'normal',
-  maxLives: MAX_LIVES,
-  region: 0,           // 0..2 = regions, 3 = King
-  idx: 0,              // foe index within current region
-  lives: MAX_LIVES,
-  stars: {},           // foeId → 1..3 (includes 'king')
-  continues: 0,        // times the player has used a game-over continue
+  region: 0,           // 0..2 = regions, 3 = Glob
+  idx: 0,              // foe index within current region (== foes.length → henchman)
+  stars: {},           // foeId → 1..3 (includes the bosses + 'glob')
+  continues: 0,        // how many battles you've lost (for the clean-run bonus)
   done: false
 };
 
 /* ── scoring / leaderboard helpers ────────────────────────────── */
-export function maxStars() { return (state.adventure ? totalFoes() : 24) * 3; }   // 24 battles × 3 = 72
-/* a clean run (no continues) earns a perfect-run bonus */
+export function totalBattles() {
+  if (!state.adventure) return 27;
+  return state.adventure.regions.reduce((n, r) => n + r.foes.length + 1, 0) + 1; // +1 henchman each, +1 Glob
+}
+export function maxStars() { return totalBattles() * 3; }
+/* a clean run (never lost a battle) earns a perfect-run bonus */
 export function finalScore() { return totalStars() + (state.continues === 0 && state.done ? 6 : 0); }
 const NAME_LS = 'realm:name';
 export function getName() { try { return localStorage.getItem(NAME_LS) || ''; } catch { return ''; } }
@@ -50,73 +53,67 @@ export function startAdventure(heroId) {
   state.heroId = heroId;
   state.adventure = buildAdventure(heroId);
   state.mode = getMode();
-  state.maxLives = livesFor(state.mode);
   state.region = 0;
   state.idx = 0;
-  state.lives = state.maxLives;
   state.stars = {};
   state.continues = 0;
   state.done = false;
   save();
 }
 
-/* current foe entry, or null when it's time for the King */
-export function currentRegion() { return state.adventure.regions[state.region] || null; }
+/* current region (null once we're at Glob) */
+export function currentRegion() { return state.region < 3 ? state.adventure.regions[state.region] : null; }
+/* current foe entry: a champion, then the region's henchman, then Glob */
 export function currentFoe() {
-  if (state.region >= 3) return state.adventure.king;     // King
+  if (state.region >= 3) return state.adventure.glob;
   const r = currentRegion();
-  return r ? r.foes[state.idx] : null;
+  if (!r) return null;
+  return state.idx < r.foes.length ? r.foes[state.idx] : r.boss;
 }
-export function isKingNext() { return state.region >= 3; }
+export function isBossNext() { const r = currentRegion(); return !!r && state.idx === r.foes.length; }
+export function isGlobNext() { return state.region >= 3; }
 
-export function totalFoes() {
-  return state.adventure.regions.reduce((n, r) => n + r.foes.length, 0) + 1;
+/* number of captured champions (the things you "free") */
+export function championCount() {
+  return state.adventure.regions.reduce((n, r) => n + r.foes.length, 0);
 }
+export const totalFoes = championCount;   // kept for older call sites
 export function clearedCount() {
   let n = 0;
-  for (let r = 0; r < state.region; r++) n += state.adventure.regions[r].foes.length;
-  if (state.region < 3) n += state.idx; else n += state.adventure.regions.reduce((a, x) => a + x.foes.length, 0);
+  for (let r = 0; r < Math.min(state.region, 3); r++) n += state.adventure.regions[r].foes.length;
+  if (state.region < 3) n += Math.min(state.idx, currentRegion().foes.length);
   return n;
 }
 
 /* ── outcomes ─────────────────────────────────────────────────── */
-/* returns one of: 'next-foe' | 'region-clear' | 'king' | 'win' */
+/* returns: 'next-foe' | 'region-boss' | 'region-clear' | 'glob' | 'win' */
 export function recordWin(foeId, stars) {
-  state.stars[foeId] = Math.max(state.stars[foeId] || 0, stars);   // includes 'king'
+  state.stars[foeId] = Math.max(state.stars[foeId] || 0, stars);
 
-  if (state.region >= 3) { state.done = true; save(); return 'win'; }
+  if (state.region >= 3) { state.done = true; save(); return 'win'; }  // beat Glob
 
-  state.idx++;
   const r = currentRegion();
-  if (state.idx >= r.foes.length) {
-    state.region++;
-    state.idx = 0;
-    state.lives = state.maxLives;            // refill at each new region
+  if (state.idx < r.foes.length) {
+    state.idx++;                              // freed a champion
     save();
-    return state.region >= 3 ? 'king' : 'region-clear';
+    return state.idx >= r.foes.length ? 'region-boss' : 'next-foe';
   }
+  // beat the region's henchman
+  state.region++;
+  state.idx = 0;
   save();
-  return 'next-foe';
+  return state.region >= 3 ? 'glob' : 'region-clear';
 }
 
-/* friendly rematch of an already-freed champion: can only improve the
-   star record — never costs lives, never moves progression */
+/* friendly rematch of an already-freed champion: can only improve stars */
 export function recordRematch(foeId, stars) {
   state.stars[foeId] = Math.max(state.stars[foeId] || 0, stars);
   save();
 }
 
-/* returns 'retry' (lives remain) or 'gameover' */
+/* no lives any more — a loss just means "try the same battle again" */
 export function recordLoss() {
-  state.lives--;
-  if (state.lives <= 0) {
-    // restart current region from the top with full lives
-    state.idx = 0;
-    state.lives = state.maxLives;
-    state.continues = (state.continues || 0) + 1;
-    save();
-    return 'gameover';
-  }
+  state.continues = (state.continues || 0) + 1;
   save();
   return 'retry';
 }
@@ -125,9 +122,9 @@ export function recordLoss() {
 export function save() {
   try {
     localStorage.setItem(LS, JSON.stringify({
-      heroId: state.heroId, mode: state.mode, maxLives: state.maxLives,
+      heroId: state.heroId, mode: state.mode,
       region: state.region, idx: state.idx, continues: state.continues,
-      lives: state.lives, stars: state.stars, done: state.done
+      stars: state.stars, done: state.done
     }));
   } catch {}
 }
@@ -145,10 +142,8 @@ export function loadSave() {
     state.heroId = d.heroId;
     state.adventure = buildAdventure(d.heroId);
     state.mode = MODES.includes(d.mode) ? d.mode : 'normal';
-    state.maxLives = d.maxLives || livesFor(state.mode);
     state.region = d.region | 0;
     state.idx = d.idx | 0;
-    state.lives = d.lives ?? state.maxLives;
     state.stars = d.stars || {};
     state.continues = d.continues | 0;
     state.done = !!d.done;

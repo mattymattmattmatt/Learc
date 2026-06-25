@@ -25,11 +25,12 @@ import unwind from './unwind.js';
 import trace from './trace.js';
 import kingfight from './kingfight.js';
 import boss from './boss.js';
+import bossduel from './bossduel.js';
 
 export const GAMES = {
   quickdraw, tugofwar, powerstrike, memory, dodge, blitz, rhythm,
   catch: catchgame, swipe, charge, balance, slingshot, sharpshooter,
   freezeframe, glider, iceslide, paddle, sonicring, divedodge,
-  clawdrop, hotfloor, snaketrail, unwind, trace, kingfight, boss
+  clawdrop, hotfloor, snaketrail, unwind, trace, kingfight, boss, bossduel
 };
 export const getGame = id => GAMES[id] || quickdraw;

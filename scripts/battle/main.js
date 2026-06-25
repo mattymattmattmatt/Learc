@@ -1,12 +1,17 @@
 /* main.js — Battle of the Realm: screen flow & glue */
 import {
   byId, el, petImg, SPRITE, KING_GIF, playMusic, stopMusic, sfx, buzz, countdown,
-  S, confetti, isMuted, toggleMute, shuffle, sparkle
+  S, confetti, isMuted, toggleMute, shuffle, sparkle, petAnim, animTag
 } from './util.js';
-import { loadPets, getPet, allPets, flavor, REGIONS, BATTLES, KING_INTRO, KING_DEFEAT, pickKingAspect, aspectAffinity } from './data.js';
+import {
+  loadPets, getPet, allPets, flavor, REGIONS, BATTLES,
+  BOSSES, GLOB, getBoss, isVillain, bossIntroLines, bossDefeatLines,
+  INTRO, GLOB_INTRO, GLOB_DEFEAT, STORY_CAPTURED, STORY_WIN
+} from './data.js';
 import {
   state, startAdventure, currentFoe, currentRegion, recordWin, recordLoss, recordRematch,
   hasSave, loadSave, savedHeroId, totalFoes, clearedCount, totalStars,
+  isBossNext, isGlobNext, championCount,
   effDiff, getMode, setMode, livesFor, maxStars, finalScore, getName, setName
 } from './state.js';
 import { getGame } from './minigames/index.js';
@@ -73,7 +78,7 @@ function screenTitle() {
           </div>
           <span class="mode-hint" id="modeHint">${MODE_HINTS[mode]}</span>
         </div>
-        <p class="foot">Free the realm from the Tarnished Crown.</p>
+        <p class="foot">Break Evil King Glob's spell and free the realm.</p>
         <button class="btn-link foot-credits" id="credits">✨ made with love — credits</button>
       </div>
     </div>`);
@@ -91,9 +96,9 @@ function screenTitle() {
   });
 }
 const MODE_HINTS = {
-  story: '5 hearts, gentler challenges — great for younger players.',
-  normal: '3 hearts, the full challenge.',
-  hard: 'No lives — but the minigames turn brutal. Flop and just continue from where you are.'
+  story: 'Gentler challenges — great for younger players. No lives: keep trying until you win.',
+  normal: 'The full challenge. No lives: lose a duel and just try it again.',
+  hard: 'Brutal minigames for experts. No lives — but no mercy either!'
 };
 function routeFromSave() {
   if (state.done) return screenEnding();
@@ -118,16 +123,10 @@ function drift(box) {
 }
 
 /* ════════ INTRO STORY ════════ */
-const INTRO = [
-  'Long ago, the realm of Liitokala was a place of song — creatures of Land, Sea and Sky, living free.',
-  'Its guardian was the Gilded King: wise, and kind… until a slow Tarnish crept into his golden crown.',
-  'The Tarnish whispered fear. “Only strength can keep them safe,” it said. So the King bound every champion to endless Trials.',
-  'Yet one old law still stands: a creature who bests every champion of Land, Sea and Sky may challenge the King — and free the realm.',
-  'Today, that brave creature is you. Choose your hero…'
-];
 function screenIntro() {
   playMusic('bgm_intro.mp3');   // the adventure — and its music — begin here
-  dialogue({ portrait: KING_GIF, name: 'The Tale of the Realm', lines: INTRO, cls: 'intro', onDone: screenSelect });
+  // the captured-realm splash appears once Glob throws his net (beats 3+)
+  dialogue({ image: STORY_CAPTURED, imageFrom: 2, name: 'The Tale of Liitokala', lines: INTRO, cls: 'intro', onDone: screenSelect });
 }
 
 /* ════════ CREDITS ════════ */
@@ -168,19 +167,23 @@ function screenSelect() {
           </button>`).join('')}
       </div>
       <div class="sel-bar" id="bar">
-        <div class="sel-info" id="info">Tap a creature to meet them.</div>
+        <div class="sel-preview">
+          <div class="sel-anim" id="selanim"></div>
+          <div class="sel-info" id="info">Tap a creature to meet them — watch them move!</div>
+        </div>
         <button class="btn btn-go" id="begin" disabled>Begin Adventure ⚔</button>
         <button class="btn-link" id="selback">◂ Title</button>
       </div>
     </div>`);
   byId('selback').onclick = () => screenTitle();
-  const grid = byId('grid'), info = byId('info'), begin = byId('begin');
+  const grid = byId('grid'), info = byId('info'), begin = byId('begin'), selanim = byId('selanim');
   grid.querySelectorAll('.sel-cell').forEach(c => {
     c.onclick = () => {
       grid.querySelectorAll('.sel-cell').forEach(x => x.classList.remove('on'));
       c.classList.add('on');
       chosen = c.dataset.id;
       const p = getPet(chosen);
+      selanim.innerHTML = animTag('sel-anim-vid', petAnim(p), SPRITE(p.sprite), p.name);
       info.innerHTML = `<b>${p.name}</b> <i>${flavor(p.id).epithet}</i><br><small>${p.power}</small>`;
       begin.disabled = false;
       sfx(p.sfx, 0.6);
@@ -208,22 +211,34 @@ function screenRegionIntro(ri) {
   byId('go').onclick = () => screenMap();
 }
 
+/* ── display helpers for any foe entry (champion / henchman / Glob) ── */
+function entryName(e) {
+  if (!e) return '';
+  if (e.kind === 'glob') return GLOB.name;
+  if (e.kind === 'boss') return getBoss(e.id).name;
+  return getPet(e.id).name;
+}
+function entryImg(e) {
+  if (!e) return '';
+  if (e.kind === 'glob') return SPRITE(GLOB.img);
+  if (e.kind === 'boss') return SPRITE(getBoss(e.id).img);
+  return SPRITE(getPet(e.id).sprite);
+}
+
 /* ════════ MAP ════════ */
 /* viewRi: pass a CLEARED region index to revisit it for friendly rematches;
    the journey strip is the navigation. Default = the live quest. */
 function screenMap(viewRi = null) {
   playMusic('bgm_intro.mp3');
   const hero = getPet(state.heroId);
-  const king = state.region >= 3;
+  const glob = isGlobNext();
   const canView = i => i < Math.min(state.region, 3);
   const viewing = viewRi != null && canView(viewRi);
-  const r = viewing ? state.adventure.regions[viewRi] : (king ? null : currentRegion());
-  const foe = currentFoe();
+  const r = viewing ? state.adventure.regions[viewRi] : (glob ? null : currentRegion());
+  const bossNext = !viewing && !glob && isBossNext();
 
-  const lives = state.mode === 'hard'
-    ? '<span class="hard-badge">🔥 HARD · ∞</span>'
-    : '❤'.repeat(state.lives) + '🖤'.repeat(Math.max(0, state.maxLives - state.lives));
-  const J = [['🌳', 'Land'], ['🌊', 'Sea'], ['⛰️', 'Sky'], ['👑', 'King']];
+  const modeBadge = { story: '😊 Story', normal: '⚔️ Normal', hard: '🔥 Hard' }[state.mode] || '⚔️ Normal';
+  const J = [['🌳', 'Land'], ['🌊', 'Sea'], ['⛰️', 'Sky'], ['👑', 'Glob']];
   const journey = J.map((j, i) => {
     const st = i < state.region ? 'done' : i === state.region ? 'cur' : 'todo';
     const link = canView(i) || i === state.region;
@@ -232,54 +247,72 @@ function screenMap(viewRi = null) {
       <span class="jicon">${st === 'done' ? '✓' : j[0]}</span><span class="jlbl">${j[1]}</span></div>`;
   }).join('<span class="jline"></span>');
 
-  const nodes = !r ? '' : r.foes.map((f, i) => {
-    const done = viewing || i < state.idx, cur = !viewing && i === state.idx;
-    const st = state.stars[f.id] || 0;
-    return `<div class="node ${done ? 'done link' : cur ? 'cur link' : 'todo'}" data-i="${i}">
-      <img src="${SPRITE(getPet(f.id).sprite)}" alt="">
-      ${done ? '<span class="node-redo">🤝</span>' : ''}
-      <span class="node-stars">${done ? '★'.repeat(st) + '☆'.repeat(3 - st) : cur ? 'NEXT' : ''}</span>
-    </div>`;
-  }).join('');
+  let nodes = '';
+  if (r) {
+    nodes = r.foes.map((f, i) => {
+      const done = viewing || i < state.idx, cur = !viewing && i === state.idx;
+      const st = state.stars[f.id] || 0;
+      return `<div class="node ${done ? 'done link' : cur ? 'cur link' : 'todo'}" data-i="${i}">
+        <img src="${SPRITE(getPet(f.id).sprite)}" alt="">
+        ${done ? '<span class="node-redo">🤝</span>' : ''}
+        <span class="node-stars">${done ? '★'.repeat(st) + '☆'.repeat(3 - st) : cur ? 'NEXT' : ''}</span>
+      </div>`;
+    }).join('');
+    // the henchman who guards this region (a boss gate at the end of the path)
+    const bm = getBoss(r.boss.id);
+    const bdone = viewing;               // once cleared you've beaten the henchman
+    const bcur = bossNext;
+    nodes += `<div class="node node-boss ${bdone ? 'done' : bcur ? 'cur boss-cur' : 'todo'}" data-boss="1">
+      <img src="${SPRITE(bm.img)}" alt="${bm.name}">
+      <span class="node-stars">${bdone ? '✓' : bcur ? 'BOSS' : '🔒'}</span></div>`;
+  }
 
-  const anyDone = !viewing && r && state.idx > 0;
   const blurb = viewing
-    ? '🤝 Friendly rematches — tap a freed champion to duel again and improve your ★. No hearts at risk!'
-    : `${clearedCount()} / ${totalFoes()} freed · ★ ${totalStars()} / ${maxStars()}${anyDone || state.region > 0 ? ' · 🤝 tap freed champions to rematch' : ''}`;
+    ? '🤝 Friendly rematches — tap a freed champion to duel again and improve your ★. No risk!'
+    : glob
+      ? 'Every champion is awake and Glob\'s henchmen are beaten. Only the King remains.'
+      : bossNext
+        ? `All ${r.name} champions are free! ${getBoss(r.boss.id).name} the ${getBoss(r.boss.id).epithet} blocks the way.`
+        : `${clearedCount()} / ${championCount()} freed · ★ ${totalStars()} / ${maxStars()}${state.idx > 0 || state.region > 0 ? ' · 🤝 tap freed champions to rematch' : ''}`;
 
   show(`
-    <div class="screen map theme-${king && !viewing ? 'king' : r.theme}">
+    <div class="screen map theme-${glob && !viewing ? 'king' : r.theme}">
       <div class="map-top">
         <div class="hero-chip"><img src="${SPRITE(hero.sprite)}"><span>${hero.name}</span></div>
-        <div class="lives">${lives}</div>
+        <div class="lives"><span class="mode-badge">${modeBadge}</span></div>
       </div>
       <div class="journey">${journey}</div>
       <div class="map-body">
-        <h2 class="region-name">${king && !viewing ? '👑 The King’s Throne' : r.name}</h2>
-        ${king && !viewing
-          ? `<p class="map-blurb">All champions are free. Only the Gilded King remains. This is the final battle.</p>
-             <img class="king-throne" src="${KING_GIF}">`
+        <h2 class="region-name">${glob && !viewing ? '👑 Glob’s Throne' : r.name}</h2>
+        ${glob && !viewing
+          ? `<p class="map-blurb">All champions are awake. Only Evil King Glob remains. This is the final battle!</p>
+             ${animTag('king-throne', petAnim(GLOB), SPRITE(GLOB.img), GLOB.name)}`
           : `<div class="path">${nodes}</div>
              <p class="map-blurb">${blurb}</p>`}
       </div>
       <div class="map-foot">
         ${viewing
           ? `<button class="btn btn-2" id="ret">◂ Back to the quest</button>`
-          : king
-            ? `<button class="btn btn-king" id="fight">⚔ Challenge the King</button>`
-            : `<button class="btn btn-go" id="fight">⚔ Battle ${getPet(foe.id).name}</button>`}
+          : glob
+            ? `<button class="btn btn-king" id="fight">⚔ Challenge Glob</button>`
+            : bossNext
+              ? `<button class="btn btn-king" id="fight">💥 Face ${getBoss(r.boss.id).name}</button>`
+              : `<button class="btn btn-go" id="fight">⚔ Battle ${entryName(currentFoe())}</button>`}
         <button class="btn-link" id="quit">Quit to title</button>
       </div>
     </div>`);
   if (viewing) byId('ret').onclick = () => screenMap();
-  else byId('fight').onclick = () => king ? screenKingIntro() : screenBattleIntro();
+  else byId('fight').onclick = () => glob ? screenGlobIntro() : bossNext ? screenBossIntro() : screenBattleIntro();
   byId('quit').onclick = () => screenTitle();
   // journey strip = region navigation (revisit cleared regions to rematch)
   APP.querySelectorAll('.jstep.link').forEach(s => s.onclick = () => {
     const i = +s.dataset.ri; S.ui();
     canView(i) ? screenMap(i) : screenMap();
   });
-  // nodes: NEXT starts the battle; freed champions offer a friendly rematch
+  // boss gate node → start the henchman fight when it's current
+  const bnode = APP.querySelector('.node-boss.cur');
+  if (bnode) bnode.onclick = () => screenBossIntro();
+  // champion nodes: NEXT starts the battle; freed champions offer a friendly rematch
   APP.querySelectorAll('.node.link').forEach(n => n.onclick = () => {
     const i = +n.dataset.i;
     if (!viewing && i === state.idx) return screenBattleIntro();
@@ -287,8 +320,12 @@ function screenMap(viewRi = null) {
   });
 }
 
+/* the function that restarts the current live battle after a loss (no lives) */
+let replay = null;
+
 /* ════════ BATTLE INTRO ════════ */
 function screenBattleIntro() {
+  replay = screenBattleIntro;
   const entry = currentFoe();
   const foe = getPet(entry.id);
   const fl = flavor(foe.id);
@@ -296,8 +333,8 @@ function screenBattleIntro() {
   show(`
     <div class="screen battle-intro">
       <div class="bi-card">
-        <div class="bi-vs">Champion of ${currentRegion().name}</div>
-        <img class="bi-foe" src="${SPRITE(foe.sprite)}" alt="${foe.name}">
+        <div class="bi-vs">Spellbound champion of ${currentRegion().name}</div>
+        ${animTag('bi-foe', petAnim(foe), SPRITE(foe.sprite), foe.name)}
         <h2 class="bi-name">${foe.name}</h2>
         <div class="bi-epithet">${fl.epithet}</div>
         <p class="bi-taunt">“${fl.taunt}”</p>
@@ -418,15 +455,17 @@ function revealStars(stars) {
 /* ════════ WIN / LOSE ════════ */
 function onBattleWon(entry, res, foeDisp, opts = {}) {
   buzz(40);
-  if (entry.id === 'king') {
-    S.win();                 // games leave the end jingles to the screens
-    recordWin('king', res.stars || 3);
+  if (entry.kind === 'glob') {       // the final victory
+    S.win();
+    recordWin('glob', res.stars || 3);
     award('crown');
-    if (totalStars() >= 72) award('star-master');
+    if (totalStars() >= maxStars()) award('star-master');
     if (state.continues === 0) award('unbroken');
-    return screenKingDefeat();
+    return screenGlobDefeat();
   }
+  if (entry.kind === 'boss') return onBossWon(entry, res);   // a henchman falls
 
+  // a captured champion snaps awake
   const fl = flavor(entry.id);
   const stars = res.stars || 1;
   recordBestStars(entry.id, stars);
@@ -435,8 +474,8 @@ function onBattleWon(entry, res, foeDisp, opts = {}) {
   show(`
     <div class="screen result win">
       <div class="result-card">
-        <div class="res-burst">🎉</div>
-        <h2 class="res-title">Champion Freed!</h2>
+        <div class="res-burst">✨</div>
+        <h2 class="res-title">Spell Broken!</h2>
         <img class="res-foe" src="${SPRITE(foeDisp.sprite)}">
         <div class="res-stars" id="stars">${'<span class="star-slot">☆</span>'.repeat(3)}</div>
         <p class="res-line">“${fl.freed}”</p>
@@ -449,56 +488,45 @@ function onBattleWon(entry, res, foeDisp, opts = {}) {
   revealStars(stars);
   byId('next').onclick = () => {
     const route = recordWin(entry.id, stars);
-    if (route === 'region-clear' || route === 'king') {
-      const cleared = REGIONS[state.region - 1];
-      if (cleared) award(cleared.key + '-free');
-    }
-    if (route === 'region-clear') screenRegionClear();
-    else if (route === 'king') screenRegionClear(true);
-    else screenMap();
+    if (route === 'region-boss') award(currentRegion().key + '-free');  // all champions freed
+    screenMap();
   };
 }
 
+/* a henchman is defeated → they grumble off, then the region is liberated */
+function onBossWon(entry, res) {
+  const bm = getBoss(entry.id);
+  const stars = res.stars || 2;
+  recordBestStars(entry.id, stars);
+  if (stars >= 3) award('flawless');
+  S.win(); buzz(50);
+  dialogue({
+    video: petAnim(bm), poster: SPRITE(bm.img), name: bm.name,
+    lines: bossDefeatLines(entry.id), cls: 'king-dlg boss-dlg',
+    onDone: () => {
+      const route = recordWin(entry.id, stars);
+      screenRegionClear(route === 'glob');
+    }
+  });
+}
+
+/* no lives any more: a loss just lets you try the very same battle again */
 function onBattleLost(entry, foeDisp, opts = {}) {
   buzz(70); S.lose();
-
-  // The final boss: no life cost — go straight back to the select screen so the
-  // player can retry with the same champion or send a different one.
-  if (entry.id === 'king') return screenKingSelect(opts.heroId, true);
-
-  // Hard mode: no lives — just pick yourself up and try the same battle again.
-  if (state.mode === 'hard') {
-    show(`
-      <div class="screen result lose">
-        <div class="result-card">
-          <div class="res-burst">💢</div>
-          <h2 class="res-title">So close!</h2>
-          <img class="res-foe dim" src="${petImg(foeDisp)}">
-          <p class="res-line">No lives lost in Hard mode — shake it off and try again.</p>
-          <button class="btn btn-go" id="retry">Continue ▸</button>
-          <button class="btn-link" id="map">Back to map</button>
-        </div>
-      </div>`);
-    byId('retry').onclick = () => screenBattleIntro();
-    byId('map').onclick = () => screenMap();
-    return;
-  }
-
-  const route = recordLoss();
-  if (route === 'gameover') return screenGameOver();
-  const lives = '❤'.repeat(state.lives) + '🖤'.repeat(Math.max(0, state.maxLives - state.lives));
+  recordLoss();
+  const boss = entry.kind === 'boss' || entry.kind === 'glob';
   show(`
     <div class="screen result lose">
       <div class="result-card">
-        <div class="res-burst">💫</div>
-        <h2 class="res-title">Defeated…</h2>
+        <div class="res-burst">💢</div>
+        <h2 class="res-title">${boss ? 'Knocked Down!' : 'So close!'}</h2>
         <img class="res-foe dim" src="${petImg(foeDisp)}">
-        <p class="res-line">You lost a heart. Lives left: <b>${lives}</b></p>
+        <p class="res-line">No lives to lose — dust yourself off and try ${entryName(entry)} again. You stay right here.</p>
         <button class="btn btn-go" id="retry">Try Again ▸</button>
         <button class="btn-link" id="map">Back to map</button>
       </div>
     </div>`);
-  byId('retry').onclick = () => screenBattleIntro();
+  byId('retry').onclick = () => (replay || screenMap)();
   byId('map').onclick = () => screenMap();
 }
 
@@ -506,7 +534,7 @@ function onBattleLost(entry, foeDisp, opts = {}) {
 function screenRegionClear(toKing = false) {
   const ri = state.region - 1;
   const cleared = REGIONS[ri] || REGIONS[REGIONS.length - 1];
-  const nextTxt = toKing ? 'The path to the King’s Throne lies open.' : `Next: <b>${REGIONS[state.region].name}</b>`;
+  const nextTxt = toKing ? 'The path to Glob’s Throne lies open.' : `Next: <b>${REGIONS[state.region].name}</b>`;
   const foes = (state.adventure.regions[ri] || { foes: [] }).foes;
   const roster = foes.map(f => `<img src="${SPRITE(getPet(f.id).sprite)}" title="${getPet(f.id).name}">`).join('');
   const cheerer = foes.length ? getPet(foes[foes.length - 1].id) : null;
@@ -527,83 +555,52 @@ function screenRegionClear(toKing = false) {
   byId('go').onclick = () => toKing ? screenMap() : screenRegionIntro(state.region);
 }
 
-/* ════════ KING ════════ */
-function screenKingIntro() {
-  playMusic('bgm_gameover.mp3', 0.3);
-  dialogue({
-    portrait: KING_GIF, name: 'The Gilded King', lines: KING_INTRO, cls: 'king-dlg',
-    onDone: () => { state.kingAspect = pickKingAspect(); screenKingChallenge(); }
-  });
-}
-
-/* The King reveals (in riddles) which Aspect his crown will wear tonight. */
-function screenKingChallenge() {
-  const A = state.kingAspect;
-  const lines = [
-    'But hear this: my crown holds the stolen might of the whole realm — and tonight it wears a single Aspect.',
-    ...A.speech,
-    'Go. Choose the one champion who can answer it… and return to face me.'
-  ];
-  dialogue({
-    portrait: KING_GIF, name: `The Gilded King · Aspect of ${A.name}`, lines, cls: 'king-dlg aspect-' + A.id,
-    onDone: () => screenKingSelect()
-  });
-}
-
-/* Strategic re-select: every freed champion is available — pick the counter. */
-let kingPick = null;
-function screenKingSelect(prevId = null, lost = false) {
-  const A = state.kingAspect;
-  kingPick = null;
-  const intro = lost
-    ? `The Aspect of ${A.name} bested your champion — try again, or send a different hero.`
-    : 'Read the King’s words, then pick the champion whose power answers his Aspect.';
+/* ════════ HENCHMAN BOSS ════════ */
+function screenBossIntro() {
+  replay = screenBossIntro;
+  const entry = currentFoe();        // the region's henchman
+  const bm = getBoss(entry.id);
+  const game = getGame(entry.game);
   show(`
-    <div class="screen select king-select aspect-${A.id}">
-      <h2 class="screen-title">${A.element} The Final Battle</h2>
-      <div class="ks-threat">
-        <div class="ks-aspect">Aspect of ${A.name}</div>
-        <p class="ks-clue">${A.threat}</p>
-        <p class="ks-hint">🔎 ${A.hint}</p>
-      </div>
-      <div class="sel-grid" id="grid">
-        ${allPets().map(p => `
-          <button class="sel-cell" data-id="${p.id}">
-            <img src="${SPRITE(p.sprite)}" alt="${p.name}">
-            <span class="sel-name">${p.name}</span>
-          </button>`).join('')}
-      </div>
-      <div class="sel-bar" id="bar">
-        <div class="sel-info" id="info">${intro}</div>
-        <button class="btn btn-king" id="begin" disabled>Challenge the King ⚔</button>
+    <div class="screen battle-intro boss-intro" style="--accent:${bm.color}">
+      <div class="bi-card boss-card">
+        <div class="bi-vs">💥 ${bm.name} — Glob’s Henchman</div>
+        ${animTag('bi-foe boss-foe', petAnim(bm), SPRITE(bm.img), bm.name)}
+        <h2 class="bi-name">${bm.name}</h2>
+        <div class="bi-epithet">${bm.epithet}</div>
+        <p class="bi-taunt">“${bm.taunt}”</p>
+        <div class="bi-game"><span class="bi-icon">${game.icon}</span>
+          <div><b>Boss Duel</b><br><small>${game.howto}</small></div></div>
+        <div class="bi-diff">Difficulty 🔥🔥🔥🔥${entry.difficulty >= 8 ? '🔥' : ''}</div>
+        <button class="btn btn-king" id="begin">Face ${bm.name} 💥</button>
+        <button class="btn-link" id="back">◂ Back to map</button>
       </div>
     </div>`);
-  const grid = byId('grid'), info = byId('info'), begin = byId('begin');
-  const selectCell = (cell, quiet = false) => {
-    grid.querySelectorAll('.sel-cell').forEach(x => x.classList.remove('on'));
-    cell.classList.add('on');
-    kingPick = cell.dataset.id;
-    const p = getPet(kingPick);
-    const aff = aspectAffinity(p, A);
-    const read = aff === 'counter' ? '<span class="aff-good">A strong choice against this Aspect.</span>'
-      : aff === 'backfire' ? '<span class="aff-bad">This Aspect may turn their power against them…</span>'
-      : '<span class="aff-mid">A steady, neutral choice.</span>';
-    info.innerHTML = `<b>${p.name}</b> <i>${flavor(p.id).epithet}</i><br><small>${p.power}</small><br>${read}`;
-    begin.disabled = false;
-    if (!quiet) sfx(p.sfx, 0.6);
-  };
-  grid.querySelectorAll('.sel-cell').forEach(c => { c.onclick = () => selectCell(c); });
-  begin.onclick = () => {
-    if (!kingPick) return;
-    const entry = currentFoe();    // king entry
-    runBattle(entry, { id: 'king', name: 'The Gilded King', king: true }, { heroId: kingPick, aspect: A });
-  };
-  if (prevId) { const cell = grid.querySelector(`.sel-cell[data-id="${prevId}"]`); if (cell) { selectCell(cell, true); cell.scrollIntoView({ block: 'center' }); } }
+  byId('begin').onclick = () => startBossFight(entry, bm);
+  byId('back').onclick = () => screenMap();
 }
-function screenKingDefeat() {
+function startBossFight(entry, bm) {
+  replay = () => startBossFight(entry, bm);
+  runBattle(entry, bm, { goWord: bm.name.toUpperCase() + '!' });
+}
+
+/* ════════ EVIL KING GLOB (final) ════════ */
+function screenGlobIntro() {
+  playMusic('bgm_gameover.mp3', 0.34);
   dialogue({
-    portrait: KING_GIF, name: 'The Gilded King', lines: KING_DEFEAT, cls: 'king-dlg',
-    onDone: screenEnding
+    video: petAnim(GLOB), poster: SPRITE(GLOB.img), name: GLOB.name,
+    lines: GLOB_INTRO, cls: 'king-dlg glob-dlg', onDone: startGlobFight
+  });
+}
+function startGlobFight() {
+  replay = startGlobFight;
+  const entry = currentFoe();        // glob entry
+  runBattle(entry, GLOB, { goWord: 'FINAL BATTLE!' });
+}
+function screenGlobDefeat() {
+  dialogue({
+    video: petAnim(GLOB), poster: SPRITE(GLOB.img), name: GLOB.name,
+    lines: GLOB_DEFEAT, cls: 'king-dlg glob-dlg', onDone: screenEnding
   });
 }
 
@@ -618,13 +615,14 @@ function screenEnding() {
       <div class="end-card">
         <div class="end-fire">🎆</div>
         <h1 class="title small">The Realm is Free!</h1>
-        <img class="end-hero" src="${SPRITE(hero.sprite)}">
+        <img class="end-scene" src="${STORY_WIN}" alt="The whole realm, free at last">
         <p class="end-text">
-          The Tarnish lifts from the crown, and color floods back into Liitokala.
-          The freed champions raise <b>${hero.name}</b> high — the realm’s new guardian.
+          Glob’s crown goes dark, his spell shatters, and every creature wakes at once —
+          color and song flood back into Liitokala. The freed champions raise
+          <b>${hero.name}</b> high as the realm’s new guardian, the one heart that never knelt.
         </p>
         <div class="end-stars">Final Score: ★ ${score} / ${max}</div>
-        <div class="end-sub">${state.mode === 'story' ? '😊 Story' : '⚔️ Normal'} mode${clean ? ' · clean run bonus +6 ✨' : ` · ${state.continues} continue${state.continues > 1 ? 's' : ''}`}</div>
+        <div class="end-sub">${{ story: '😊 Story', normal: '⚔️ Normal', hard: '🔥 Hard' }[state.mode] || '⚔️ Normal'} mode${clean ? ' · clean run bonus +6 ✨' : ` · ${state.continues} retr${state.continues > 1 ? 'ies' : 'y'}`}</div>
         <div class="end-credit">✨ creatures by <b>Leila &amp; Archie</b> ✨</div>
         <input class="name-input" id="name" maxlength="14" placeholder="Your name" value="${escapeHtml(getName())}">
         <button class="btn btn-go" id="submit">Submit to Leaderboard 🏆</button>
@@ -714,25 +712,8 @@ function screenLeaderboard(highlight, tab) {
   byId('back').onclick = () => screenTitle();
 }
 
-/* ════════ GAME OVER ════════ */
-function screenGameOver() {
-  playMusic('bgm_gameover.mp3');
-  const r = currentRegion() || REGIONS[REGIONS.length - 1];
-  show(`
-    <div class="screen gameover">
-      <div class="result-card">
-        <div class="res-burst">😔</div>
-        <h2 class="res-title">Your Journey Falters…</h2>
-        <p class="res-line">The Tarnish drives you back from <b>${r ? r.name : 'the Throne'}</b>.
-          But the champions you freed still believe in you.</p>
-        <p class="res-line"><b>${r ? r.name : 'The region'}</b> resets — your hearts are restored.</p>
-        <button class="btn btn-go" id="go">Rise Again ▸</button>
-        <button class="btn-link" id="quit">Quit to title</button>
-      </div>
-    </div>`);
-  byId('go').onclick = () => screenMap();
-  byId('quit').onclick = () => screenTitle();
-}
+/* (No more Game Over — the adventure has no lives. A lost battle simply
+   lets you try that same battle again, so you never lose your progress.) */
 
 /* ════════ GAUNTLET (endless survival) ════════
    Random champions in shuffled order, difficulty climbing every round.
@@ -1051,14 +1032,19 @@ function screenPracticeResult(foeId, diff, res) {
   byId('back').onclick = () => { screenDex(); dexDetail(foeId); };
 }
 
-/* ════════ shared dialogue ════════ */
-function dialogue({ portrait, name, lines, cls = '', onDone }) {
+/* ════════ shared dialogue ════════
+   portrait: a small bobbing image · video: an autoplay clip (boss anim) ·
+   image: a big scene splash (shown from beat `imageFrom` onward) */
+function dialogue({ portrait, video, poster, image, imageFrom = 0, name, lines, cls = '', onDone }) {
   let i = 0;
+  const showScene = idx => image && idx >= imageFrom;
   const render = () => {
     show(`
       <div class="screen story ${cls}">
         <div class="story-card">
-          ${portrait ? `<img class="story-portrait" src="${portrait}">` : ''}
+          ${video ? animTag('story-portrait', video, poster || '', name || '') : ''}
+          ${portrait && !video ? `<img class="story-portrait" src="${portrait}">` : ''}
+          ${image ? `<img class="story-scene ${showScene(i) ? '' : 'hide'}" id="sscene" src="${image}">` : ''}
           ${name ? `<div class="story-name">${name}</div>` : ''}
           <p class="story-text" id="stext">${lines[i]}</p>
           <button class="btn btn-go" id="next">${i < lines.length - 1 ? 'Next ▸' : 'Continue ▸'}</button>
@@ -1070,6 +1056,7 @@ function dialogue({ portrait, name, lines, cls = '', onDone }) {
       if (i < lines.length) {
         byId('stext').textContent = lines[i];
         byId('next').textContent = i < lines.length - 1 ? 'Next ▸' : 'Continue ▸';
+        const sc = byId('sscene'); if (sc) sc.classList.toggle('hide', !showScene(i));
         if (i === lines.length - 1) { const sk = byId('skip'); if (sk) sk.remove(); }
       } else onDone();
     };
