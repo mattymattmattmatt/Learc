@@ -340,7 +340,7 @@ function screenBattleIntro() {
         <p class="bi-taunt">“${fl.taunt}”</p>
         <div class="bi-attack">${entry.theme ? entry.theme.proj : ''} Attack: <b>${entry.theme ? entry.theme.act : game.name}</b></div>
         <div class="bi-game"><span class="bi-icon">${game.icon}</span>
-          <div><b>${game.name}</b><br><small>${game.howto}</small></div></div>
+          <div><b>${game.name}</b><br><small>${(entry.theme && entry.theme.howto) || game.howto}</small></div></div>
         <div class="bi-diff">Difficulty ${'🔥'.repeat(Math.min(5, Math.ceil(entry.difficulty / 2)))}</div>
         <button class="btn btn-go" id="begin">Begin Battle ▸</button>
         <button class="btn-link" id="back">◂ Back to map</button>
@@ -367,7 +367,7 @@ function screenRematchIntro(entry, ri) {
         <p class="bi-taunt">“Again, friend? With joy — show me what you’ve learned!”</p>
         <div class="bi-attack">${entry.theme ? entry.theme.proj : '⭐'} Attack: <b>${entry.theme ? entry.theme.act : game.name}</b></div>
         <div class="bi-game"><span class="bi-icon">${game.icon}</span>
-          <div><b>${game.name}</b><br><small>${game.howto}</small></div></div>
+          <div><b>${game.name}</b><br><small>${(entry.theme && entry.theme.howto) || game.howto}</small></div></div>
         <div class="bi-best">Your best: ${best ? '★'.repeat(best) + '☆'.repeat(3 - best) : '—'}</div>
         <button class="btn btn-go" id="begin">Rematch ▸</button>
         <button class="btn-link" id="back">◂ Back to map</button>
@@ -576,6 +576,7 @@ function screenBossIntro() {
         <button class="btn-link" id="back">◂ Back to map</button>
       </div>
     </div>`);
+  setTimeout(() => sfx(bm.sfx, 0.75), 60);   // the henchman's roar (like the champions)
   byId('begin').onclick = () => startBossFight(entry, bm);
   byId('back').onclick = () => screenMap();
 }
@@ -587,6 +588,7 @@ function startBossFight(entry, bm) {
 /* ════════ EVIL KING GLOB (final) ════════ */
 function screenGlobIntro() {
   playMusic('bgm_gameover.mp3', 0.34);
+  setTimeout(() => sfx(GLOB.sfx, 0.8), 120);   // Glob's voice
   dialogue({
     video: petAnim(GLOB), poster: SPRITE(GLOB.img), name: GLOB.name,
     lines: GLOB_INTRO, cls: 'king-dlg glob-dlg', onDone: startGlobFight
@@ -776,7 +778,7 @@ function nextGauntletFoe() {
     id,
     difficulty: Math.min(10, 2 + Math.floor(G.round * 0.7)),
     game: b.game || 'quickdraw',
-    theme: { proj: b.proj || '⭐', color: b.color || '#ffd23f', act: b.act || 'Champion’s Trial' }
+    theme: { proj: b.proj || '⭐', color: b.color || '#ffd23f', act: b.act || 'Champion’s Trial', howto: b.howto || null }
   };
 }
 
@@ -797,7 +799,7 @@ function screenGauntletRound() {
         <div class="bi-epithet">${fl.epithet}</div>
         <div class="bi-attack">${G.cur.theme.proj} Attack: <b>${G.cur.theme.act}</b></div>
         <div class="bi-game"><span class="bi-icon">${game.icon}</span>
-          <div><b>${game.name}</b><br><small>${game.howto}</small></div></div>
+          <div><b>${game.name}</b><br><small>${G.cur.theme.howto || game.howto}</small></div></div>
         <div class="bi-diff">Difficulty ${'🔥'.repeat(Math.min(5, Math.ceil(G.cur.difficulty / 2)))}</div>
         <button class="btn btn-go" id="begin">Fight ▸</button>
         <button class="btn-link" id="bail">Retire &amp; bank your score</button>
@@ -958,7 +960,7 @@ function dexDetail(id) {
       <div class="dex-row"><span class="ic">${b.proj || '⭐'}</span>
         <span><b>${b.act || 'Champion’s Trial'}</b><br><small>signature attack</small></span></div>
       <div class="dex-row"><span class="ic">${game.icon}</span>
-        <span><b>${game.name}</b><br><small>${game.howto}</small></span></div>
+        <span><b>${game.name}</b><br><small>${b.howto || game.howto}</small></span></div>
       <div class="dex-prac-row">
         <span class="dex-prac-label">🎯 Practice</span>
         <button class="prac-btn" data-d="2">😊 Easy</button>

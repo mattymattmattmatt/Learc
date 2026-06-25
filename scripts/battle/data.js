@@ -24,39 +24,39 @@ export const allPets = () => Object.values(PETS);
    designer added; `boss` is the tuning the boss-duel engine reads. */
 export const GLOB = {
   id: 'glob', name: 'Evil King Glob', kind: 'glob',
-  img: 'Evil King Glob.png', anim: 'Evil King Glob_Anim.mp4',
+  img: 'Evil King Glob.png', anim: 'Evil King Glob_Anim.mp4', sfx: 'glob_entrance.wav',
   epithet: 'the Spoiled Tyrant', color: '#b06bff',
   game: 'bossduel',
-  boss: { id: 'glob', hearts: 3, crown: 9, hitDmg: 1, enrage: true }
+  boss: { id: 'glob', hearts: 3, crown: 11, hitDmg: 1, enrage: true }
 };
 
 export const BOSSES = {
   minyar: {
     id: 'minyar', name: 'Minyar', kind: 'boss', region: 'land',
-    img: 'Minyar.png', anim: 'Minyar_Anim.mp4',
+    img: 'Minyar.png', anim: 'Minyar_Anim.mp4', sfx: 'minyar_entrance.wav',
     epithet: 'the Tantrum', color: '#7ad17a',
     taunt: 'You woke them up?! That\'s MINE! Give them BACK or I\'ll SCREAM this forest down!',
     defeat: 'Nngh… no fair, no FAIR! …fine. Take your stupid forest. I\'m telling Glob!',
     game: 'bossduel',
-    boss: { id: 'minyar', hearts: 3, crown: 6, hitDmg: 1 }
+    boss: { id: 'minyar', hearts: 3, crown: 7, hitDmg: 1 }
   },
   demonder: {
     id: 'demonder', name: 'Demonder', kind: 'boss', region: 'sea',
-    img: 'Demonder.png', anim: 'Demonder_Anim.mp4',
+    img: 'Demonder.png', anim: 'Demonder_Anim.mp4', sfx: 'demonder_entrance.wav',
     epithet: 'the Bruiser', color: '#ff6b3f',
     taunt: 'Heh. Little hero wants a fight? Put up your fins. Nobody slips past Demonder\'s gloves.',
     defeat: 'Tch… good hands, kid. Real good hands. The tide\'s yours. I\'m done swinging.',
     game: 'bossduel',
-    boss: { id: 'demonder', hearts: 3, crown: 7, hitDmg: 1 }
+    boss: { id: 'demonder', hearts: 3, crown: 8, hitDmg: 1 }
   },
   clubbo: {
     id: 'clubbo', name: 'Clubbo', kind: 'boss', region: 'sky',
-    img: 'Clubbo.png', anim: 'Clubbo_Anim.mp4',
+    img: 'Clubbo.png', anim: 'Clubbo_Anim.mp4', sfx: 'clubbo_entrance.wav',
     epithet: 'the Crusher', color: '#5fd47a',
     taunt: 'CLUBBO SMASH! You climb my mountain, you get the club. Nobody reach the King. NOBODY.',
     defeat: 'Ooogh… Clubbo dizzy. You hit hard, little one. Go on… go get the baby king.',
     game: 'bossduel',
-    boss: { id: 'clubbo', hearts: 3, crown: 8, hitDmg: 1 }
+    boss: { id: 'clubbo', hearts: 3, crown: 9, hitDmg: 1 }
   }
 };
 export const bossOfRegion = key => Object.values(BOSSES).find(b => b.region === key);
@@ -88,7 +88,7 @@ export const BATTLES = {
   fixie:       { game: 'iceslide',    proj: '❄️', color: '#9fe8ff', act: 'Ice Curling' },
   chunky:      { game: 'tugofwar',    proj: '🌿', color: '#5fd47a', act: 'Vine Yank' },  // owns Tug of War
   skyjumper:   { game: 'charge',      proj: '⬆️', color: '#c08bff', act: 'Sky Leap' },
-  cliggy:      { game: 'catch',       proj: '🥚', color: '#ffd23f', act: 'Egg Bombardment' },
+  cliggy:      { game: 'catch',       proj: '🥚', color: '#ffd23f', act: 'Egg Bombardment', howto: 'Drag left & right to CATCH the falling eggs 🥚. Avoid the bombs 💣!' },
   // ── Sea ──
   peeta_heater:{ game: 'hotfloor',    proj: '♨️', color: '#ff8a4a', act: 'Scalding Floor' },
   snapper:     { game: 'clawdrop',    proj: '🦀', color: '#ff7a5a', act: 'Claw Snap' },
@@ -128,7 +128,7 @@ export function buildAdventure(heroId) {
       if (ri === 0) difficulty = Math.min(9, difficulty + 1);   // first region starts a notch harder
       const entry = {
         id, kind: 'champion', difficulty, game: b.game,
-        theme: { proj: b.proj || '⭐', color: b.color || '#ffd23f', act: b.act || 'Champion’s Trial' }
+        theme: { proj: b.proj || '⭐', color: b.color || '#ffd23f', act: b.act || 'Champion’s Trial', howto: b.howto || null }
       };
       gi++;
       return entry;

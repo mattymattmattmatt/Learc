@@ -12,8 +12,9 @@ export default {
       const TIME = 16;
       let caught = 0, hearts = 3, left = TIME, done = false;
 
+      const GOOD = (ctx.theme && ctx.theme.proj) || '⭐';
       area.innerHTML = `
-        <div class="ct-hud"><span>⭐ <b id="sc">0</b>/${goal}</span>
+        <div class="ct-hud"><span>${GOOD} <b id="sc">0</b>/${goal}</span>
           <span id="hearts">${'❤'.repeat(hearts)}</span>
           <div class="ct-time"><div class="ct-fill" id="tf"></div></div></div>
         <div class="ct-field" id="field">
@@ -44,7 +45,6 @@ export default {
       const bombChance = clamp((ctx.difficulty - 2) * 0.05, 0, 0.35);
       let acc = 0, every = clamp(0.8 - ctx.difficulty * 0.04, 0.3, 0.8);
 
-      const GOOD = (ctx.theme && ctx.theme.proj) || '⭐';
       function spawn() {
         const bomb = Math.random() < bombChance;
         const n = el('div', 'ct-item' + (bomb ? ' bomb' : ''), bomb ? '💣' : GOOD);

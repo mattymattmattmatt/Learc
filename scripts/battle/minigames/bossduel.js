@@ -43,7 +43,7 @@ export default {
 
       let hearts = cfg.hearts || 3;
       const heartsMax = hearts;
-      let crown = clamp((cfg.crown || 6) + Math.round(d * 0.2) - (striker ? 1 : 0), 4, 12);
+      let crown = clamp((cfg.crown || 6) + Math.round(d * 0.2) - (striker ? 1 : 0), 5, 14);
       const crownMax = crown;
       const hitDmg = (cfg.hitDmg || 1) + (striker ? 1 : 0);
       const canEnrage = isGlob || bossId === 'clubbo' || cfg.enrage;
@@ -158,24 +158,40 @@ export default {
         field.appendChild(n);
         zones.push({ node: n, x, y, r, state: 'warn', t: clamp((big ? 1.05 : 0.9) - d * 0.02, 0.55, 1.05) });
       }
-      // Minyar's signature: an expanding shockwave ring from the boss
+      // Minyar's signature: an expanding shockwave ring with a SAFE GAP you
+      // move through — the gap is drawn into the ring so you can read it.
       function spawnRing() {
         const n = el('div', 'bd-ring'); n.style.left = kx + 'px'; n.style.top = ky + 'px';
+        const gapAng = rand(0, Math.PI * 2);          // math angle (0=+x, clockwise, y-down)
+        const gapHalf = 0.95;                          // ~54° each side → a wide, fair opening
+        const gwDeg = gapHalf * 2 * 180 / Math.PI;
+        const gcCss = (gapAng * 180 / Math.PI + 90);   // math → CSS conic angle
+        const gsCss = ((gcCss - gwDeg / 2) % 360 + 360) % 360;
+        n.style.setProperty('--gs', gsCss + 'deg');
+        n.style.setProperty('--gw', gwDeg + 'deg');
         field.appendChild(n);
-        rings.push({ node: n, r: kr * 0.5, max: Math.hypot(W, H), spd: 150 + d * 16 + broken() * 10, hit: false });
+        rings.push({ node: n, r: kr * 0.5, max: Math.hypot(W, H), spd: 120 + d * 13 + broken() * 8, hit: false, gapAng, gapHalf });
       }
-      // Clubbo's signature: a full-width/height sweep that you must dodge
+      // Clubbo's signature: a club SWEEP with a SAFE GAP — slide into the hole.
+      // The gap is drawn into the bar (and telegraphed) so it's always dodgeable.
       function spawnSweep() {
-        const vertical = Math.random() < 0.5;   // true → a vertical bar sliding sideways
-        const thick = clamp(Math.min(W, H) * 0.12, 36, 80);
+        const vertical = Math.random() < 0.5;        // vertical bar slides sideways
+        const thick = clamp(Math.min(W, H) * 0.11, 34, 72);
         const dir = Math.random() < 0.5 ? 1 : -1;
+        const crossLen = vertical ? H : W;           // full length of the bar
+        const gapLen = clamp(size * 2.6, 96, crossLen * 0.5);
+        const gapMin = vertical ? H * 0.26 : 8;      // keep the gap inside the hero's reach
+        const gapPos = rand(gapMin, Math.max(gapMin, crossLen - gapLen - 6));
         const n = el('div', 'bd-sweep ' + (vertical ? 'vert' : 'horiz') + ' warn');
         if (vertical) { n.style.width = thick + 'px'; n.style.height = '100%'; n.style.top = '0'; }
         else { n.style.height = thick + 'px'; n.style.width = '100%'; n.style.left = '0'; }
+        n.style.setProperty('--g0', gapPos + 'px');
+        n.style.setProperty('--g1', (gapPos + gapLen) + 'px');
         field.appendChild(n);
         const span = vertical ? W : H - H * 0.24;
         const start = dir > 0 ? -thick : span + thick;
-        sweeps.push({ node: n, vertical, thick, dir, pos: start, span, spd: (span + thick * 2) / 0.95, state: 'warn', t: clamp(0.7 - d * 0.012, 0.4, 0.7), top0: vertical ? 0 : H * 0.24 });
+        sweeps.push({ node: n, vertical, thick, dir, pos: start, span, gapPos, gapLen,
+          spd: (span + thick * 2) / 1.5, state: 'warn', t: clamp(0.85 - d * 0.012, 0.5, 0.85), top0: vertical ? 0 : H * 0.24 });
       }
 
       /* ── attack pools ── */
@@ -257,7 +273,7 @@ export default {
       /* ── phases ── */
       function startWave() {
         phase = 'wave'; waveIdx++;
-        timer = Math.max(3.0, (isGlob ? 5.4 : 5.0) - broken() * 0.22);
+        timer = Math.max(3.6, (isGlob ? 6.6 : 6.0) - broken() * 0.16);
         burstAcc = 0.8;
         boss.classList.remove('stagger'); reticle.hidden = true;
         pickPattern();
@@ -334,7 +350,11 @@ export default {
           rg.node.style.width = rg.node.style.height = rg.r * 2 + 'px';
           if (iframe <= 0 && !rg.hit) {
             const dist = Math.hypot(h.x - kx, h.y - ky);
-            if (Math.abs(dist - rg.r) < band + hr * 0.4) { rg.hit = true; hurt(); }
+            if (Math.abs(dist - rg.r) < band + hr * 0.4) {
+              const a = Math.atan2(h.y - ky, h.x - kx);
+              const diff = Math.atan2(Math.sin(a - rg.gapAng), Math.cos(a - rg.gapAng));
+              if (Math.abs(diff) > rg.gapHalf) { rg.hit = true; hurt(); }  // safe if inside the gap arc
+            }
           }
           if (rg.r > rg.max) { rg.node.remove(); rings.splice(i, 1); }
         }
@@ -354,11 +374,17 @@ export default {
           s.pos += s.dir * s.spd * dt;
           if (s.vertical) {
             s.node.style.left = s.pos + 'px';
-            if (iframe <= 0 && h.x > s.pos - hr && h.x < s.pos + s.thick + hr) hurt();
+            if (iframe <= 0 && h.x > s.pos - hr && h.x < s.pos + s.thick + hr) {
+              const safe = h.y > s.gapPos + hr * 0.5 && h.y < s.gapPos + s.gapLen - hr * 0.5;
+              if (!safe) hurt();
+            }
           } else {
-            s.node.style.top = (s.top0 + s.pos) + 'px';
             const y = s.top0 + s.pos;
-            if (iframe <= 0 && h.y > y - hr && h.y < y + s.thick + hr) hurt();
+            s.node.style.top = y + 'px';
+            if (iframe <= 0 && h.y > y - hr && h.y < y + s.thick + hr) {
+              const safe = h.x > s.gapPos + hr * 0.5 && h.x < s.gapPos + s.gapLen - hr * 0.5;
+              if (!safe) hurt();
+            }
           }
           if (s.pos < -s.thick * 2 || s.pos > (s.vertical ? W : s.span) + s.thick * 2) { s.node.remove(); sweeps.splice(i, 1); }
         }

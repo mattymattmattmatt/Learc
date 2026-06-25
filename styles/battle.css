@@ -938,14 +938,19 @@ video.boss-foe{width:150px;height:150px;filter:drop-shadow(0 8px 14px rgba(0,0,0
 .bd-zone.arm{border-style:solid;background:radial-gradient(circle,rgba(255,90,60,.4),transparent 72%);}
 .bd-zone.slam{animation:zoneSlam .26s ease;background:radial-gradient(circle,rgba(255,200,120,.95),rgba(255,90,40,.5) 60%,transparent 75%);border-color:#fff;}
 @keyframes zoneSlam{0%{transform:translate(-50%,-50%) scale(1.08);filter:brightness(1.6)}100%{transform:translate(-50%,-50%) scale(1)}}
-/* Minyar's shockwave rings */
+/* Minyar's shockwave rings — a conic gradient leaves a visible SAFE GAP wedge,
+   a radial mask carves the disc down to a ring band */
 .bd-ring{position:absolute;transform:translate(-50%,-50%);border-radius:50%;z-index:1;pointer-events:none;
-  border:6px solid rgba(120,209,122,.9);box-shadow:0 0 18px rgba(120,209,122,.7),0 0 18px rgba(120,209,122,.6) inset;}
-/* Clubbo's club sweeps */
+  background:conic-gradient(from var(--gs,0deg),transparent 0 var(--gw,100deg),rgba(120,209,122,.95) var(--gw,100deg) 360deg);
+  -webkit-mask:radial-gradient(circle,transparent 0 calc(50% - 7px),#000 calc(50% - 7px) 50%,transparent 50%);
+          mask:radial-gradient(circle,transparent 0 calc(50% - 7px),#000 calc(50% - 7px) 50%,transparent 50%);
+  filter:drop-shadow(0 0 9px rgba(120,209,122,.7));}
+/* Clubbo's club sweeps — the bar is solid except a transparent SAFE GAP (--g0..--g1) */
 .bd-sweep{position:absolute;z-index:1;pointer-events:none;border-radius:8px;}
-.bd-sweep.warn{background:repeating-linear-gradient(45deg,rgba(255,225,90,.16) 0 12px,transparent 12px 24px);border:2px dashed rgba(255,225,90,.7);}
-.bd-sweep.go{background:linear-gradient(90deg,rgba(150,90,40,.5),rgba(120,70,30,.92),rgba(150,90,40,.5));
-  box-shadow:0 0 22px rgba(120,70,30,.8);border:2px solid rgba(80,45,18,.9);}
+.bd-sweep.vert.warn{background:linear-gradient(to bottom,rgba(255,225,90,.22) 0 var(--g0),transparent var(--g0) var(--g1),rgba(255,225,90,.22) var(--g1) 100%);outline:2px dashed rgba(255,225,90,.55);outline-offset:-2px;}
+.bd-sweep.horiz.warn{background:linear-gradient(to right,rgba(255,225,90,.22) 0 var(--g0),transparent var(--g0) var(--g1),rgba(255,225,90,.22) var(--g1) 100%);outline:2px dashed rgba(255,225,90,.55);outline-offset:-2px;}
+.bd-sweep.vert.go{background:linear-gradient(to bottom,rgba(150,90,40,.95) 0 var(--g0),transparent var(--g0) var(--g1),rgba(150,90,40,.95) var(--g1) 100%);box-shadow:0 0 22px rgba(120,70,30,.7);}
+.bd-sweep.horiz.go{background:linear-gradient(to right,rgba(150,90,40,.95) 0 var(--g0),transparent var(--g0) var(--g1),rgba(150,90,40,.95) var(--g1) 100%);box-shadow:0 0 22px rgba(120,70,30,.7);}
 .bd-water{position:absolute;left:0;right:0;bottom:0;height:0;z-index:1;pointer-events:none;border-top:3px solid rgba(220,245,255,.85);
   background:linear-gradient(180deg,rgba(90,180,255,.5),rgba(30,100,205,.78));box-shadow:0 -4px 18px rgba(90,180,255,.5);}
 .bd-vignette{position:absolute;inset:0;z-index:4;pointer-events:none;
