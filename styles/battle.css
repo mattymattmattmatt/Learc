@@ -962,3 +962,65 @@ video.boss-foe{width:150px;height:150px;filter:drop-shadow(0 8px 14px rgba(0,0,0
 .bd-banner.strike{color:var(--gold);}
 .bd-field.enraged{animation:enrageFlash .6s ease;}
 .bd-field.enraged .bd-boss img{filter:drop-shadow(0 0 24px rgba(255,90,50,.95)) saturate(1.35);}
+
+/*══════════════════════════════════════════════════════════════
+  HENCHMAN MINIGAMES — Pedal Race / Rope Jump / Slab Squeeze
+══════════════════════════════════════════════════════════════*/
+
+/*──── Minyar: Pedal Race ────*/
+.pr-hud{width:100%;max-width:600px;display:flex;justify-content:space-between;align-items:center;font-weight:600;padding-right:46px;}
+.pr-hud .pr-tapn b{color:var(--accent,var(--gold));}
+.pr-track{width:100%;max-width:600px;display:flex;flex-direction:column;gap:14px;margin:12px 0;}
+.pr-lane{position:relative;height:64px;border-radius:16px;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.14);
+  background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 18px,transparent 18px 36px);}
+.pr-lane.foe{border-color:var(--accent,#7ad17a);}
+.pr-flag{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:1.7rem;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));}
+.pr-racer{position:absolute;top:50%;left:0;transform:translateY(-50%);width:50px;height:50px;transition:left .09s linear;z-index:2;}
+.pr-racer img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 5px rgba(0,0,0,.4));}
+.pr-racer.wobble{animation:hurt .3s ease;}
+.pr-speedwrap{width:100%;max-width:600px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:.8rem;color:var(--muted);}
+.pr-speed{flex:1;height:16px;border-radius:8px;background:rgba(0,0,0,.32);overflow:hidden;}
+.pr-speed-fill{height:100%;width:0;background:linear-gradient(90deg,#ffe08a,var(--accent,var(--gold)));transition:width .1s linear;}
+.pr-pedals{width:100%;max-width:600px;display:flex;gap:14px;margin-top:14px;}
+.pr-pedal{flex:1;padding:24px 0;font-family:inherit;font-weight:800;font-size:1.15rem;line-height:1.1;color:#3a2410;border:none;border-radius:18px;
+  background:linear-gradient(180deg,#ffe08a,var(--gold));box-shadow:0 7px 0 var(--gold-d);cursor:pointer;user-select:none;}
+.pr-pedal.hit{transform:translateY(5px);box-shadow:0 2px 0 var(--gold-d);filter:brightness(1.12);}
+
+/*──── Demonder: Rope Jump ────*/
+.rj-hud{width:100%;max-width:600px;display:flex;justify-content:space-between;align-items:center;font-weight:600;padding-right:46px;font-size:1.15rem;}
+.rj-hud b{color:var(--accent,var(--gold));}
+.rj-field{position:relative;flex:1;width:100%;max-width:600px;border-radius:18px;overflow:hidden;margin:6px 0;
+  border:2px solid var(--accent,#ff6b3f);background:radial-gradient(circle at 50% 16%,#3a1f12,#150a06 80%);}
+.rj-field.flash{animation:enrageFlash .45s ease;}
+.rj-boss{position:absolute;top:6px;left:50%;transform:translateX(-50%);width:84px;height:84px;z-index:1;}
+.rj-boss img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5));animation:bob 2.4s ease-in-out infinite;}
+.rj-rope{position:absolute;left:5%;width:90%;height:12px;border-radius:8px;z-index:2;transform:translateY(-50%);will-change:top;
+  background:linear-gradient(90deg,transparent,#ff7a2f 18%,#ffd23f 50%,#ff7a2f 82%,transparent);box-shadow:0 0 18px rgba(255,140,50,.9);}
+.rj-ground{position:absolute;left:0;right:0;bottom:0;height:14%;z-index:1;
+  background:linear-gradient(180deg,rgba(120,70,30,.55),rgba(40,20,8,.92));border-top:2px solid rgba(120,70,30,.7);}
+.rj-hero{position:absolute;left:50%;bottom:13%;width:58px;height:58px;z-index:3;transform:translateX(-50%);will-change:transform;}
+.rj-hero img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 6px rgba(0,0,0,.5));}
+.rj-banner{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%) scale(.6);opacity:0;z-index:5;pointer-events:none;
+  font-family:"Cinzel",serif;font-size:clamp(1.4rem,7vw,2.1rem);color:#fff;text-shadow:0 0 16px rgba(0,0,0,.85);}
+.rj-banner.show{animation:kfBanner .65s ease;}
+.rj-banner.bad{color:var(--bad);} .rj-banner.warn{color:var(--gold);}
+.rj-jump{width:100%;max-width:600px;margin-top:10px;padding:22px 0;font-family:inherit;font-weight:800;font-size:1.25rem;color:#3a2410;border:none;border-radius:18px;
+  background:linear-gradient(180deg,#ffe08a,var(--gold));box-shadow:0 7px 0 var(--gold-d);cursor:pointer;user-select:none;}
+.rj-jump:active{transform:translateY(5px);box-shadow:0 2px 0 var(--gold-d);filter:brightness(1.1);}
+
+/*──── Clubbo: Slab Squeeze ────*/
+.sb-hud{width:100%;max-width:600px;display:flex;justify-content:space-between;align-items:center;font-weight:600;padding-right:46px;font-size:1.15rem;}
+.sb-hud b{color:var(--accent,var(--gold));}
+.sb-field{position:relative;flex:1;width:100%;max-width:600px;border-radius:18px;overflow:hidden;margin:6px 0;
+  border:2px solid var(--accent,#5fd47a);background:radial-gradient(circle at 50% 14%,#2c3a1f,#10160a 80%);}
+.sb-boss{position:absolute;top:6px;left:50%;transform:translateX(-50%);width:74px;height:74px;z-index:1;opacity:.92;}
+.sb-boss img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5));}
+.sb-hero{position:absolute;left:0;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:2;will-change:left;
+  background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.35),rgba(92,198,255,.28));border:3px solid rgba(255,255,255,.9);box-shadow:0 0 12px rgba(92,198,255,.7);}
+.sb-hero img{width:82%;height:82%;object-fit:contain;}
+.sb-hero.hurt{animation:hurt .4s ease;}
+.sb-slab{position:absolute;left:0;width:100%;z-index:1;border-radius:5px;will-change:top;
+  background:linear-gradient(to right,rgba(125,92,52,.97) 0 var(--g0),transparent var(--g0) var(--g1),rgba(125,92,52,.97) var(--g1) 100%);
+  box-shadow:inset 0 0 0 2px rgba(70,48,24,.7),0 3px 10px rgba(0,0,0,.45);}
+.sb-slab.cleared{filter:brightness(1.25) saturate(1.2);}
+.sb-slab.smash{animation:zoneSlam .26s ease;}
