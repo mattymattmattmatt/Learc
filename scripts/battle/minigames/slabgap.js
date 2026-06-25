@@ -13,7 +13,7 @@ export default {
       const d = ctx.difficulty;
       const boss = ctx.foe || {};
       const accent = boss.color || '#5fd47a';
-      const goal = 9 + Math.round(d * 0.7);
+      const goal = 10 + Math.round(d * 0.7);
       const thick = 26;
       let hearts = 3, passed = 0, done = false, iframe = 0, acc = 0;
 
@@ -52,9 +52,9 @@ export default {
       window.addEventListener('pointercancel', up);
 
       const slabs = [];
-      const fall = () => 95 + d * 15 + passed * 5;
-      const every = () => clamp(1.7 - d * 0.06 - passed * 0.02, 0.72, 1.7);
-      const holeW = () => clamp(W * (0.36 - d * 0.013) - passed * 4, W * 0.16, W * 0.42);
+      const fall = () => 100 + d * 15 + passed * 9;                              // ramps up the further you get
+      const every = () => clamp(1.6 - d * 0.06 - passed * 0.03, 0.62, 1.6);      // slabs arrive more often late
+      const holeW = () => clamp(W * (0.36 - d * 0.012) - passed * 4, W * 0.17, W * 0.4);
 
       function spawn() {
         const hw = holeW();
