@@ -101,7 +101,7 @@ export const BATTLES = {
   // ── Sky ──
   bo:          { game: 'swipe',       proj: '🌈', color: '#5cc6ff', act: 'Rainbow Beams' },
   roger_dodger:{ game: 'slingshot',   proj: '🎯', color: '#ffd23f', act: 'Untouchable Dance' },
-  yellogen:    { game: 'pitchwail',   proj: '🎶', color: '#ffd23f', act: 'Banshee Wail' },
+  yellogen:    { game: 'cloudrun',    proj: '🏃', color: '#ffd23f', act: 'Sky Sprint' },
   whipper:     { game: 'glider',      proj: '🌬️', color: '#9fe8ff', act: 'Gale Push' },
   diver:       { game: 'divedodge',   proj: '☄️', color: '#ff6b3f', act: 'Dive Bomb' },
   stinger:     { game: 'blitz',       proj: '📍', color: '#ffd23f', act: 'Rapid Jabs' },
