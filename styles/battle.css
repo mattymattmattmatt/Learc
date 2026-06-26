@@ -1024,3 +1024,24 @@ video.boss-foe{width:150px;height:150px;filter:drop-shadow(0 8px 14px rgba(0,0,0
   box-shadow:inset 0 0 0 2px rgba(70,48,24,.7),0 3px 10px rgba(0,0,0,.45);}
 .sb-slab.cleared{filter:brightness(1.25) saturate(1.2);}
 .sb-slab.smash{animation:zoneSlam .26s ease;}
+
+/*──── Yellogen: Banshee Wail (pitch tracking) ────*/
+.pw-hud{width:100%;max-width:600px;display:flex;align-items:center;gap:10px;font-weight:700;padding-right:46px;font-size:.95rem;}
+.pw-bar{flex:1;height:16px;border-radius:8px;background:rgba(0,0,0,.32);overflow:hidden;}
+.pw-fill{height:100%;width:0;background:linear-gradient(90deg,#ffe08a,var(--accent,#ffd23f));transition:width .08s linear;}
+.pw-time{width:60px;height:8px;border-radius:6px;background:rgba(0,0,0,.32);overflow:hidden;}
+.pw-tfill{height:100%;width:100%;background:var(--bad);transition:width .1s linear;}
+.pw-field{position:relative;flex:1;width:100%;max-width:600px;border-radius:18px;overflow:hidden;margin:6px 0;
+  border:2px solid rgba(255,210,63,.4);background:radial-gradient(circle at 50% 30%,#3a2c6b,#160f2e 82%);}
+.pw-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;}
+.pw-wave{fill:none;stroke:rgba(255,210,63,.28);stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 6px rgba(255,210,63,.5));}
+.pw-nowline{position:absolute;top:0;bottom:0;width:3px;transform:translateX(-50%);background:rgba(255,255,255,.22);pointer-events:none;z-index:2;}
+.pw-nowline.on{background:rgba(95,227,154,.85);box-shadow:0 0 14px rgba(95,227,154,.85);}
+.pw-bird{position:absolute;width:50px;height:50px;transform:translate(-50%,-50%);z-index:3;will-change:top;}
+.pw-bird img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 5px rgba(0,0,0,.5));transition:filter .12s;}
+.pw-bird.on img{filter:drop-shadow(0 0 13px rgba(95,227,154,.95));}
+
+/*──── Glob fight: healing heart pickup ────*/
+.bd-heart{position:absolute;transform:translate(-50%,-50%);font-size:2rem;line-height:1;z-index:6;cursor:pointer;pointer-events:auto;
+  filter:drop-shadow(0 0 10px rgba(255,90,134,.95));animation:heartPulse .8s ease-in-out infinite;}
+@keyframes heartPulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.2)}}

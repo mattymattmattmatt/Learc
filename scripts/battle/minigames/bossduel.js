@@ -104,7 +104,7 @@ export default {
       window.addEventListener('pointercancel', up);
 
       /* ── state ── */
-      let phase = 'intro', timer = 1.4, waveIdx = 0, iframe = 0;
+      let phase = 'intro', timer = 1.4, waveIdx = 0, iframe = 0, strikes = 0, heart = null;
       let enraged = false, burstAcc = 0, waterLevel = 0.05, drownT = 0;
       let aspect = isGlob ? ASPECTS[(Math.random() * ASPECTS.length) | 0] : null;
       const projs = [], bolts = [], zones = [], rings = [], sweeps = [];
@@ -270,6 +270,32 @@ export default {
         if (hearts <= 0) finish(false);
       }
 
+      /* a healing heart that slowly drifts down the screen — tap it to refill
+         all your hearts (Glob fight only, after the 3rd hit) */
+      function spawnHeart() {
+        if (heart || done) return;
+        const hx = clamp(W * (0.25 + Math.random() * 0.5), 30, W - 30);
+        const n = el('div', 'bd-heart', '❤');
+        n.style.left = hx + 'px'; n.style.top = (ky + kr) + 'px';
+        n.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); reviveHearts(); });
+        field.appendChild(n);
+        heart = { node: n, x: hx, y: ky + kr, vy: 38 };
+        setBanner('💗 A heart! Tap it to heal!');
+      }
+      function reviveHearts() {
+        if (!heart || done) return;
+        hearts = heartsMax; heartsEl.textContent = '❤'.repeat(hearts);
+        sparkle(field, heart.x, heart.y, 14, ['❤', '💖', '✨']); S.star(); buzz(40);
+        floatText(area, heart.x, heart.y, 'HEARTS RESTORED!', 'good');
+        heart.node.remove(); heart = null;
+      }
+      function updateHeart(dt) {
+        if (!heart) return;
+        heart.vy += 16 * dt; heart.y += heart.vy * dt;     // a slow, gentle fall
+        heart.node.style.top = heart.y + 'px';
+        if (heart.y > H + 36) { heart.node.remove(); heart = null; }   // missed — drifts off-screen
+      }
+
       /* ── phases ── */
       function startWave() {
         phase = 'wave'; waveIdx++;
@@ -293,6 +319,8 @@ export default {
         boss.classList.remove('hit'); void boss.offsetWidth; boss.classList.add('hit');
         sparkle(field, kx, ky, 14); floatText(area, kx, ky, 'CRACK! −' + hitDmg, 'good'); S.hit(); buzz(60);
         if (crown <= 0) return finish(true);
+        strikes++;
+        if (isGlob && strikes === 3) spawnHeart();    // a healing heart drifts down — tap it!
         if (isGlob) { aspect = ASPECTS[(ASPECTS.indexOf(aspect) + 1 + ((Math.random() * 5) | 0)) % ASPECTS.length]; applyAspect(); }
         if (canEnrage && !enraged && crown <= Math.ceil(crownMax / 2)) {
           enraged = true; field.classList.add('enraged');
@@ -405,6 +433,7 @@ export default {
       const stop = loop((dt, now) => {
         if (done) return false;
         iframe = Math.max(0, iframe - dt);
+        updateHeart(dt);
         boss.style.left = (kx - kr) + 'px'; boss.style.top = (ky - kr + Math.sin(now / 500) * 6) + 'px';
         tickVignette();
 
@@ -430,6 +459,7 @@ export default {
         window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up);
         window.removeEventListener('pointercancel', up); window.removeEventListener('resize', measure);
         clearHazards();
+        if (heart) { heart.node.remove(); heart = null; }
         buzz(win ? 60 : 120);
         resolve({ win, stars: win ? (hearts >= heartsMax ? 3 : 2) : 1 });
         return false;
