@@ -1045,3 +1045,35 @@ video.boss-foe{width:150px;height:150px;filter:drop-shadow(0 8px 14px rgba(0,0,0
 .bd-heart{position:absolute;transform:translate(-50%,-50%);font-size:2rem;line-height:1;z-index:6;cursor:pointer;pointer-events:auto;
   filter:drop-shadow(0 0 10px rgba(255,90,134,.95));animation:heartPulse .8s ease-in-out infinite;}
 @keyframes heartPulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.2)}}
+
+/*──── Yellogen: Cloud Runner (one-touch auto-runner) ────*/
+.cr-hud{width:100%;max-width:600px;display:flex;justify-content:space-between;align-items:center;font-weight:700;padding-right:46px;font-size:.95rem;}
+.cr-hud .cr-deaths b{color:var(--accent,#ffd23f);}
+.cr-field{position:relative;flex:1;width:100%;max-width:600px;border-radius:18px;overflow:hidden;margin:6px 0;
+  border:2px solid rgba(255,255,255,.25);background:linear-gradient(180deg,#7ed0ff 0%,#b6e6ff 52%,#e8f7ff 100%);}
+.cr-parallax{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(80px 36px at 18% 24%,rgba(255,255,255,.85),transparent 70%),
+             radial-gradient(110px 44px at 62% 16%,rgba(255,255,255,.8),transparent 70%),
+             radial-gradient(70px 30px at 86% 30%,rgba(255,255,255,.75),transparent 70%);}
+.cr-world{position:absolute;inset:0;pointer-events:none;}
+.cr-plat{position:absolute;left:0;top:0;will-change:transform;border-radius:8px 8px 0 0;
+  background:linear-gradient(180deg,#6cd07a,#3a9b54 26%,#2f7d44);box-shadow:inset 0 3px 0 rgba(255,255,255,.35),0 4px 10px rgba(0,0,0,.2);}
+.cr-plat.float{border-radius:10px;background:linear-gradient(180deg,#ffd86b,#e6a92a);box-shadow:inset 0 3px 0 rgba(255,255,255,.45),0 5px 12px rgba(0,0,0,.25);}
+.cr-spike{position:absolute;left:0;top:0;will-change:transform;background:repeating-linear-gradient(90deg,#e23b4e 0 11px,#b3253a 11px 22px);
+  -webkit-clip-path:polygon(0 100%,8% 0,16% 100%,25% 0,33% 100%,42% 0,50% 100%,58% 0,67% 100%,75% 0,83% 100%,92% 0,100% 100%);
+          clip-path:polygon(0 100%,8% 0,16% 100%,25% 0,33% 100%,42% 0,50% 100%,58% 0,67% 100%,75% 0,83% 100%,92% 0,100% 100%);}
+.cr-spike.down{-webkit-clip-path:polygon(0 0,8% 100%,16% 0,25% 100%,33% 0,42% 100%,50% 0,58% 100%,67% 0,75% 100%,83% 0,92% 100%,100% 0);
+                       clip-path:polygon(0 0,8% 100%,16% 0,25% 100%,33% 0,42% 100%,50% 0,58% 100%,67% 0,75% 100%,83% 0,92% 100%,100% 0);}
+.cr-flag{position:absolute;left:0;top:0;font-size:2.6rem;line-height:1;will-change:transform;filter:drop-shadow(0 3px 6px rgba(0,0,0,.35));}
+.cr-char{position:absolute;left:0;top:0;z-index:3;will-change:transform;}
+.cr-char img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 6px rgba(0,0,0,.4));}
+.cr-char.dead{animation:crDead .38s ease forwards;}
+@keyframes crDead{0%{transform:scale(1)}100%{transform:scale(.2) rotate(40deg);opacity:0}}
+.cr-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:4;}
+.cr-flash.on{animation:crFlash .35s ease;}
+@keyframes crFlash{0%{opacity:.7;background:#ff5a6a}100%{opacity:0}}
+.cr-banner{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);z-index:5;pointer-events:none;opacity:0;
+  font-family:"Cinzel",serif;font-size:clamp(1.5rem,7vw,2.3rem);color:#fff;text-shadow:0 0 16px rgba(0,0,0,.7);}
+.cr-banner.show{animation:kfBanner 1.1s ease;}
+.cr-quit{position:absolute;top:8px;right:8px;z-index:6;width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;
+  background:rgba(0,0,0,.35);color:#fff;font-size:1rem;font-weight:700;}
