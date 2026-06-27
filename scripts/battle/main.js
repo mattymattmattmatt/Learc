@@ -1,6 +1,6 @@
 /* main.js — Battle of the Realm: screen flow & glue */
 import {
-  byId, el, petImg, SPRITE, KING_GIF, playMusic, stopMusic, sfx, buzz, countdown,
+  byId, el, petImg, SPRITE, KING_GIF, playMusic, sfx, sfxMusic, buzz, countdown,
   S, confetti, isMuted, toggleMute, shuffle, sparkle, petAnim, animTag
 } from './util.js';
 import {
@@ -20,6 +20,15 @@ import { BADGES, award, hasBadge, badgeCount, recordBestStars, bestStarsFor, rec
 
 const APP = byId('app');
 const show = html => { APP.innerHTML = html; };
+
+/* ── battle music: one track per champion/henchman (id.mp3, underscores→hyphens
+   to match the existing asset-naming convention) + one per region ── */
+const charMusic = id => `${id.replace(/_/g, '-')}.mp3`;
+const REGION_MUSIC = { land: 'region-land.mp3', sea: 'region-sea.mp3', sky: 'region-sky.mp3' };
+function playBattleMusic(entry) {
+  if (entry.kind === 'glob') return;                 // Glob's theme is already playing from his intro
+  playMusic(charMusic(entry.id), 0.3);
+}
 
 boot();
 async function boot() {
@@ -53,7 +62,7 @@ function installChrome() {
 
 /* ════════ TITLE ════════ */
 function screenTitle() {
-  stopMusic();   // the realm stays hushed — music begins with the adventure
+  playMusic('title.mp3', 0.26);
   const cont = hasSave();
   const mode = getMode();
   show(`
@@ -124,7 +133,7 @@ function drift(box) {
 
 /* ════════ INTRO STORY ════════ */
 function screenIntro() {
-  playMusic('bgm_intro.mp3');   // the adventure — and its music — begin here
+  playMusic('captured.mp3', 0.26);   // the adventure — and its music — begin here
   // the captured-realm splash appears once Glob throws his net (beats 3+)
   dialogue({ image: STORY_CAPTURED, imageFrom: 2, name: 'The Tale of Liitokala', lines: INTRO, cls: 'intro', onDone: screenSelect });
 }
@@ -199,6 +208,7 @@ function screenSelect() {
 /* ════════ REGION INTRO ════════ */
 function screenRegionIntro(ri) {
   const r = REGIONS[ri];
+  playMusic(REGION_MUSIC[r.theme], 0.24);
   show(`
     <div class="screen region-intro theme-${r.theme}">
       <div class="ri-card">
@@ -229,12 +239,12 @@ function entryImg(e) {
 /* viewRi: pass a CLEARED region index to revisit it for friendly rematches;
    the journey strip is the navigation. Default = the live quest. */
 function screenMap(viewRi = null) {
-  playMusic('bgm_intro.mp3');
   const hero = getPet(state.heroId);
   const glob = isGlobNext();
   const canView = i => i < Math.min(state.region, 3);
   const viewing = viewRi != null && canView(viewRi);
   const r = viewing ? state.adventure.regions[viewRi] : (glob ? null : currentRegion());
+  playMusic(glob && !viewing ? 'glob.mp3' : REGION_MUSIC[r.theme], 0.24);
   const bossNext = !viewing && !glob && isBossNext();
 
   const modeBadge = { story: '😊 Story', normal: '⚔️ Normal', hard: '🔥 Hard' }[state.mode] || '⚔️ Normal';
@@ -427,6 +437,7 @@ async function runBattle(entry, foeDisp, opts = {}) {
   const hero = getPet(opts.heroId || state.heroId);
   show(`<div class="screen battle"><div class="arena" id="arena"></div></div>`);
   const arena = byId('arena');
+  playBattleMusic(entry);
   sfx(foeDisp.sfx, 0.7);
   await countdown(arena, opts.goWord || 'FIGHT!');
   const game = getGame(entry.game);
@@ -457,6 +468,7 @@ function onBattleWon(entry, res, foeDisp, opts = {}) {
   buzz(40);
   if (entry.kind === 'glob') {       // the final victory
     S.win();
+    playMusic('victory.mp3', 0.3);
     recordWin('glob', res.stars || 3);
     award('crown');
     if (totalStars() >= maxStars()) award('star-master');
@@ -587,7 +599,8 @@ function startBossFight(entry, bm) {
 
 /* ════════ EVIL KING GLOB (final) ════════ */
 function screenGlobIntro() {
-  playMusic('bgm_gameover.mp3', 0.34);
+  sfxMusic('glob-intro.mp3', 0.85);   // a regal sting announces the King
+  setTimeout(() => playMusic('glob.mp3', 0.3), 200);
   setTimeout(() => sfx(GLOB.sfx, 0.8), 120);   // Glob's voice
   dialogue({
     video: petAnim(GLOB), poster: SPRITE(GLOB.img), name: GLOB.name,
@@ -608,7 +621,7 @@ function screenGlobDefeat() {
 
 /* ════════ ENDING ════════ */
 function screenEnding() {
-  playMusic('bgm_intro.mp3');
+  playMusic('victory.mp3', 0.3);
   const hero = getPet(state.heroId);
   const score = finalScore(), max = maxStars();
   const clean = state.continues === 0;
@@ -725,7 +738,7 @@ function screenLeaderboard(highlight, tab) {
 let G = null;
 
 function screenGauntletSelect() {
-  playMusic('bgm_intro.mp3');
+  playMusic('title.mp3', 0.26);
   const lives = livesFor(getMode());
   const best = gauntletBest();
   let pick = null;
