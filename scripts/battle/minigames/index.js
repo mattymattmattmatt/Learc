@@ -26,11 +26,17 @@ import trace from './trace.js';
 import kingfight from './kingfight.js';
 import boss from './boss.js';
 import bossduel from './bossduel.js';
+import pedalrace from './pedalrace.js';
+import ropejump from './ropejump.js';
+import slabgap from './slabgap.js';
+import pitchwail from './pitchwail.js';
+import cloudrun from './cloudrun.js';
 
 export const GAMES = {
   quickdraw, tugofwar, powerstrike, memory, dodge, blitz, rhythm,
   catch: catchgame, swipe, charge, balance, slingshot, sharpshooter,
   freezeframe, glider, iceslide, paddle, sonicring, divedodge,
-  clawdrop, hotfloor, snaketrail, unwind, trace, kingfight, boss, bossduel
+  clawdrop, hotfloor, snaketrail, unwind, trace, kingfight, boss, bossduel,
+  pedalrace, ropejump, slabgap, pitchwail, cloudrun
 };
 export const getGame = id => GAMES[id] || quickdraw;

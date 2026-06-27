@@ -35,27 +35,27 @@ export const BOSSES = {
     id: 'minyar', name: 'Minyar', kind: 'boss', region: 'land',
     img: 'Minyar.png', anim: 'Minyar_Anim.mp4', sfx: 'minyar_entrance.wav',
     epithet: 'the Tantrum', color: '#7ad17a',
-    taunt: 'You woke them up?! That\'s MINE! Give them BACK or I\'ll SCREAM this forest down!',
-    defeat: 'Nngh… no fair, no FAIR! …fine. Take your stupid forest. I\'m telling Glob!',
-    game: 'bossduel',
+    taunt: 'You woke them up?! That\'s MINE! Race me then — nobody out-pedals MY tantrum trike!',
+    defeat: 'Nngh… no fair, no FAIR! You\'re too fast! …fine. Take your stupid forest. I\'m telling Glob!',
+    game: 'pedalrace',
     boss: { id: 'minyar', hearts: 3, crown: 7, hitDmg: 1 }
   },
   demonder: {
     id: 'demonder', name: 'Demonder', kind: 'boss', region: 'sea',
     img: 'Demonder.png', anim: 'Demonder_Anim.mp4', sfx: 'demonder_entrance.wav',
     epithet: 'the Bruiser', color: '#ff6b3f',
-    taunt: 'Heh. Little hero wants a fight? Put up your fins. Nobody slips past Demonder\'s gloves.',
-    defeat: 'Tch… good hands, kid. Real good hands. The tide\'s yours. I\'m done swinging.',
-    game: 'bossduel',
+    taunt: 'Heh. Footwork, little hero — let\'s see you skip my fire-rope. Nobody dances past Demonder.',
+    defeat: 'Tch… light on your feet, kid. Real light. The tide\'s yours. I\'m done swinging.',
+    game: 'ropejump',
     boss: { id: 'demonder', hearts: 3, crown: 8, hitDmg: 1 }
   },
   clubbo: {
     id: 'clubbo', name: 'Clubbo', kind: 'boss', region: 'sky',
     img: 'Clubbo.png', anim: 'Clubbo_Anim.mp4', sfx: 'clubbo_entrance.wav',
     epithet: 'the Crusher', color: '#5fd47a',
-    taunt: 'CLUBBO SMASH! You climb my mountain, you get the club. Nobody reach the King. NOBODY.',
-    defeat: 'Ooogh… Clubbo dizzy. You hit hard, little one. Go on… go get the baby king.',
-    game: 'bossduel',
+    taunt: 'CLUBBO SMASH! Slabs come down, you get squished! Nobody slip through. NOBODY!',
+    defeat: 'Ooogh… you wiggle through every one. Clubbo dizzy. Go on… go get the baby king.',
+    game: 'slabgap',
     boss: { id: 'clubbo', hearts: 3, crown: 9, hitDmg: 1 }
   }
 };
@@ -95,13 +95,13 @@ export const BATTLES = {
   swack:       { game: 'paddle',      proj: '🏓', color: '#5cc6ff', act: 'Fin Smash' },
   zappo:       { game: 'memory',      proj: '⚡', color: '#ffd23f', act: 'Shock Pattern' },
   yelp:        { game: 'rhythm',      proj: '🔊', color: '#ff5a86', act: 'Sonic Roar' },
-  sixter:      { game: 'snaketrail',  proj: '☠️', color: '#9be86b', act: 'Venom Trail' },
+  sixter:      { game: 'freezeframe', proj: '☠️', color: '#9be86b', act: 'Venom Trail' },
   chocker:     { game: 'unwind',      proj: '🪢', color: '#c08bff', act: 'Coil Squeeze' },
-  gus:         { game: 'freezeframe', proj: '👁️', color: '#b06bff', act: 'Dread Stare' },
+  gus:         { game: 'snaketrail',  proj: '👁️', color: '#b06bff', act: 'Dread Stare' },
   // ── Sky ──
   bo:          { game: 'swipe',       proj: '🌈', color: '#5cc6ff', act: 'Rainbow Beams' },
   roger_dodger:{ game: 'slingshot',   proj: '🎯', color: '#ffd23f', act: 'Untouchable Dance' },
-  yellogen:    { game: 'sonicring',   proj: '🗯️', color: '#ffd23f', act: 'Squawk Echo' },
+  yellogen:    { game: 'cloudrun',    proj: '🏃', color: '#ffd23f', act: 'Sky Sprint' },
   whipper:     { game: 'glider',      proj: '🌬️', color: '#9fe8ff', act: 'Gale Push' },
   diver:       { game: 'divedodge',   proj: '☄️', color: '#ff6b3f', act: 'Dive Bomb' },
   stinger:     { game: 'blitz',       proj: '📍', color: '#ffd23f', act: 'Rapid Jabs' },

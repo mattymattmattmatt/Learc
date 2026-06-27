@@ -570,7 +570,7 @@ function screenBossIntro() {
         <div class="bi-epithet">${bm.epithet}</div>
         <p class="bi-taunt">“${bm.taunt}”</p>
         <div class="bi-game"><span class="bi-icon">${game.icon}</span>
-          <div><b>Boss Duel</b><br><small>${game.howto}</small></div></div>
+          <div><b>${game.name}</b><br><small>${game.howto}</small></div></div>
         <div class="bi-diff">Difficulty 🔥🔥🔥🔥${entry.difficulty >= 8 ? '🔥' : ''}</div>
         <button class="btn btn-king" id="begin">Face ${bm.name} 💥</button>
         <button class="btn-link" id="back">◂ Back to map</button>

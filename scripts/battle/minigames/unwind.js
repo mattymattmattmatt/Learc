@@ -10,12 +10,12 @@ export default {
 
   play(area, ctx) {
     return new Promise(resolve => {
-      const links = Math.min(8, 4 + Math.floor(ctx.difficulty / 3));   // 4..8 links
+      const links = Math.min(9, 5 + Math.floor(ctx.difficulty / 3));   // 5..9 links
       let snapped = 0, squeeze = 0, done = false;
-      const spin = Math.min(3.6, 1.7 + ctx.difficulty * 0.16);         // sweep speed (rad/s)
-      const tol = clamp(0.42 - ctx.difficulty * 0.02, 0.15, 0.42);     // angular hit window
-      const squeezeRate = 0.045 + Math.min(ctx.difficulty, 12) * 0.006;
-      const slipPenalty = 0.06;
+      const spin = Math.min(4.4, 2.0 + ctx.difficulty * 0.2);          // sweep speed (rad/s) — faster
+      const tol = clamp(0.36 - ctx.difficulty * 0.022, 0.12, 0.36);    // angular hit window — tighter
+      const squeezeRate = 0.062 + Math.min(ctx.difficulty, 12) * 0.0085;  // the coil crushes faster
+      const slipPenalty = 0.09;                                         // mistimed taps cost more
 
       area.innerHTML = `
         <div class="bf-hud"><span>Snap <b id="sn">0</b>/${links}</span>

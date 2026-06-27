@@ -962,3 +962,118 @@ video.boss-foe{width:150px;height:150px;filter:drop-shadow(0 8px 14px rgba(0,0,0
 .bd-banner.strike{color:var(--gold);}
 .bd-field.enraged{animation:enrageFlash .6s ease;}
 .bd-field.enraged .bd-boss img{filter:drop-shadow(0 0 24px rgba(255,90,50,.95)) saturate(1.35);}
+
+/*══════════════════════════════════════════════════════════════
+  HENCHMAN MINIGAMES — Pedal Race / Rope Jump / Slab Squeeze
+══════════════════════════════════════════════════════════════*/
+
+/*──── Minyar: Pedal Race ────*/
+.pr-hud{width:100%;max-width:600px;display:flex;justify-content:space-between;align-items:center;font-weight:600;padding-right:46px;}
+.pr-hud .pr-tapn b{color:var(--accent,var(--gold));}
+.pr-track{width:100%;max-width:600px;display:flex;flex-direction:column;gap:14px;margin:12px 0;}
+.pr-lane{position:relative;height:64px;border-radius:16px;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.14);
+  background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 18px,transparent 18px 36px);}
+.pr-lane.foe{border-color:var(--accent,#7ad17a);}
+.pr-flag{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:1.7rem;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));}
+.pr-racer{position:absolute;top:50%;left:0;transform:translateY(-50%);width:50px;height:50px;transition:left .09s linear;z-index:2;}
+.pr-racer img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 5px rgba(0,0,0,.4));}
+.pr-racer.wobble{animation:hurt .3s ease;}
+.pr-speedwrap{width:100%;max-width:600px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:.8rem;color:var(--muted);}
+.pr-speed{flex:1;height:16px;border-radius:8px;background:rgba(0,0,0,.32);overflow:hidden;}
+.pr-speed-fill{height:100%;width:0;background:linear-gradient(90deg,#ffe08a,var(--accent,var(--gold)));transition:width .1s linear;}
+.pr-pedals{width:100%;max-width:600px;display:flex;gap:14px;margin-top:14px;}
+.pr-pedal{flex:1;padding:24px 0;font-family:inherit;font-weight:800;font-size:1.15rem;line-height:1.1;color:#3a2410;border:none;border-radius:18px;
+  background:linear-gradient(180deg,#ffe08a,var(--gold));box-shadow:0 7px 0 var(--gold-d);cursor:pointer;user-select:none;}
+.pr-pedal.hit{transform:translateY(5px);box-shadow:0 2px 0 var(--gold-d);filter:brightness(1.12);}
+
+/*──── Demonder: Rope Jump ────*/
+.rj-hud{width:100%;max-width:600px;display:flex;justify-content:space-between;align-items:center;font-weight:600;padding-right:46px;font-size:1.15rem;}
+.rj-hud b{color:var(--accent,var(--gold));}
+.rj-field{position:relative;flex:1;width:100%;max-width:600px;border-radius:18px;overflow:hidden;margin:6px 0;
+  border:2px solid var(--accent,#ff6b3f);background:radial-gradient(circle at 50% 16%,#3a1f12,#150a06 80%);}
+.rj-field.flash{animation:enrageFlash .45s ease;}
+.rj-boss{position:absolute;top:6px;left:50%;transform:translateX(-50%);width:84px;height:84px;z-index:1;}
+.rj-boss img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5));animation:bob 2.4s ease-in-out infinite;}
+.rj-rope{position:absolute;left:5%;width:90%;height:12px;border-radius:8px;z-index:2;transform:translateY(-50%);will-change:top;
+  background:linear-gradient(90deg,transparent,#ff7a2f 18%,#ffd23f 50%,#ff7a2f 82%,transparent);box-shadow:0 0 18px rgba(255,140,50,.9);}
+.rj-ground{position:absolute;left:0;right:0;bottom:0;height:14%;z-index:1;
+  background:linear-gradient(180deg,rgba(120,70,30,.55),rgba(40,20,8,.92));border-top:2px solid rgba(120,70,30,.7);}
+.rj-hero{position:absolute;left:50%;bottom:13%;width:58px;height:58px;z-index:3;transform:translateX(-50%);will-change:transform;}
+.rj-hero img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 6px rgba(0,0,0,.5));}
+.rj-banner{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%) scale(.6);opacity:0;z-index:5;pointer-events:none;
+  font-family:"Cinzel",serif;font-size:clamp(1.4rem,7vw,2.1rem);color:#fff;text-shadow:0 0 16px rgba(0,0,0,.85);}
+.rj-banner.show{animation:kfBanner .65s ease;}
+.rj-banner.bad{color:var(--bad);} .rj-banner.warn{color:var(--gold);}
+.rj-jump{width:100%;max-width:600px;margin-top:10px;padding:22px 0;font-family:inherit;font-weight:800;font-size:1.25rem;color:#3a2410;border:none;border-radius:18px;
+  background:linear-gradient(180deg,#ffe08a,var(--gold));box-shadow:0 7px 0 var(--gold-d);cursor:pointer;user-select:none;}
+.rj-jump:active{transform:translateY(5px);box-shadow:0 2px 0 var(--gold-d);filter:brightness(1.1);}
+
+/*──── Clubbo: Slab Squeeze ────*/
+.sb-hud{width:100%;max-width:600px;display:flex;justify-content:space-between;align-items:center;font-weight:600;padding-right:46px;font-size:1.15rem;}
+.sb-hud b{color:var(--accent,var(--gold));}
+.sb-field{position:relative;flex:1;width:100%;max-width:600px;border-radius:18px;overflow:hidden;margin:6px 0;
+  border:2px solid var(--accent,#5fd47a);background:radial-gradient(circle at 50% 14%,#2c3a1f,#10160a 80%);}
+.sb-boss{position:absolute;top:6px;left:50%;transform:translateX(-50%);width:74px;height:74px;z-index:1;opacity:.92;}
+.sb-boss img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5));}
+.sb-hero{position:absolute;left:0;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:2;will-change:left;
+  background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.35),rgba(92,198,255,.28));border:3px solid rgba(255,255,255,.9);box-shadow:0 0 12px rgba(92,198,255,.7);}
+.sb-hero img{width:82%;height:82%;object-fit:contain;}
+.sb-hero.hurt{animation:hurt .4s ease;}
+.sb-slab{position:absolute;left:0;width:100%;z-index:1;border-radius:5px;will-change:top;
+  background:linear-gradient(to right,rgba(125,92,52,.97) 0 var(--g0),transparent var(--g0) var(--g1),rgba(125,92,52,.97) var(--g1) 100%);
+  box-shadow:inset 0 0 0 2px rgba(70,48,24,.7),0 3px 10px rgba(0,0,0,.45);}
+.sb-slab.cleared{filter:brightness(1.25) saturate(1.2);}
+.sb-slab.smash{animation:zoneSlam .26s ease;}
+
+/*──── Yellogen: Banshee Wail (pitch tracking) ────*/
+.pw-hud{width:100%;max-width:600px;display:flex;align-items:center;gap:10px;font-weight:700;padding-right:46px;font-size:.95rem;}
+.pw-bar{flex:1;height:16px;border-radius:8px;background:rgba(0,0,0,.32);overflow:hidden;}
+.pw-fill{height:100%;width:0;background:linear-gradient(90deg,#ffe08a,var(--accent,#ffd23f));transition:width .08s linear;}
+.pw-time{width:60px;height:8px;border-radius:6px;background:rgba(0,0,0,.32);overflow:hidden;}
+.pw-tfill{height:100%;width:100%;background:var(--bad);transition:width .1s linear;}
+.pw-field{position:relative;flex:1;width:100%;max-width:600px;border-radius:18px;overflow:hidden;margin:6px 0;
+  border:2px solid rgba(255,210,63,.4);background:radial-gradient(circle at 50% 30%,#3a2c6b,#160f2e 82%);}
+.pw-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;}
+.pw-wave{fill:none;stroke:rgba(255,210,63,.28);stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 6px rgba(255,210,63,.5));}
+.pw-nowline{position:absolute;top:0;bottom:0;width:3px;transform:translateX(-50%);background:rgba(255,255,255,.22);pointer-events:none;z-index:2;}
+.pw-nowline.on{background:rgba(95,227,154,.85);box-shadow:0 0 14px rgba(95,227,154,.85);}
+.pw-bird{position:absolute;width:50px;height:50px;transform:translate(-50%,-50%);z-index:3;will-change:top;}
+.pw-bird img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 5px rgba(0,0,0,.5));transition:filter .12s;}
+.pw-bird.on img{filter:drop-shadow(0 0 13px rgba(95,227,154,.95));}
+
+/*──── Glob fight: healing heart pickup ────*/
+.bd-heart{position:absolute;transform:translate(-50%,-50%);font-size:2rem;line-height:1;z-index:6;cursor:pointer;pointer-events:auto;
+  filter:drop-shadow(0 0 10px rgba(255,90,134,.95));animation:heartPulse .8s ease-in-out infinite;}
+@keyframes heartPulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.2)}}
+
+/*──── Yellogen: Cloud Runner (one-touch auto-runner) ────*/
+.cr-hud{width:100%;max-width:600px;display:flex;justify-content:space-between;align-items:center;font-weight:700;padding-right:46px;font-size:.95rem;}
+.cr-hud .cr-deaths b{color:var(--accent,#ffd23f);}
+.cr-field{position:relative;flex:1;width:100%;max-width:600px;border-radius:18px;overflow:hidden;margin:6px 0;
+  border:2px solid rgba(255,255,255,.25);background:linear-gradient(180deg,#7ed0ff 0%,#b6e6ff 52%,#e8f7ff 100%);}
+.cr-parallax{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(80px 36px at 18% 24%,rgba(255,255,255,.85),transparent 70%),
+             radial-gradient(110px 44px at 62% 16%,rgba(255,255,255,.8),transparent 70%),
+             radial-gradient(70px 30px at 86% 30%,rgba(255,255,255,.75),transparent 70%);}
+.cr-world{position:absolute;inset:0;pointer-events:none;}
+.cr-plat{position:absolute;left:0;top:0;will-change:transform;border-radius:8px 8px 0 0;
+  background:linear-gradient(180deg,#6cd07a,#3a9b54 26%,#2f7d44);box-shadow:inset 0 3px 0 rgba(255,255,255,.35),0 4px 10px rgba(0,0,0,.2);}
+.cr-plat.float{border-radius:10px;background:linear-gradient(180deg,#ffd86b,#e6a92a);box-shadow:inset 0 3px 0 rgba(255,255,255,.45),0 5px 12px rgba(0,0,0,.25);}
+.cr-spike{position:absolute;left:0;top:0;will-change:transform;background:repeating-linear-gradient(90deg,#e23b4e 0 11px,#b3253a 11px 22px);
+  -webkit-clip-path:polygon(0 100%,8% 0,16% 100%,25% 0,33% 100%,42% 0,50% 100%,58% 0,67% 100%,75% 0,83% 100%,92% 0,100% 100%);
+          clip-path:polygon(0 100%,8% 0,16% 100%,25% 0,33% 100%,42% 0,50% 100%,58% 0,67% 100%,75% 0,83% 100%,92% 0,100% 100%);}
+.cr-spike.down{-webkit-clip-path:polygon(0 0,8% 100%,16% 0,25% 100%,33% 0,42% 100%,50% 0,58% 100%,67% 0,75% 100%,83% 0,92% 100%,100% 0);
+                       clip-path:polygon(0 0,8% 100%,16% 0,25% 100%,33% 0,42% 100%,50% 0,58% 100%,67% 0,75% 100%,83% 0,92% 100%,100% 0);}
+.cr-flag{position:absolute;left:0;top:0;font-size:2.6rem;line-height:1;will-change:transform;filter:drop-shadow(0 3px 6px rgba(0,0,0,.35));}
+.cr-char{position:absolute;left:0;top:0;z-index:3;will-change:transform;}
+.cr-char img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 6px rgba(0,0,0,.4));}
+.cr-char.dead{animation:crDead .38s ease forwards;}
+@keyframes crDead{0%{transform:scale(1)}100%{transform:scale(.2) rotate(40deg);opacity:0}}
+.cr-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:4;}
+.cr-flash.on{animation:crFlash .35s ease;}
+@keyframes crFlash{0%{opacity:.7;background:#ff5a6a}100%{opacity:0}}
+.cr-banner{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);z-index:5;pointer-events:none;opacity:0;
+  font-family:"Cinzel",serif;font-size:clamp(1.5rem,7vw,2.3rem);color:#fff;text-shadow:0 0 16px rgba(0,0,0,.7);}
+.cr-banner.show{animation:kfBanner 1.1s ease;}
+.cr-quit{position:absolute;top:8px;right:8px;z-index:6;width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;
+  background:rgba(0,0,0,.35);color:#fff;font-size:1rem;font-weight:700;}
