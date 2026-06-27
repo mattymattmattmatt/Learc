@@ -3,6 +3,7 @@
 
 export const SPRITE = p => `assets/img/characters/${encodeURIComponent(p)}`;
 export const AUDIO  = f => `assets/audio/${f}`;
+export const MUSIC  = f => `assets/Music/${encodeURIComponent(f)}`;
 export const ANIM   = f => `assets/Char_Anim/${encodeURIComponent(f)}`;
 export const KING_GIF = 'assets/img/king_intro.gif';
 /* the character-select / story animation clip for a creature (derived from its
@@ -59,7 +60,7 @@ export function toggleMute() { setMuted(!muted); return muted; }
 export function playMusic(name, vol = 0.28) {
   musicVol = vol;
   if (!music) { music = new Audio(); music.loop = true; music.addEventListener('error', () => {}); }
-  if (musicName !== name) { musicName = name; music.src = AUDIO(name); try { music.currentTime = 0; } catch {} }
+  if (musicName !== name) { musicName = name; music.src = MUSIC(name); try { music.currentTime = 0; } catch {} }
   music.volume = muted ? 0 : vol;
   if (music.paused) music.play().catch(() => {});
 }
@@ -69,6 +70,11 @@ export function stopMusic() { if (music) { try { music.pause(); } catch {} } mus
 export function sfx(file, vol = 0.8) {
   if (!file || muted) return;
   try { const a = new Audio(AUDIO(file)); a.volume = vol; a.play().catch(() => {}); } catch {}
+}
+/* one-shot stinger from the Music folder (e.g. a boss's musical entrance) */
+export function sfxMusic(file, vol = 0.8) {
+  if (!file || muted) return;
+  try { const a = new Audio(MUSIC(file)); a.volume = vol; a.play().catch(() => {}); } catch {}
 }
 export const buzz = ms => { if (!muted) { try { navigator.vibrate?.(ms); } catch {} } };
 
