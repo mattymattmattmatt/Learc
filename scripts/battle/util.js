@@ -32,7 +32,11 @@ export function shuffle(a) { const b = a.slice(); for (let i = b.length - 1; i >
 export const starsByRatio = r => (r >= 0.95 ? 3 : r >= 0.6 ? 2 : 1);
 
 /* ── audio: WebAudio SFX synth + music (unlocked on first gesture) ─ */
-let audioOn = false, music = null, musicName = '', musicVol = 0.28;
+let audioOn = false, musicVol = 0.28;
+let curEl = null, curName = '';          // the audio element currently playing
+const pool = {};                         // track name → its (reused) audio element;
+                                         // a paused element keeps its position, so
+                                         // returning to a track resumes mid-song
 let muted = false;
 try { muted = localStorage.getItem('realm:mute') === '1'; } catch {}
 
@@ -53,18 +57,58 @@ export function isMuted() { return muted; }
 export function setMuted(v) {
   muted = !!v;
   try { localStorage.setItem('realm:mute', muted ? '1' : '0'); } catch {}
-  if (music) music.volume = muted ? 0 : musicVol;
+  if (curEl) fade(curEl, muted ? 0 : musicVol, 200);
 }
 export function toggleMute() { setMuted(!muted); return muted; }
 
+/* smoothly ramp an element's volume; cancels any fade already on it */
+function fade(a, to, ms, done) {
+  if (!a) return;
+  if (a._ft) { clearInterval(a._ft); a._ft = null; }
+  const from = a.volume, steps = Math.max(1, Math.round(ms / 40));
+  let i = 0;
+  a._ft = setInterval(() => {
+    i++;
+    a.volume = Math.max(0, Math.min(1, from + (to - from) * (i / steps)));
+    if (i >= steps) { clearInterval(a._ft); a._ft = null; if (done) done(); }
+  }, 40);
+}
+
+/* one (reused) audio element per track, so its playback position survives */
+function track(name) {
+  let a = pool[name];
+  if (!a) {
+    a = new Audio();
+    a.loop = true; a.preload = 'auto';
+    a.addEventListener('error', () => {});
+    a.src = MUSIC(name);
+    a.volume = 0;
+    pool[name] = a;
+  }
+  return a;
+}
+
+/* crossfade to a track. If it's already playing we leave it be (no restart);
+   otherwise the new track fades in while the old one fades out. Because each
+   track keeps its own paused element, returning to one resumes mid-song. */
 export function playMusic(name, vol = 0.28) {
   musicVol = vol;
-  if (!music) { music = new Audio(); music.loop = true; music.addEventListener('error', () => {}); }
-  if (musicName !== name) { musicName = name; music.src = MUSIC(name); try { music.currentTime = 0; } catch {} }
-  music.volume = muted ? 0 : vol;
-  if (music.paused) music.play().catch(() => {});
+  if (curName === name && curEl) {                 // already on this track
+    if (curEl.paused) curEl.play().catch(() => {});
+    if (!muted) fade(curEl, vol, 300);
+    return;
+  }
+  const out = curEl;
+  const next = track(name);
+  curEl = next; curName = name;
+  next.play().catch(() => {});                     // resumes from where it paused
+  if (!muted) fade(next, vol, 500); else next.volume = 0;
+  if (out && out !== next) fade(out, 0, 500, () => { try { out.pause(); } catch {} });
 }
-export function stopMusic() { if (music) { try { music.pause(); } catch {} } musicName = ''; }
+export function stopMusic() {
+  if (curEl) { const out = curEl; fade(out, 0, 350, () => { try { out.pause(); } catch {} }); }
+  curEl = null; curName = '';
+}
 
 /* play a sampled file (used for the creatures' own entrance roars) */
 export function sfx(file, vol = 0.8) {
