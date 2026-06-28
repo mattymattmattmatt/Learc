@@ -6,7 +6,7 @@ import {
 import {
   loadPets, getPet, allPets, flavor, REGIONS, BATTLES,
   BOSSES, GLOB, getBoss, isVillain, bossIntroLines, bossDefeatLines,
-  INTRO, GLOB_INTRO, GLOB_DEFEAT, STORY_CAPTURED, STORY_WIN
+  INTRO, GLOB_INTRO, GLOB_DEFEAT, STORY_CAPTURED, STORY_WIN, star3Of
 } from './data.js';
 import {
   state, startAdventure, currentFoe, currentRegion, recordWin, recordLoss, recordRematch,
@@ -29,6 +29,9 @@ function playBattleMusic(entry) {
   if (entry.kind === 'glob') return;                 // Glob's theme is already playing from his intro
   playMusic(charMusic(entry.id), 0.3);
 }
+
+/* the "how to earn 3 stars" line shown on every battle intro card */
+const star3Line = gameId => `<div class="bi-star3"><span class="bi-s3stars">★★★</span> <b>3-star:</b> ${star3Of(gameId)}</div>`;
 
 boot();
 async function boot() {
@@ -352,6 +355,7 @@ function screenBattleIntro() {
         <div class="bi-attack">${entry.theme ? entry.theme.proj : ''} Attack: <b>${entry.theme ? entry.theme.act : game.name}</b></div>
         <div class="bi-game"><span class="bi-icon">${game.icon}</span>
           <div><b>${game.name}</b><br><small>${(entry.theme && entry.theme.howto) || game.howto}</small></div></div>
+        ${star3Line(entry.game)}
         <div class="bi-diff">Difficulty ${'🔥'.repeat(Math.min(5, Math.ceil(entry.difficulty / 2)))}</div>
         <button class="btn btn-go" id="begin">Begin Battle ▸</button>
         <button class="btn-link" id="back">◂ Back to map</button>
@@ -379,6 +383,7 @@ function screenRematchIntro(entry, ri) {
         <div class="bi-attack">${entry.theme ? entry.theme.proj : '⭐'} Attack: <b>${entry.theme ? entry.theme.act : game.name}</b></div>
         <div class="bi-game"><span class="bi-icon">${game.icon}</span>
           <div><b>${game.name}</b><br><small>${(entry.theme && entry.theme.howto) || game.howto}</small></div></div>
+        ${star3Line(entry.game)}
         <div class="bi-best">Your best: ${best ? '★'.repeat(best) + '☆'.repeat(3 - best) : '—'}</div>
         <button class="btn btn-go" id="begin">Rematch ▸</button>
         <button class="btn-link" id="back">◂ Back to map</button>
@@ -474,6 +479,11 @@ function onBattleWon(entry, res, foeDisp, opts = {}) {
     award('crown');
     if (totalStars() >= maxStars()) award('star-master');
     if (state.continues === 0) award('unbroken');
+    if (state.mode === 'hard') {
+      award('hard-crown');
+      if (state.continues === 0) award('hard-unbroken');
+      if (totalStars() >= maxStars()) award('hard-master');
+    }
     return screenGlobDefeat();
   }
   if (entry.kind === 'boss') return onBossWon(entry, res);   // a henchman falls
@@ -483,7 +493,7 @@ function onBattleWon(entry, res, foeDisp, opts = {}) {
   const stars = res.stars || 1;
   recordBestStars(entry.id, stars);
   award('first-win');
-  if (stars >= 3) award('flawless');
+  if (stars >= 3) { award('flawless'); if (state.mode === 'hard') award('hard-flawless'); }
   show(`
     <div class="screen result win">
       <div class="result-card">
@@ -511,7 +521,7 @@ function onBossWon(entry, res) {
   const bm = getBoss(entry.id);
   const stars = res.stars || 2;
   recordBestStars(entry.id, stars);
-  if (stars >= 3) award('flawless');
+  if (stars >= 3) { award('flawless'); if (state.mode === 'hard') award('hard-flawless'); }
   S.win(); buzz(50);
   dialogue({
     video: petAnim(bm), poster: SPRITE(bm.img), name: bm.name,
@@ -584,6 +594,7 @@ function screenBossIntro() {
         <p class="bi-taunt">“${bm.taunt}”</p>
         <div class="bi-game"><span class="bi-icon">${game.icon}</span>
           <div><b>${game.name}</b><br><small>${game.howto}</small></div></div>
+        ${star3Line(entry.game)}
         <div class="bi-diff">Difficulty 🔥🔥🔥🔥${entry.difficulty >= 8 ? '🔥' : ''}</div>
         <button class="btn btn-king" id="begin">Face ${bm.name} 💥</button>
         <button class="btn-link" id="back">◂ Back to map</button>
@@ -814,6 +825,7 @@ function screenGauntletRound() {
         <div class="bi-attack">${G.cur.theme.proj} Attack: <b>${G.cur.theme.act}</b></div>
         <div class="bi-game"><span class="bi-icon">${game.icon}</span>
           <div><b>${game.name}</b><br><small>${G.cur.theme.howto || game.howto}</small></div></div>
+        ${star3Line(G.cur.game)}
         <div class="bi-diff">Difficulty ${'🔥'.repeat(Math.min(5, Math.ceil(G.cur.difficulty / 2)))}</div>
         <button class="btn btn-go" id="begin">Fight ▸</button>
         <button class="btn-link" id="bail">Retire &amp; bank your score</button>
@@ -831,7 +843,7 @@ function runGauntletBattle() {
       G.round++; G.score += stars;
       recordBestStars(G.cur.id, stars);
       award('first-win');
-      if (stars >= 3) award('flawless');
+      if (stars >= 3) { award('flawless'); if (state.mode === 'hard') award('hard-flawless'); }
       if (G.round >= 5) award('gauntlet-5');
       if (G.round >= 12) award('gauntlet-12');
       screenGauntletWin(foe, stars);

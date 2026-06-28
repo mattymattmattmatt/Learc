@@ -99,7 +99,7 @@ export default {
         window.removeEventListener('resize', measure);
         targets.forEach(t => t.node.remove());
         if (!win) sfx(ctx.foe.sfx, 0.7); buzz(win ? 30 : 60);
-        resolve({ win, stars: win ? (left > TIME * 0.4 ? 3 : 2) : 1 });
+        resolve({ win, stars: win ? (left > TIME * 0.25 ? 3 : 2) : 1 });
         return false;
       }
     });

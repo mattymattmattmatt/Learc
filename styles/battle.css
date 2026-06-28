@@ -129,6 +129,10 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg1);color:var
 .bi-game{display:flex;align-items:center;gap:10px;text-align:left;background:rgba(0,0,0,.28);border-radius:14px;padding:10px 12px;margin-bottom:8px;}
 .bi-icon{font-size:1.8rem;}
 .bi-game small{color:var(--muted);}
+.bi-star3{font-size:.84rem;margin-bottom:8px;color:var(--ink);background:rgba(255,210,63,.12);
+  border:1px solid rgba(255,210,63,.4);border-radius:10px;padding:6px 10px;}
+.bi-star3 b{color:var(--gold);}
+.bi-s3stars{color:var(--gold);letter-spacing:1px;}
 .bi-diff{font-size:.9rem;margin-bottom:10px;color:var(--muted);}
 
 /*══════════════ ARENA + minigames ══════════════*/

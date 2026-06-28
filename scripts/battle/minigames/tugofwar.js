@@ -54,7 +54,7 @@ export default {
         hitFlash(area.querySelector(win ? '.foe' : '.hero'));
         buzz(win ? 30 : 60); if (!win) sfx(ctx.foe.sfx, 0.7);
         // your star rating is how hard you pulled — total taps
-        const stars = win ? (taps > 150 ? 3 : taps > 90 ? 2 : 1) : 1;
+        const stars = win ? (taps > 100 ? 3 : taps > 60 ? 2 : 1) : 1;
         resolve({ win, stars });
         return false;
       }

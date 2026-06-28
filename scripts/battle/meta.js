@@ -27,7 +27,12 @@ export const BADGES = [
   { id: 'unbroken',    icon: '🛡️', name: 'Unbroken',         desc: 'Finish an adventure without losing a single battle.' },
   { id: 'star-master', icon: '💫', name: 'Star Master',      desc: 'Finish an adventure with every star.' },
   { id: 'gauntlet-5',  icon: '🔥', name: 'Gauntlet Hero',    desc: 'Clear 5 rounds in one Gauntlet run.' },
-  { id: 'gauntlet-12', icon: '⚡', name: 'Gauntlet Legend',  desc: 'Clear 12 rounds in one Gauntlet run.' }
+  { id: 'gauntlet-12', icon: '⚡', name: 'Gauntlet Legend',  desc: 'Clear 12 rounds in one Gauntlet run.' },
+  // ── Hard-mode feats ──
+  { id: 'hard-flawless', icon: '🔱', name: 'Hardcore Ace',   desc: 'Earn 3 stars in a battle on Hard mode.' },
+  { id: 'hard-crown',    icon: '😈', name: 'Tyrant Tamer',   desc: 'Defeat Evil King Glob on Hard mode.' },
+  { id: 'hard-unbroken', icon: '💎', name: 'Untouchable',    desc: 'Finish a Hard-mode adventure without losing a battle.' },
+  { id: 'hard-master',   icon: '🏆', name: 'Realm Legend',   desc: 'Finish a Hard-mode adventure with every star.' }
 ];
 
 export function hasBadge(id) { return !!load().badges[id]; }
