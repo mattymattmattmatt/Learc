@@ -150,6 +150,7 @@ function screenCredits() {
         <h2 class="cr-names"><span class="cr-name">Leila</span> &amp; <span class="cr-name">Archie</span></h2>
         <p class="cr-role">with trusty sidekick</p>
         <h3 class="cr-uncle">Uncle Matty</h3>
+        <img class="cr-photo" src="assets/img/Extra_Images/Makers.png" alt="The family dreaming up the champions in Bali">
         <p class="cr-story">All 24 champions of Liitokala were dreamed up together on a
           family adventure in <b>Bali</b> 🌴<br><span class="cr-when">mid 2025</span></p>
         <p class="cr-hint">psst — tap the creatures floating by 👀</p>
