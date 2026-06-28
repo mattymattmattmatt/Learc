@@ -4,7 +4,7 @@
    audio) is cache-first with a background refresh. Bump CACHE on breaking
    changes to flush old caches. */
 
-const CACHE = 'botr-v9';
+const CACHE = 'botr-v10';
 
 const CORE = [
   './',
