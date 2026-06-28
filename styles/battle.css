@@ -842,6 +842,8 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg1);color:var
   -webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 2.8s linear infinite;}
 @keyframes shimmer{to{background-position:-220% 0}}
 .cr-uncle{font-family:"Cinzel",serif;color:var(--ink);font-size:1.3rem;margin:0 0 4px;}
+.cr-photo{display:block;width:100%;max-width:340px;margin:12px auto 4px;border-radius:14px;
+  border:2px solid rgba(255,210,63,.55);box-shadow:0 8px 22px rgba(0,0,0,.45);}
 .cr-story{line-height:1.55;margin:12px 0 4px;}
 .cr-story b{color:var(--gold);}
 .cr-when{color:var(--gold);font-weight:700;letter-spacing:1px;font-size:.9rem;}
