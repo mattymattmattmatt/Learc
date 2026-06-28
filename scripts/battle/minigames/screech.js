@@ -17,13 +17,17 @@ export default {
       const d = ctx.difficulty;
       const accent = (ctx.theme && ctx.theme.color) || '#ffd23f';
 
-      // ── tuning (all scale gently with difficulty) ──
-      const goal     = 10 + Math.round(d * 0.8);             // crystals to shatter to win
-      const speed0   = 54 + d * 7;                           // drift speed (px/s)
-      const spawnGap = () => clamp(1.12 - d * 0.05, 0.5, 1.12);
-      const blastF   = clamp(0.3 - d * 0.008, 0.17, 0.3);   // blast radius (fraction of min(W,H))
-      const RING_T   = 0.32;                                  // blast expand time (s)
-      const COOLDOWN = clamp(0.58 - d * 0.012, 0.32, 0.58);  // recharge (s)
+      // ── tuning (Yellogen runs at d≈7-8 on Normal, ~12-13 on Hard) ──
+      // The "pressure" knobs cap at dp=9 so Hard stays intense but winnable;
+      // only the goal keeps climbing with real difficulty (a longer endurance).
+      const dp       = Math.min(d, 9);
+      const goal     = 17 + Math.round(d * 1.0);             // ~25 on Normal, ~29 on Hard
+      const speed0   = 70 + dp * 8;                          // drift speed (px/s)
+      const spawnGap = () => clamp(1.1 - dp * 0.05, 0.56, 1.1);
+      const burstP   = clamp(0.2 + dp * 0.045, 0.2, 0.6);    // chance a spawn comes as a far-apart pair
+      const blastF   = clamp(0.165 - dp * 0.004, 0.135, 0.165);// blast radius — tight, so aim matters
+      const RING_T   = 0.3;                                   // blast expand time (s)
+      const COOLDOWN = clamp(0.58 - dp * 0.012, 0.47, 0.58); // recharge (s)
       let health = 3;
 
       area.innerHTML = `
@@ -73,9 +77,15 @@ export default {
       }
       renderLife();
 
-      function spawn() {
+      function spawn(awayFrom) {
         const size = rand(heroR * 0.72, heroR * 1.06);
-        crystals.push({ x: W + size, y: rand(H * 0.14, H * 0.86), vr: speed0 * rand(0.85, 1.18), rot: rand(0, 6.28), vrot: rand(-1.5, 1.5), size, dead: false });
+        // a partner spawns in the opposite half, too far to catch in one blast
+        const y = awayFrom == null
+          ? rand(H * 0.14, H * 0.86)
+          : (awayFrom < H * 0.5 ? rand(H * 0.56, H * 0.86) : rand(H * 0.14, H * 0.44));
+        const x = W + size + (awayFrom == null ? 0 : rand(0, 70));
+        crystals.push({ x, y, vr: speed0 * rand(0.85, 1.2), rot: rand(0, 6.28), vrot: rand(-1.5, 1.5), size, dead: false });
+        return y;
       }
       function screech(x, y) {
         if (done) return;
@@ -128,7 +138,11 @@ export default {
         if (cool > 0) { cool = Math.max(0, cool - dt); coolEl.style.width = (100 * (1 - cool / COOLDOWN)) + '%'; }
 
         spawnT -= dt;
-        if (spawnT <= 0) { spawn(); spawnT = spawnGap() * rand(0.82, 1.2); }
+        if (spawnT <= 0) {
+          const y1 = spawn();
+          if (Math.random() < burstP) spawn(y1);     // a partner at a far-off height
+          spawnT = spawnGap() * rand(0.82, 1.2);
+        }
 
         // 1) move crystals
         for (const c of crystals) { c.x -= c.vr * dt; c.rot += c.vrot * dt; }
