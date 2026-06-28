@@ -183,6 +183,41 @@ export const FLAVOR = {
 };
 export const flavor = id => FLAVOR[id] || { epithet: 'the Champion', taunt: 'The King commands!', freed: 'Well fought.' };
 
+/* ── how to earn 3★ in each game (shown on the battle intro card).
+   Keep each entry in sync with that minigame's stars-on-win condition. ── */
+export const STAR3 = {
+  dodge:        'Don’t take a single hit',
+  quickdraw:    'Win the duel losing at most 1 round',
+  balance:      'Never tip too far off balance',
+  powerstrike:  'Win with 3+ swings to spare',
+  iceslide:     'Reach the goal with 2+ slides left',
+  tugofwar:     'Pull hard — 100+ taps',
+  charge:       'Win with 4+ shots still in reserve',
+  catch:        'Hit your quota without losing a heart',
+  hotfloor:     'Never get burned — keep all hearts',
+  reelin:       'Land every fish without losing a heart',
+  paddle:       'Clear the bricks without losing a ball',
+  memory:       'Echo the whole pattern correctly',
+  rhythm:       'Hit at least 90% of the notes',
+  freezeframe:  'Never get caught moving — keep all hearts',
+  unwind:       'Wriggle free before the coil half-crushes you',
+  snaketrail:   'Finish the entire feast',
+  swipe:        'A flawless run — no misses',
+  slingshot:    'Win with 3+ stones to spare',
+  screech:      'Don’t let a single crystal reach you',
+  glider:       'Fly clean — no crashes',
+  divedodge:    'Dodge everything — keep all hearts',
+  blitz:        'Finish with plenty of time to spare',
+  sharpshooter: 'Hit your quota with time to spare',
+  trace:        'Finish quickly, with time to spare',
+  // henchmen + Glob
+  pedalrace:    'Win with the boss far behind',
+  ropejump:     'Clear every jump — never trip',
+  slabgap:      'Slip through without a scratch',
+  bossduel:     'Defeat Glob without losing a heart'
+};
+export const star3Of = id => STAR3[id] || 'Win with style';
+
 /* ── INTRO: the new tale ─────────────────────────────────────────── */
 export const STORY_CAPTURED = 'assets/img/Extra_Images/Captured.png';
 export const STORY_WIN = 'assets/img/Extra_Images/Win.png';
