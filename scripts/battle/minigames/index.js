@@ -32,12 +32,13 @@ import slabgap from './slabgap.js';
 import pitchwail from './pitchwail.js';
 import cloudrun from './cloudrun.js';
 import screech from './screech.js';
+import reelin from './reelin.js';
 
 export const GAMES = {
   quickdraw, tugofwar, powerstrike, memory, dodge, blitz, rhythm,
   catch: catchgame, swipe, charge, balance, slingshot, sharpshooter,
   freezeframe, glider, iceslide, paddle, sonicring, divedodge,
   clawdrop, hotfloor, snaketrail, unwind, trace, kingfight, boss, bossduel,
-  pedalrace, ropejump, slabgap, pitchwail, cloudrun, screech
+  pedalrace, ropejump, slabgap, pitchwail, cloudrun, screech, reelin
 };
 export const getGame = id => GAMES[id] || quickdraw;

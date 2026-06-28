@@ -91,7 +91,7 @@ export const BATTLES = {
   cliggy:      { game: 'catch',       proj: '🥚', color: '#ffd23f', act: 'Egg Bombardment', howto: 'Drag left & right to CATCH the falling eggs 🥚. Avoid the bombs 💣!' },
   // ── Sea ──
   peeta_heater:{ game: 'hotfloor',    proj: '♨️', color: '#ff8a4a', act: 'Scalding Floor' },
-  snapper:     { game: 'clawdrop',    proj: '🦀', color: '#ff7a5a', act: 'Claw Snap' },
+  snapper:     { game: 'reelin',      proj: '🎣', color: '#ff7a5a', act: 'Reel It In' },
   swack:       { game: 'paddle',      proj: '🏓', color: '#5cc6ff', act: 'Fin Smash' },
   zappo:       { game: 'memory',      proj: '⚡', color: '#ffd23f', act: 'Shock Pattern' },
   yelp:        { game: 'rhythm',      proj: '🔊', color: '#ff5a86', act: 'Sonic Roar' },

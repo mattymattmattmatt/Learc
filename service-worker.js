@@ -4,7 +4,7 @@
    audio) is cache-first with a background refresh. Bump CACHE on breaking
    changes to flush old caches. */
 
-const CACHE = 'botr-v11';
+const CACHE = 'botr-v12';
 
 const CORE = [
   './',
@@ -52,7 +52,8 @@ const CORE = [
   'scripts/battle/minigames/slabgap.js',
   'scripts/battle/minigames/pitchwail.js',
   'scripts/battle/minigames/cloudrun.js',
-  'scripts/battle/minigames/screech.js'
+  'scripts/battle/minigames/screech.js',
+  'scripts/battle/minigames/reelin.js'
 ];
 
 /* the app shell: anything that defines game logic or layout */
