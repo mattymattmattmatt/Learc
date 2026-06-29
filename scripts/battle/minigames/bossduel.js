@@ -13,7 +13,7 @@
    In every fight: DRAG to survive each wave, then when the boss reels and
    the reticle appears, TAP the boss — ONE true strike per opening. Break
    the boss's guard fully to win. */
-import { el, clamp, loop, rand, buzz, sparkle, floatText, petImg, S } from '../util.js';
+import { el, clamp, loop, rand, sfx, buzz, sparkle, floatText, petImg, S } from '../util.js';
 
 /* warning banners per signature */
 const WARN = {
@@ -325,7 +325,7 @@ export default {
         if (phase !== 'stagger' || done) return;
         crown = Math.max(0, crown - hitDmg); crownEl.textContent = '◆'.repeat(crown);
         boss.classList.remove('hit'); void boss.offsetWidth; boss.classList.add('hit');
-        sparkle(field, kx, ky, 14); floatText(area, kx, ky, 'CRACK! −' + hitDmg, 'good'); S.hit(); buzz(60);
+        sparkle(field, kx, ky, 14); floatText(area, kx, ky, 'CRACK! −' + hitDmg, 'good'); S.hit(); sfx('crown_crack.wav', 0.7); buzz(60);
         if (crown <= 0) return finish(true);
         strikes++;
         if (isGlob && strikes === 3) spawnHeart();    // a healing heart drifts down — tap it!
@@ -333,7 +333,7 @@ export default {
         if (canEnrage && !enraged && crown <= Math.ceil(crownMax / 2)) {
           enraged = true; field.classList.add('enraged');
           setTimeout(() => setBanner(isGlob ? '🔥 The crown blazes with fury!' : '😡 ' + (B.name || 'The boss') + ' is furious!'), 300);
-          S.bad(); buzz(90);
+          S.bad(); if (isGlob) sfx('glob_enrage.wav', 0.85); buzz(90);
         }
         enterRecover((B.name || 'The boss') + ' reels!');
       }

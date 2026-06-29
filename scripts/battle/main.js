@@ -505,7 +505,8 @@ function onBattleWon(entry, res, foeDisp, opts = {}) {
         <button class="btn btn-go" id="next">Continue ▸</button>
       </div>
     </div>`);
-  setTimeout(() => sfx(foeDisp.sfx, 0.6), 50);
+  sfx('spell_break.wav', 0.8);                       // the spell shatters…
+  setTimeout(() => sfx(foeDisp.sfx, 0.6), 360);      // …then the freed champion's happy roar
   S.win();
   confetti(document.querySelector('.screen'), 36);
   revealStars(stars);
@@ -523,6 +524,7 @@ function onBossWon(entry, res) {
   recordBestStars(entry.id, stars);
   if (stars >= 3) { award('flawless'); if (state.mode === 'hard') award('hard-flawless'); }
   S.win(); buzz(50);
+  setTimeout(() => sfx(`${entry.id}_defeat.wav`, 0.85), 220);   // the henchman's beaten grumble
   dialogue({
     video: petAnim(bm), poster: SPRITE(bm.img), name: bm.name,
     lines: bossDefeatLines(entry.id), cls: 'king-dlg boss-dlg',
@@ -613,7 +615,8 @@ function startBossFight(entry, bm) {
 function screenGlobIntro() {
   sfxMusic('glob-intro.mp3', 0.85);   // a regal sting announces the King
   setTimeout(() => playMusic('glob.mp3', 0.3), 200);
-  setTimeout(() => sfx(GLOB.sfx, 0.8), 120);   // Glob's voice
+  setTimeout(() => sfx(GLOB.sfx, 0.8), 120);          // Glob's voice
+  setTimeout(() => sfx('glob_laugh.wav', 0.85), 900); // …then his spoiled cackle
   dialogue({
     video: petAnim(GLOB), poster: SPRITE(GLOB.img), name: GLOB.name,
     lines: GLOB_INTRO, cls: 'king-dlg glob-dlg', onDone: startGlobFight
@@ -625,6 +628,7 @@ function startGlobFight() {
   runBattle(entry, GLOB, { goWord: 'FINAL BATTLE!' });
 }
 function screenGlobDefeat() {
+  setTimeout(() => sfx('glob_defeat.wav', 0.85), 200);   // his whiny "NO FAIR!" wail
   dialogue({
     video: petAnim(GLOB), poster: SPRITE(GLOB.img), name: GLOB.name,
     lines: GLOB_DEFEAT, cls: 'king-dlg glob-dlg', onDone: screenEnding

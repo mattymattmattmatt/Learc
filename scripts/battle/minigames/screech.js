@@ -101,6 +101,7 @@ export default {
       }
       function shatter(c) {
         c.dead = true; shattered++; cnt.textContent = shattered;
+        sfx('shatter.wav', 0.3);
         for (let i = 0; i < 9; i++) {
           const a = rand(0, 6.28), sp = rand(70, 220);
           shards.push({ x: c.x, y: c.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 0, rot: rand(0, 6.28), c: i % 2 ? accent : '#cdf3ff' });
