@@ -81,7 +81,7 @@ export default {
       renderLife();
 
       function caught() {
-        score++; cnt.textContent = score; S.star(); buzz(28); msg = 'Hooked! 🎣'; msgT = 0.9;
+        score++; cnt.textContent = score; S.star(); sfx('catch.wav', 0.7); buzz(28); msg = 'Hooked! 🎣'; msgT = 0.9;
         if (score >= goal) return win();
         newFish();
       }
