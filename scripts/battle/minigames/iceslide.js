@@ -30,11 +30,25 @@ export default {
       const measure = () => {
         const r = field.getBoundingClientRect(); W = r.width; H = r.height;
         size = clamp(Math.min(W, H) * 0.13, 38, 60); me.style.width = me.style.height = size + 'px';
-        fric = H * 0.68;
-        tx = W / 2; ty = H * 0.26; tr = clamp(Math.min(W, H) * 0.2, 54, 100);
-        target.style.left = tx + 'px'; target.style.top = ty + 'px'; target.style.width = target.style.height = tr * 2 + 'px';
-        start.x = W / 2; start.y = H * 0.84;
+        fric = H * 0.66;
+        tr = clamp(Math.min(W, H) * 0.2, 54, 100);
+        start.x = W / 2; start.y = H * 0.87;
+        placeTarget();
       };
+      // relocate the target somewhere new — always a decent slide from the launch
+      // spot and never landing too close to where it just was.
+      function placeTarget() {
+        const px = tx, py = ty;
+        const minReach = (start.y - tr) * 0.55;   // never a trivially short slide
+        for (let i = 0; i < 40; i++) {
+          const nx = rand(tr + 6, W - tr - 6), ny = rand(H * 0.1, H * 0.46);
+          const dStart = Math.hypot(nx - start.x, ny - start.y);
+          const dPrev = Math.hypot(nx - px, ny - py);
+          if ((dStart >= minReach && (px === 0 || dPrev >= minReach * 0.5)) || i === 39) { tx = nx; ty = ny; break; }
+        }
+        target.style.left = tx + 'px'; target.style.top = ty + 'px';
+        target.style.width = target.style.height = tr * 2 + 'px';
+      }
       measure(); window.addEventListener('resize', measure);
 
       let pos = { x: start.x, y: start.y }, vel = null, aiming = false, pull = { x: 0, y: 0 };
@@ -93,7 +107,7 @@ export default {
         floatText(area, pos.x, pos.y - 10, txt, pts ? 'good' : 'bad');
         if (score >= goal) return finish(true);
         if (shots <= 0) return finish(score >= goal);
-        setTimeout(() => { if (done) return; pos = { x: start.x, y: start.y }; place(); }, 600);
+        setTimeout(() => { if (done) return; placeTarget(); pos = { x: start.x, y: start.y }; place(); }, 600);
       }
       function finish(win) {
         if (done) return false; done = true; stop();

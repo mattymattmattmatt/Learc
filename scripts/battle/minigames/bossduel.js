@@ -43,10 +43,18 @@ export default {
 
       let hearts = cfg.hearts || 3;
       const heartsMax = hearts;
-      let crown = clamp((cfg.crown || 6) + Math.round(d * 0.2) - (striker ? 1 : 0), 5, 14);
+      // Glob: each strike hits HARDER on easier modes (story 3, normal 2, hard 1),
+      // with a roughly flat crown so the fight is short on easy and long on hard.
+      // (Glob's effDiff lands at ~7 story / 11 normal / 15 hard.)
+      const hitDmg = isGlob ? (d <= 8 ? 3 : d <= 12 ? 2 : 1) : (cfg.hitDmg || 1) + (striker ? 1 : 0);
+      let crown = isGlob
+        ? clamp(10 - (striker ? 1 : 0), 8, 11)
+        : clamp((cfg.crown || 6) + Math.round(d * 0.2) - (striker ? 1 : 0), 5, 14);
       const crownMax = crown;
-      const hitDmg = (cfg.hitDmg || 1) + (striker ? 1 : 0);
       const canEnrage = isGlob || bossId === 'clubbo' || cfg.enrage;
+
+      // read-only state so an automated playtest can verify damage / drive a win
+      try { window.__bd = { get crown() { return crown; }, get hearts() { return hearts; }, get hitDmg() { return hitDmg; }, get crownMax() { return crownMax; }, get phase() { return phase; }, get done() { return done; }, strike: () => strike() }; } catch {}
 
       area.innerHTML = `
         <div class="bd-hud" style="--accent:${accent}">
@@ -460,6 +468,7 @@ export default {
         window.removeEventListener('pointercancel', up); window.removeEventListener('resize', measure);
         clearHazards();
         if (heart) { heart.node.remove(); heart = null; }
+        try { delete window.__bd; } catch {}
         buzz(win ? 60 : 120);
         resolve({ win, stars: win ? (hearts >= heartsMax ? 3 : 2) : 1 });
         return false;

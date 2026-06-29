@@ -11,6 +11,7 @@ export default {
   play(area, ctx) {
     return new Promise(resolve => {
       let pWins = 0, fWins = 0, round = 0;
+      const winAt = 5;                                            // first to 5 — a proper duel, not over in a blink
       const foeTime = clamp(640 - ctx.difficulty * 40, 185, 720); // ms — 185 floor stays humanly beatable
 
       const RKEY = 'realm:rt';
@@ -52,8 +53,8 @@ export default {
           z.classList.add(playerWon ? 'win' : 'lose');
           sc.textContent = `You ${pWins} — ${fWins} ${ctx.foe.name}`;
           setTimeout(() => {
-            if (pWins >= 3 || fWins >= 3) {        // best of five — first to 3 wins
-              const win = pWins >= 3;
+            if (pWins >= winAt || fWins >= winAt) {   // first to 5 wins the duel
+              const win = pWins >= winAt;
               resolve({ win, stars: win ? (fWins <= 1 ? 3 : 2) : 1 });
             } else next();
           }, 850);
