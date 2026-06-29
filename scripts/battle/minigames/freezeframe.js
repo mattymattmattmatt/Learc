@@ -11,7 +11,7 @@ export default {
     return new Promise(resolve => {
       let prog = 0, hearts = 3, done = false, holding = false, cool = 0;
       let phase = 'green', timer = rand(1.4, 2.4);
-      const speed = 0.36;
+      const speed = 0.33;   // creeps a touch slower → more green windows needed
 
       area.innerHTML = `
         <div class="ff-hud"><span id="hearts">${'❤'.repeat(hearts)}</span></div>
@@ -38,8 +38,8 @@ export default {
       place();
       const setPhase = p => {
         phase = p; track.dataset.phase = p;
-        if (p === 'green') { light.textContent = 'GO!'; light.className = 'ff-light go'; eye.textContent = '😌'; timer = Math.max(0.55, rand(1.3, 2.4) - ctx.difficulty * 0.05); }
-        else if (p === 'warn') { light.textContent = '…'; light.className = 'ff-light warn'; eye.textContent = '😐'; timer = clamp(0.6 - ctx.difficulty * 0.03, 0.22, 0.6); }
+        if (p === 'green') { light.textContent = 'GO!'; light.className = 'ff-light go'; eye.textContent = '😌'; timer = Math.max(0.5, rand(1.15, 2.15) - ctx.difficulty * 0.06); }
+        else if (p === 'warn') { light.textContent = '…'; light.className = 'ff-light warn'; eye.textContent = '😐'; timer = clamp(0.55 - ctx.difficulty * 0.035, 0.18, 0.55); }
         else { light.textContent = 'FREEZE!'; light.className = 'ff-light red'; eye.textContent = '👁️'; timer = rand(0.9, 1.8); S.bad(); }
       };
       setPhase('green');
@@ -53,7 +53,7 @@ export default {
         if (holding && phase === 'green') { prog += speed * dt; place(); if (prog >= 1) return finish(true); }
         else if (holding && phase === 'red' && cool <= 0) {
           cool = 0.8; hearts--; heartsEl.textContent = '❤'.repeat(Math.max(0, hearts));
-          prog = clamp(prog - 0.16, 0, 1); place();
+          prog = clamp(prog - 0.2, 0, 1); place();
           me.classList.remove('caught'); void me.offsetWidth; me.classList.add('caught');
           floatText(area, me.getBoundingClientRect().left - area.getBoundingClientRect().left, 40, 'CAUGHT!', 'bad');
           S.hit(); buzz(70);
