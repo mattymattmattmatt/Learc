@@ -915,10 +915,10 @@ video.boss-foe{width:150px;height:150px;filter:drop-shadow(0 8px 14px rgba(0,0,0
 
 /*──────── Boss Duel (Glob + henchmen) ────────*/
 .bd-hud{width:100%;max-width:600px;display:flex;justify-content:space-between;align-items:center;font-weight:600;padding-right:46px;gap:8px;}
-.bd-hearts{font-size:1.2rem;letter-spacing:2px;}
+.bd-hearts{font-size:1.2rem;letter-spacing:2px;white-space:nowrap;flex-shrink:0;}
 .bd-name{font-family:"Cinzel",serif;font-weight:700;color:#fff;text-shadow:0 0 10px rgba(0,0,0,.6);font-size:.95rem;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.bd-crown{font-size:1.1rem;color:var(--accent,#ffd23f);letter-spacing:2px;text-shadow:0 0 8px var(--accent,#ffd23f);}
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
+.bd-crown{font-size:1.1rem;color:var(--accent,#ffd23f);letter-spacing:2px;text-shadow:0 0 8px var(--accent,#ffd23f);white-space:nowrap;flex-shrink:0;}
 .bd-field{position:relative;flex:1;width:100%;max-width:600px;border-radius:18px;overflow:hidden;margin:6px 0;
   background:radial-gradient(circle at 50% 22%,#4a3a66,#1a1230 78%);border:2px solid var(--accent,rgba(255,210,63,.3));}
 .bd-field.boss-minyar{background:radial-gradient(circle at 50% 22%,#244a2c,#0e1f12 78%);}

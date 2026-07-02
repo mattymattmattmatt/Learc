@@ -1,6 +1,6 @@
 /* main.js — Battle of the Realm: screen flow & glue */
 import {
-  byId, el, petImg, SPRITE, KING_GIF, playMusic, sfx, sfxMusic, buzz, countdown,
+  byId, el, petImg, SPRITE, playMusic, sfx, buzz, countdown,
   S, confetti, isMuted, toggleMute, shuffle, sparkle, petAnim, animTag
 } from './util.js';
 import {
@@ -441,7 +441,9 @@ function runRematch(entry, backRi) {
 /* ════════ RUN A BATTLE (minigame) ════════ */
 async function runBattle(entry, foeDisp, opts = {}) {
   const hero = getPet(opts.heroId || state.heroId);
-  show(`<div class="screen battle"><div class="arena" id="arena"></div></div>`);
+  // battles take place IN their region — theme the backdrop to match the foe
+  const scene = entry.kind === 'glob' ? 'king' : (foeDisp.habitat || foeDisp.region || '');
+  show(`<div class="screen battle${scene ? ' theme-' + scene : ''}"><div class="arena" id="arena"></div></div>`);
   const arena = byId('arena');
   playBattleMusic(entry);
   sfx(foeDisp.sfx, 0.7);
@@ -613,7 +615,7 @@ function startBossFight(entry, bm) {
 
 /* ════════ EVIL KING GLOB (final) ════════ */
 function screenGlobIntro() {
-  sfxMusic('glob-intro.mp3', 0.85);   // a regal sting announces the King
+  S.fanfare();                        // a regal sting announces the King
   setTimeout(() => playMusic('glob.mp3', 0.3), 200);
   setTimeout(() => sfx(GLOB.sfx, 0.8), 120);          // Glob's voice
   setTimeout(() => sfx('glob_laugh.wav', 0.85), 900); // …then his spoiled cackle
@@ -652,7 +654,7 @@ function screenEnding() {
           color and song flood back into Liitokala. The freed champions raise
           <b>${hero.name}</b> high as the realm’s new guardian, the one heart that never knelt.
         </p>
-        <div class="end-stars">Final Score: ★ ${score} / ${max}</div>
+        <div class="end-stars">Final Score: ★ ${score} / ${max + 6}</div>
         <div class="end-sub">${{ story: '😊 Story', normal: '⚔️ Normal', hard: '🔥 Hard' }[state.mode] || '⚔️ Normal'} mode${clean ? ' · clean run bonus +6 ✨' : ` · ${state.continues} retr${state.continues > 1 ? 'ies' : 'y'}`}</div>
         <div class="end-credit">✨ creatures by <b>Leila &amp; Archie</b> ✨</div>
         <input class="name-input" id="name" maxlength="14" placeholder="Your name" value="${escapeHtml(getName())}">
@@ -916,7 +918,7 @@ function screenGauntletOver() {
         <div class="end-stars">Score: ★ ${G.score}</div>
         ${newBest
           ? '<div class="ga-best">🎉 New personal best!</div>'
-          : `<div class="end-sub">Personal best: ★ ${Math.max(prevBest, G.score)}</div>`}
+          : prevBest > 0 ? `<div class="end-sub">Personal best: ★ ${Math.max(prevBest, G.score)}</div>` : ''}
         <input class="name-input" id="name" maxlength="14" placeholder="Your name" value="${escapeHtml(getName())}">
         <button class="btn btn-go" id="submit" ${G.score > 0 ? '' : 'disabled'}>Submit to Leaderboard 🏆</button>
         <div class="btn-row">

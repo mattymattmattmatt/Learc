@@ -62,22 +62,25 @@ to the creature that uses it.
 | 🔋 **Charge Shot** | hold & release inside the golden band |
 | 🧠 **Memory Echo** | memory — repeat the rune pattern (Simon) |
 | 🔫 **Sharpshooter** | aim — shoot flying targets, manage ammo & reloads |
-| ⚖️ **Balance Beam** | reflex — tap left/right to stay on the log over the crocs |
+| 🪵 **Log Roll** | reflex — tap left/right to stay on the tipping log over the crocs |
 | 🌀 **Dodge!** | dexterity — drag the bubble to dodge the barrage |
 | 💥 **Target Blitz** | speed — tap the orbs, avoid the bombs |
-| 🎵 **Rhythm Duel** | timing — tap gems on the beat for combos |
+| 🎸 **Rhythm Rush** | lane-tapping — play the falling notes and hear the tune |
 | 🛑 **Freeze!** | red-light/green-light — hold to creep, freeze when the eye opens |
 | 🪁 **Windrider** | flap through the gaps in the clouds (flappy-style) |
 | 🥌 **Ice Curling** | flick-and-slide momentum — stop on the bullseye |
 | 🏓 **Fin Smash** | brick-breaker — keep the ball alive, shatter every brick |
-| 🔊 **Sonic Shatter** | timing — tap when a shrinking ring meets the target |
+| 🔊 **Sonic Screech** | missile-command — launch screech blasts to shatter falling crystals |
 | ☄️ **Dive Dodge** | drag out of the telegraphed slam zones before impact |
-| 🦀 **Claw Drop** | time the sweeping crane to snatch fish |
+| 🎣 **Reel It In** | hold-and-release — keep the darting fish inside the claw's grip |
 | 🔥 **Hot Floor** | hop across a grid to safe tiles before they ignite |
 | 🐍 **Venom Trail** | a Snake game — eat orbs, don't cross your poison trail |
-| 🌀 **Unwind** | drag in circles to spin free of the coils |
+| 🌀 **Break Free** | tap the spinning sweep on each glowing link before the coil crushes you |
 | ✍️ **Break the Trance** | trace the glowing sigil through its dots in order |
-| 💥 **Boss Duel** | the four bespoke boss fights — **DRAG** to survive each wave, then **TAP** the boss when it reels (ONE strike per opening) until its guard is fully broken. Each boss has a signature mechanic: Minyar's expanding **shockwave rings**, Demonder's boxing **glove jabs & haymakers**, Clubbo's full-width **club sweeps & ground slams**, and Glob's crown, which **cycles every stolen Aspect** (fire/flood/storm/wind/stone/shadow) and enrages at half guard |
+| 🚲 **Tantrum Trike Race** | *Minyar's boss fight* — hammer the pedals in alternation and out-race his trike |
+| 🪢 **Rope-a-Demon** | *Demonder's boss fight* — hop his fiery rope as it sweeps ever faster |
+| 🪨 **Slab Squeeze** | *Clubbo's boss fight* — slide into the gap of every falling slab |
+| 💥 **Boss Duel** | *Evil King Glob's final fight* — **DRAG** to survive each wave, then **TAP** the King when he reels (ONE strike per opening). His crown **cycles every stolen Aspect** (fire/flood/storm/wind/stone/shadow) and enrages at half guard |
 
 ## Score, stars & leaderboard
 
@@ -142,8 +145,9 @@ designs drive the whole game.
 - **Juice** — confetti on wins, stars that pop in one-by-one with a ding, screen
   shakes, sparkles and floating damage text, haptic buzz on mobile.
 - **🔊 Mute toggle** (top-right, remembered between sessions).
-- **Difficulty modes** — **Story** (5 hearts, gentler) or **Normal** (3 hearts,
-  full challenge), chosen on the title screen and remembered.
+- **Difficulty modes** — **Story** (gentler), **Normal** (the full challenge) or
+  **Hard** (brutal), chosen on the title screen and remembered. The adventure has
+  no lives in any mode; the Gauntlet keeps hearts (5 on Story, 3 otherwise).
 - **Journey & story beats** — a Land → Sea → Sky → Glob progress strip on the map,
   and a freed-champions montage with a cheer line each time a region is liberated.
 - **Installable & offline (PWA)** — a service worker precaches the game shell and
