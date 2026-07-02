@@ -49,6 +49,11 @@ function ac() {
 
 export function unlockAudio() {
   ac();
+  // autoplay policies block music that starts before the first gesture
+  // (e.g. the title theme on a fresh load) — resume it on the first tap
+  if (curEl && curEl.paused && !muted) {
+    curEl.play().then(() => fade(curEl, musicVol, 300)).catch(() => {});
+  }
   if (audioOn) return; audioOn = true;
 }
 document.addEventListener('pointerdown', unlockAudio);
@@ -165,6 +170,12 @@ export const S = {
   note:  f => tone({ f, dur: 0.2, type: 'triangle', vol: 0.24, release: 0.12 }),
   splash:() => { noise({ dur: 0.3, vol: 0.3, lp: 1400, hp: 300 }); tone({ f: 380, f2: 120, dur: 0.25, type: 'sine', vol: 0.16 }); },
   win:   () => [523, 659, 784, 1047].forEach((f, i) => tone({ f, dur: 0.16, delay: i * 0.1, type: 'triangle', vol: 0.24 })),
+  /* a regal brass-y sting (announces the King) */
+  fanfare: () => {
+    [392, 523, 659].forEach((f, i) => tone({ f, dur: 0.14, delay: i * 0.13, type: 'sawtooth', vol: 0.2, release: 0.1 }));
+    tone({ f: 784, dur: 0.5, delay: 0.39, type: 'sawtooth', vol: 0.22, release: 0.3 });
+    tone({ f: 392, dur: 0.5, delay: 0.39, type: 'triangle', vol: 0.16, release: 0.3 });
+  },
   lose:  () => [392, 330, 262].forEach((f, i) => tone({ f, dur: 0.22, delay: i * 0.12, type: 'sawtooth', vol: 0.22 }))
 };
 

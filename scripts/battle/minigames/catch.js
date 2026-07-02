@@ -78,7 +78,7 @@ export default {
         window.removeEventListener('pointercancel', up);
         window.removeEventListener('resize', measure); items.forEach(it => it.n.remove());
         if (!win) sfx(ctx.foe.sfx, 0.7);
-        resolve({ win, stars: win ? (hearts >= 3 && left > 1 ? 3 : 2) : 1 });
+        resolve({ win, stars: win ? (hearts >= 3 ? 3 : 2) : 1 });   // 3★ = quota without losing a heart
         return false;
       }
     });

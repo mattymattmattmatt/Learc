@@ -4,13 +4,16 @@
    audio) is cache-first with a background refresh. Bump CACHE on breaking
    changes to flush old caches. */
 
-const CACHE = 'botr-v16';
+const CACHE = 'botr-v17';
 
 const CORE = [
   './',
   'index.html',
   'styles/battle.css',
   'manifest.webmanifest',
+  'assets/img/icons/favicon.png',
+  'assets/img/icons/icon-192.png',
+  'assets/img/icons/apple-touch-icon.png',
   'scripts/data/pets.json',
   'scripts/battle/main.js',
   'scripts/battle/data.js',
@@ -77,11 +80,28 @@ self.addEventListener('activate', e => {
   );
 });
 
+/* the display fonts come from Google Fonts — cache them so an installed
+   game keeps its look offline (opaque responses are fine to cache) */
+const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
+
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  if (url.origin !== location.origin) return;   // fonts, Firebase → straight to network
+  if (url.origin !== location.origin) {
+    if (FONT_HOSTS.includes(url.hostname)) {
+      e.respondWith(caches.open(CACHE).then(async c => {
+        const hit = await c.match(req);
+        if (hit) return hit;
+        try {
+          const res = await fetch(req);
+          if (res && (res.ok || res.type === 'opaque')) c.put(req, res.clone());
+          return res;
+        } catch { return Response.error(); }
+      }));
+    }
+    return;   // Firebase & co → straight to network
+  }
 
   e.respondWith(caches.open(CACHE).then(async c => {
     if (isShell(url)) {
