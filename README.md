@@ -123,7 +123,9 @@ Duplicates happen — completing the whole collection is a long-haul chase acros
 many adventures. The **🎁 Collection** on the title screen shows everything
 you've unlocked; tap a model to hear its entrance roar and inspect it in a
 full **3D viewer** (drag to spin, pinch to zoom) powered by a vendored
-three.js — fully offline like the rest of the game.
+three.js — fully offline like the rest of the game. The `.glb` models ship
+**meshopt-compressed with WebP textures** (~2 MB each, down from ~27 MB raw),
+so a model appears in a second or two even on mobile data.
 
 ## 📖 Critterdex & 🏅 badges
 

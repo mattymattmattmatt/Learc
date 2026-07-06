@@ -4,7 +4,7 @@
    audio) is cache-first with a background refresh. Bump CACHE on breaking
    changes to flush old caches. */
 
-const CACHE = 'botr-v18';
+const CACHE = 'botr-v19';
 
 const CORE = [
   './',
@@ -30,6 +30,7 @@ const CORE = [
   'scripts/vendor/utils/SkeletonUtils.js',
   'scripts/vendor/controls/OrbitControls.js',
   'scripts/vendor/environments/RoomEnvironment.js',
+  'scripts/vendor/libs/meshopt_decoder.module.js',
   'scripts/battle/minigames/index.js',
   'scripts/battle/minigames/stage.js',
   'scripts/battle/minigames/quickdraw.js',
