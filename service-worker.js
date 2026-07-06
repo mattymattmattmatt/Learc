@@ -4,7 +4,7 @@
    audio) is cache-first with a background refresh. Bump CACHE on breaking
    changes to flush old caches. */
 
-const CACHE = 'botr-v17';
+const CACHE = 'botr-v18';
 
 const CORE = [
   './',
@@ -21,6 +21,15 @@ const CORE = [
   'scripts/battle/util.js',
   'scripts/battle/leaderboard.js',
   'scripts/battle/meta.js',
+  'scripts/battle/collection.js',
+  'scripts/battle/viewer.js',
+  'scripts/vendor/three.module.min.js',
+  'scripts/vendor/three.core.min.js',
+  'scripts/vendor/loaders/GLTFLoader.js',
+  'scripts/vendor/utils/BufferGeometryUtils.js',
+  'scripts/vendor/utils/SkeletonUtils.js',
+  'scripts/vendor/controls/OrbitControls.js',
+  'scripts/vendor/environments/RoomEnvironment.js',
   'scripts/battle/minigames/index.js',
   'scripts/battle/minigames/stage.js',
   'scripts/battle/minigames/quickdraw.js',

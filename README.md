@@ -112,6 +112,19 @@ ever-climbing difficulty**, you keep your hearts across rounds, and every win
 banks its stars. Fall (or retire to bank your score) and submit to the
 **separate Gauntlet leaderboard**. How deep can you go?
 
+## 🎁 Mystery Box & the 3D Collection
+
+Freeing the realm earns **Mystery Box spins** — **1** on Story, **3** on Normal,
+**10** on Hard — banked across runs and awarded the moment Glob falls (so no,
+re-opening a finished save won't mint more). Spend them in the **Mystery Box**:
+a slot-reel of champions whirs, the gift box bursts, and a random one of the
+**28 collectable 3D models** (every champion *and* all four villains) pops out.
+Duplicates happen — completing the whole collection is a long-haul chase across
+many adventures. The **🎁 Collection** on the title screen shows everything
+you've unlocked; tap a model to hear its entrance roar and inspect it in a
+full **3D viewer** (drag to spin, pinch to zoom) powered by a vendored
+three.js — fully offline like the rest of the game.
+
 ## 📖 Critterdex & 🏅 badges
 
 The **Critterdex** (from the title) is a gallery of all 24 creatures — art,
@@ -165,7 +178,11 @@ designs drive the whole game.
 | `scripts/battle/main.js` | screen flow (title → story → select → map → battles → henchman bosses → Glob → ending), Gauntlet, Critterdex, rematches |
 | `scripts/battle/data.js` | creatures, the bosses (Glob + Minyar/Demonder/Clubbo), region ladder, difficulty curve, story |
 | `scripts/battle/state.js` | progress, boss/region progression, save (no lives) |
-| `scripts/battle/meta.js` | cross-run progress: best stars per champion, badges, gauntlet record |
+| `scripts/battle/meta.js` | cross-run progress: best stars, badges, gauntlet record, Mystery Box spins & models |
+| `scripts/battle/collection.js` | the Mystery Box roster (28 collectable 3D models) |
+| `scripts/battle/viewer.js` | the 3D model inspector (lazy-loads three.js) |
+| `scripts/vendor/` | vendored three.js + GLTFLoader/OrbitControls (offline 3D) |
+| `assets/3dModels/` | the collectable `.glb` models, one per character |
 | `scripts/battle/minigames/` | the 24 microgames + `bossduel.js` (the four boss fights) |
 | `scripts/battle/util.js` | audio, RNG, countdown, FX, animation/sprite helpers |
 | `styles/battle.css` | all styling |
