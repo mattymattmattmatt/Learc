@@ -1,5 +1,6 @@
 /* meta.js — progress that lives BETWEEN runs: best stars per champion
-   (powers the Critterdex), earned badges, and the Gauntlet record.
+   (powers the Critterdex), earned badges, the Gauntlet record, and the
+   Mystery Box collection (spins + owned 3D models).
    Stored in localStorage; everything fails soft. */
 
 import { el, S, buzz } from './util.js';
@@ -12,6 +13,8 @@ function load() {
   meta.bestStars = meta.bestStars || {};
   meta.badges = meta.badges || {};
   meta.gauntletBest = meta.gauntletBest | 0;
+  meta.spins = meta.spins | 0;         // Mystery Box spins in the bank
+  meta.models = meta.models || {};     // modelId → times pulled (≥1 = owned)
   return meta;
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(meta)); } catch {} }
@@ -50,6 +53,29 @@ export function gauntletBest() { return load().gauntletBest | 0; }
 export function recordGauntlet(score) {
   const m = load();
   if (score > m.gauntletBest) { m.gauntletBest = score; save(); }
+}
+
+/* ── Mystery Box: spins + the 3D model collection ────────────────
+   Spins are awarded ONLY at the moment Glob falls (never on the ending
+   screen itself, which can be revisited via Continue), so they can't be
+   farmed by re-opening a finished save. The balance banks across runs. */
+export function spinsLeft() { return load().spins | 0; }
+export function addSpins(n) { const m = load(); m.spins = Math.max(0, (m.spins | 0) + (n | 0)); save(); return m.spins; }
+/* spend one spin; returns false if the bank is empty (nothing spent) */
+export function useSpin() {
+  const m = load();
+  if ((m.spins | 0) <= 0) return false;
+  m.spins--; save(); return true;
+}
+export function modelCount(id) { return load().models[id] | 0; }
+export function ownedModelCount() { return Object.keys(load().models).length; }
+/* record a pull; returns true when it's a brand-new unlock */
+export function grantModel(id) {
+  const m = load();
+  const isNew = !m.models[id];
+  m.models[id] = (m.models[id] | 0) + 1;
+  save();
+  return isNew;
 }
 
 /* ── award a badge (once) + celebratory toast ────────────────── */

@@ -16,7 +16,12 @@ import {
 } from './state.js';
 import { getGame } from './minigames/index.js';
 import { submitScore, topScores } from './leaderboard.js';
-import { BADGES, award, hasBadge, badgeCount, recordBestStars, bestStarsFor, recordGauntlet, gauntletBest } from './meta.js';
+import {
+  BADGES, award, hasBadge, badgeCount, recordBestStars, bestStarsFor, recordGauntlet, gauntletBest,
+  spinsLeft, addSpins, useSpin, grantModel, modelCount, ownedModelCount
+} from './meta.js';
+import { SPINS_BY_MODE, modelRoster, modelInfo, modelUrl } from './collection.js';
+import { openModelViewer } from './viewer.js';
 
 const APP = byId('app');
 const show = html => { APP.innerHTML = html; };
@@ -81,6 +86,7 @@ function screenTitle() {
           <button class="btn btn-2" id="board">🏆 Scores</button>
           <button class="btn btn-2" id="dex">📖 Critterdex</button>
         </div>
+        <button class="btn btn-2 btn-collect" id="collect">🎁 Collection${spinsLeft() > 0 ? `<span class="spin-pill">${spinsLeft()} spin${spinsLeft() === 1 ? '' : 's'}!</span>` : ''}</button>
         <div class="mode-pick">
           <span class="mode-label">Difficulty</span>
           <div class="seg">
@@ -100,6 +106,7 @@ function screenTitle() {
   byId('gauntlet').onclick = () => screenGauntletSelect();
   byId('board').onclick = () => screenLeaderboard();
   byId('dex').onclick = () => screenDex();
+  byId('collect').onclick = () => screenCollection();
   byId('credits').onclick = () => screenCredits();
   APP.querySelectorAll('.seg-btn').forEach(b => b.onclick = () => {
     const m = b.dataset.mode; setMode(m); S.ui();
@@ -478,6 +485,11 @@ function onBattleWon(entry, res, foeDisp, opts = {}) {
     S.win();
     playMusic('victory.mp3', 0.3);
     recordWin('glob', res.stars || 3);
+    // Mystery Box spins — awarded HERE, the one unrepeatable moment of a run
+    // (recordWin just set state.done, so this fight can't be re-entered; the
+    // ending screen only ever *displays* the banked balance)
+    spinsJustWon = SPINS_BY_MODE[state.mode] || SPINS_BY_MODE.normal;
+    addSpins(spinsJustWon);
     award('crown');
     if (totalStars() >= maxStars()) award('star-master');
     if (state.continues === 0) award('unbroken');
@@ -638,6 +650,10 @@ function screenGlobDefeat() {
 }
 
 /* ════════ ENDING ════════ */
+/* spins earned by the Glob win THIS session — display only (re-opening a
+   finished save shows the banked balance instead, and never re-awards) */
+let spinsJustWon = 0;
+
 function screenEnding() {
   playMusic('victory.mp3', 0.3);
   const hero = getPet(state.heroId);
@@ -657,6 +673,11 @@ function screenEnding() {
         <div class="end-stars">Final Score: ★ ${score} / ${max + 6}</div>
         <div class="end-sub">${{ story: '😊 Story', normal: '⚔️ Normal', hard: '🔥 Hard' }[state.mode] || '⚔️ Normal'} mode${clean ? ' · clean run bonus +6 ✨' : ` · ${state.continues} retr${state.continues > 1 ? 'ies' : 'y'}`}</div>
         <div class="end-credit">✨ creatures by <b>Leila &amp; Archie</b> ✨</div>
+        ${spinsLeft() > 0 ? `
+        <div class="end-spins">${spinsJustWon > 0
+          ? `🎁 <b>+${spinsJustWon} Mystery Box spin${spinsJustWon === 1 ? '' : 's'}</b> earned!`
+          : `🎁 <b>${spinsLeft()}</b> Mystery Box spin${spinsLeft() === 1 ? '' : 's'} waiting`}</div>
+        <button class="btn btn-box" id="mbox">🎁 Open the Mystery Box (${spinsLeft()})</button>` : ''}
         <input class="name-input" id="name" maxlength="14" placeholder="Your name" value="${escapeHtml(getName())}">
         <button class="btn btn-go" id="submit">Submit to Leaderboard 🏆</button>
         <div class="btn-row">
@@ -665,6 +686,7 @@ function screenEnding() {
         </div>
       </div>
     </div>`);
+  const mb = byId('mbox'); if (mb) mb.onclick = () => { spinsJustWon = 0; screenMysteryBox(); };
   S.win();
   const scr = document.querySelector('.screen');
   confetti(scr, 70);
@@ -942,6 +964,140 @@ function screenGauntletOver() {
     `🔥 I survived ${round} round${round === 1 ? '' : 's'} of the Gauntlet (★ ${score}) in Battle of the Realm! Can you beat my run?`);
   byId('again').onclick = () => screenGauntletSelect();
   byId('title').onclick = () => screenTitle();
+}
+
+/* ════════ 🎁 COLLECTION (Mystery Box 3D models) ════════ */
+function screenCollection() {
+  const roster = modelRoster();
+  const owned = ownedModelCount();
+  const spins = spinsLeft();
+  show(`
+    <div class="screen collect">
+      <h2 class="screen-title">🎁 Collection</h2>
+      <p class="dex-sub">Real <b>3D models</b> of the realm's champions — and its villains! Free the realm to earn
+        Mystery Box spins (😊 1 · ⚔️ 3 · 🔥 10), then tap an unlocked model to inspect it.</p>
+      <div class="col-top">
+        <span class="col-progress">📦 <b>${owned}</b> / ${roster.length} collected</span>
+        <button class="btn btn-box col-open" id="open" ${spins > 0 ? '' : 'disabled'}>
+          🎁 Mystery Box${spins > 0 ? ` (${spins})` : ''}</button>
+      </div>
+      ${spins === 0 ? '<p class="col-hint">No spins left — beat Evil King Glob to earn more!</p>' : ''}
+      <div class="col-grid">
+        ${roster.map(id => {
+          const m = modelInfo(id), n = modelCount(id);
+          return n > 0
+            ? `<button class="col-cell owned ${m.villain ? 'villain' : ''}" data-id="${id}">
+                 <img src="${SPRITE(m.img)}" alt="${m.name}">
+                 <span class="col-name">${m.name}</span>
+                 ${n > 1 ? `<span class="col-dupe">×${n}</span>` : ''}
+                 <span class="col-3d">3D</span>
+               </button>`
+            : `<div class="col-cell locked ${m.villain ? 'villain' : ''}">
+                 <span class="col-q">?</span>
+                 <span class="col-name">???</span>
+               </div>`;
+        }).join('')}
+      </div>
+      <div class="dex-foot"><button class="btn btn-go" id="back">◂ Back to Title</button></div>
+    </div>`);
+  byId('back').onclick = () => screenTitle();
+  byId('open').onclick = () => { if (spinsLeft() > 0) screenMysteryBox(); };
+  APP.querySelectorAll('.col-cell.owned').forEach(c => c.onclick = () => {
+    const m = modelInfo(c.dataset.id);
+    openModelViewer(m, modelUrl(c.dataset.id));
+  });
+}
+
+/* ════════ 🎁 MYSTERY BOX (spend spins, win 3D models) ════════
+   A slot-reel of silhouetted champions whirs above the gift box, slows,
+   lands — the box bursts and the prize card flips up. Duplicates happen;
+   collecting all ${roster.length} is meant to take many adventures. */
+function screenMysteryBox(backFn = screenCollection) {
+  const roster = modelRoster();
+  const CH = 88;                                   // reel cell height (px)
+  let spinning = false;
+
+  const render = () => show(`
+    <div class="screen mbox">
+      <h2 class="screen-title">🎁 Mystery Box</h2>
+      <p class="mb-sub">Something wonderful is inside… but who?</p>
+      <div class="mb-stage" id="stage">
+        <div class="mb-reelwin"><div class="mb-reel" id="reel">
+          ${Array.from({ length: 3 }, () => '<div class="mb-cell"><span class="mb-mystery">?</span></div>').join('')}
+        </div></div>
+        <div class="mb-box" id="box"><div class="mb-lid"></div><div class="mb-body"><span class="mb-q">?</span></div></div>
+      </div>
+      <div class="mb-count" id="count">🎟 Spins left: <b>${spinsLeft()}</b></div>
+      <button class="btn btn-box" id="spin" ${spinsLeft() > 0 ? '' : 'disabled'}>Open the Box! 🎁</button>
+      <button class="btn-link" id="back">◂ Collection</button>
+    </div>`);
+  render();
+  byId('back').onclick = () => backFn();
+  byId('spin').onclick = () => spin();
+
+  function spin() {
+    if (spinning || !useSpin()) return;            // spends the spin up front
+    spinning = true;
+    const prizeId = roster[(Math.random() * roster.length) | 0];
+    const isNew = grantModel(prizeId);             // banked immediately — safe even if closed mid-spin
+    const prize = modelInfo(prizeId);
+    byId('count').innerHTML = `🎟 Spins left: <b>${spinsLeft()}</b>`;
+    const spinBtn = byId('spin'); spinBtn.disabled = true;
+
+    // build the reel: a rush of random faces, the prize as the grand finale
+    const reel = byId('reel'), box = byId('box');
+    const cells = 26;
+    const strip = Array.from({ length: cells - 1 }, () => modelInfo(roster[(Math.random() * roster.length) | 0]));
+    strip.push(prize);
+    reel.innerHTML = strip.map(m => `<div class="mb-cell"><img src="${SPRITE(m.img)}" alt=""></div>`).join('');
+    box.classList.remove('burst'); box.classList.add('shake');
+
+    // ease-out scroll with a tick as each face flies past
+    const dist = (cells - 1) * CH;
+    const T = 2600; let t0 = 0, lastIdx = -1;
+    const step = now => {
+      if (!t0) t0 = now;
+      const p = Math.min(1, (now - t0) / T);
+      const e = 1 - Math.pow(1 - p, 3);            // easeOutCubic
+      const y = e * dist;
+      reel.style.transform = `translateY(${-y}px)`;
+      const idx = Math.round(y / CH);
+      if (idx !== lastIdx) { lastIdx = idx; S.tick(); if (navigator.vibrate && idx % 3 === 0) buzz(4); }
+      if (p < 1) requestAnimationFrame(step);
+      else land();
+    };
+    requestAnimationFrame(step);
+
+    function land() {
+      box.classList.remove('shake'); box.classList.add('burst');
+      S.win(); if (isNew) S.fanfare();
+      sfx(prize.sfx, 0.85); buzz(isNew ? 70 : 35);
+      const scr = document.querySelector('.screen');
+      confetti(scr, isNew ? 60 : 24);
+      const r = box.getBoundingClientRect(), sr = scr.getBoundingClientRect();
+      sparkle(scr, r.left + r.width / 2 - sr.left, r.top - sr.top, 12, ['✨', '⭐', '💫']);
+      setTimeout(() => reveal(), 650);
+    }
+
+    function reveal() {
+      const pop = el('div', 'mb-pop', `
+        <div class="mb-card ${isNew ? 'new' : 'dupe'} ${prize.villain ? 'villain' : ''}">
+          <div class="mb-banner">${isNew ? '✨ NEW UNLOCK! ✨' : `Duplicate ×${modelCount(prizeId)}`}</div>
+          ${prize.villain ? '<div class="mb-rare">👑 VILLAIN</div>' : ''}
+          <img class="mb-art" src="${SPRITE(prize.img)}" alt="${prize.name}">
+          <h2 class="bi-name">${prize.name}</h2>
+          <div class="bi-epithet">${prize.epithet}</div>
+          <button class="btn btn-go" id="view3d">🔍 View in 3D</button>
+          ${spinsLeft() > 0 ? `<button class="btn btn-box" id="respin">🎁 Spin Again (${spinsLeft()})</button>` : ''}
+          <button class="btn-link" id="done">${spinsLeft() > 0 ? 'Save the rest for later' : '◂ To the Collection'}</button>
+        </div>`);
+      document.querySelector('.screen').appendChild(pop);
+      pop.querySelector('#view3d').onclick = () => openModelViewer(prize, modelUrl(prizeId));
+      const rs = pop.querySelector('#respin');
+      if (rs) rs.onclick = () => { S.ui(); spinning = false; render(); byId('back').onclick = () => backFn(); byId('spin').onclick = () => spin(); spin(); };
+      pop.querySelector('#done').onclick = () => screenCollection();
+    }
+  }
 }
 
 /* ════════ CRITTERDEX (collection + badges) ════════ */
