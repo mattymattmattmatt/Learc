@@ -54,11 +54,12 @@ export async function openModelViewer(info, url) {
   const stage = overlay.querySelector('.mv-stage');
 
   try {
-    const [THREE, { GLTFLoader }, { OrbitControls }, { RoomEnvironment }] = await Promise.all([
+    const [THREE, { GLTFLoader }, { OrbitControls }, { RoomEnvironment }, { MeshoptDecoder }] = await Promise.all([
       import('three'),
       import('../vendor/loaders/GLTFLoader.js'),
       import('../vendor/controls/OrbitControls.js'),
-      import('../vendor/environments/RoomEnvironment.js')
+      import('../vendor/environments/RoomEnvironment.js'),
+      import('../vendor/libs/meshopt_decoder.module.js')   // the models ship meshopt-compressed
     ]);
     if (!alive) { opening = false; return; }
 
@@ -89,8 +90,10 @@ export async function openModelViewer(info, url) {
     size(); window.addEventListener('resize', size);
     cleanupSize = () => window.removeEventListener('resize', size);
 
+    const loader = new GLTFLoader();
+    loader.setMeshoptDecoder(MeshoptDecoder);
     const gltf = await new Promise((res, rej) => {
-      new GLTFLoader().load(url, res, xhr => {
+      loader.load(url, res, xhr => {
         if (!xhr.total) return;
         const p = Math.min(100, Math.round(xhr.loaded / xhr.total * 100));
         fillEl.style.width = p + '%'; pctEl.textContent = `Summoning… ${p}%`;
