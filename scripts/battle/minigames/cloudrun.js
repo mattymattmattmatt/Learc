@@ -100,7 +100,7 @@ export default {
       }
       function jumpDown() {
         if (done || dead) return;
-        if (grounded) { vyF = -V0; grounded = false; holding = true; holdT = 0; S.tick(); buzz(8); }
+        if (grounded) { vyF = -V0; grounded = false; holding = true; holdT = 0; S.hop(); buzz(8); }
       }
       function jumpUp() { holding = false; }
       const onDown = e => { if (e.target === quit) return; e.preventDefault(); jumpDown(); };

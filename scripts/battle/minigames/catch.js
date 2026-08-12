@@ -64,8 +64,8 @@ export default {
           const within = it.y > catchY - 14 && it.y < H && Math.abs(it.x + 14 - hx) < size * 0.6;
           if (within) {
             it.n.remove(); items.splice(i, 1);
-            if (it.bomb) { hearts--; heartsEl.textContent = '❤'.repeat(Math.max(0, hearts)); me.classList.remove('hurt'); void me.offsetWidth; me.classList.add('hurt'); S.hit(); buzz(60); floatText(area, hx, catchY, '−1', 'bad'); if (hearts <= 0) return end(false); }
-            else { caught++; scEl.textContent = caught; S.catch(); buzz(12); sparkle(field, it.x + 14, catchY, 5); if (caught >= goal) return end(true); }
+            if (it.bomb) { S.bomb(); hearts--; heartsEl.textContent = '❤'.repeat(Math.max(0, hearts)); me.classList.remove('hurt'); void me.offsetWidth; me.classList.add('hurt'); S.hit(); buzz(60); floatText(area, hx, catchY, '−1', 'bad'); if (hearts <= 0) return end(false); }
+            else { caught++; scEl.textContent = caught; S.starCatch(); buzz(12); sparkle(field, it.x + 14, catchY, 5); if (caught >= goal) return end(true); }
           } else if (it.y > H + 30) { it.n.remove(); items.splice(i, 1); }
         }
         if (left <= 0) return end(caught >= goal);

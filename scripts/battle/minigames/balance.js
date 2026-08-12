@@ -33,7 +33,7 @@ export default {
       const tf = area.querySelector('#tf'), beam = area.querySelector('#beam'), ball = area.querySelector('#ball'), arena = area.querySelector('#arena');
       const Lb = area.querySelector('#L'), Rb = area.querySelector('#R');
 
-      const push = dir => { if (done) return; vel += dir * impulse; S.tick(); buzz(10); };
+      const push = dir => { if (done) return; vel += dir * impulse; S.logRoll(); buzz(10); };
       const onL = e => { e.preventDefault(); push(-1); };
       const onR = e => { e.preventDefault(); push(1); };
       Lb.addEventListener('pointerdown', onL); Rb.addEventListener('pointerdown', onR);

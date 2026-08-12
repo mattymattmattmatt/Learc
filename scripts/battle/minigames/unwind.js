@@ -53,7 +53,7 @@ export default {
         for (const l of linkData) { if (l.snapped) continue; const d = adiff(ang, l.angle); if (d < bd) { bd = d; best = l; } }
         if (best && bd <= tol) {
           best.snapped = true; snapped++; snEl.textContent = snapped; best.node.classList.add('snapped');
-          S.tick(); buzz(20); ring.classList.remove('snap'); void ring.offsetWidth; ring.classList.add('snap');
+          S.linkSnap(); buzz(20); ring.classList.remove('snap'); void ring.offsetWidth; ring.classList.add('snap');
           if (snapped >= links) return finish(true);
         } else {
           squeeze = clamp(squeeze + slipPenalty, 0, 1); S.bad(); buzz(50);

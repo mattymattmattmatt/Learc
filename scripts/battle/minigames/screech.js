@@ -93,11 +93,11 @@ export default {
         const ox = heroX, oy = launchY();
         const dx = tx - ox, dy = ty - oy, dist = Math.hypot(dx, dy) || 1;
         missiles.push({ x: ox, y: oy, tx, ty, vx: dx / dist * MISSILE_V, vy: dy / dist * MISSILE_V, dist, traveled: 0, boom: false });
-        pulse = 1; S.swipe(); buzz(6);
+        pulse = 1; S.screechLaunch(); buzz(6);
       }
       function detonate(x, y) {
         blasts.push({ x, y, r: heroR * 0.3, max: blastR(), done: false });
-        S.good();
+        S.crystalBurst();
       }
       function shatter(c) {
         c.dead = true; shattered++; cnt.textContent = shattered;

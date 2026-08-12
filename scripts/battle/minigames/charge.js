@@ -60,6 +60,7 @@ export default {
         } else if (lv > bandHi) txt = 'Overcharged! 💨';
         const r = foeEl.getBoundingClientRect(), a = area.getBoundingClientRect();
         floatText(area, r.left + r.width / 2 - a.left, r.top - a.top, txt, dmg ? 'good' : 'bad');
+        S.blast();
         if (dmg) { hp = Math.max(0, hp - dmg); hpEl.textContent = '❤'.repeat(hp); hitFlash(foeEl); S.good(); buzz(20); }
         else { S.bad(); buzz(40); }
         shots--; swEl.textContent = 'Shots left: ' + shots;

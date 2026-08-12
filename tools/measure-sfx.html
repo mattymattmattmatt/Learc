@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SFX level check — Battle of the Realm</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+         margin: 2rem auto; max-width: 60rem; padding: 0 1rem; }
+  h1 { font-size: 1.2rem; }
+  p { max-width: 46rem; line-height: 1.6; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { text-align: right; padding: .25rem .5rem; border-bottom: 1px solid #8884; white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  .warn { color: #b26a00; }
+  .bad  { color: #c0392b; font-weight: 700; }
+  pre { background: #8881; padding: .75rem; overflow-x: auto; border-radius: 4px; }
+  button { font: inherit; padding: .4rem .9rem; }
+</style>
+</head>
+<body>
+<h1>SFX level check</h1>
+<p>
+  Decodes every cue in <code>assets/audio/sfx/manifest.json</code> and works out what
+  playback gain each needs to sit at its intended loudness. The generated files land
+  anywhere from &minus;27&nbsp;dB to &minus;3&nbsp;dB depending on what the model felt
+  like, so these numbers are what keep a boss slam from being twenty decibels louder
+  than a star.
+</p>
+<p>
+  Serve the repo (<code>python3 -m http.server 8000</code>) and open
+  <code>/tools/measure-sfx.html</code> &mdash; <code>file://</code> won't work, the page
+  fetches the audio. Paste the generated block into the <code>S</code> table in
+  <code>scripts/battle/util.js</code>. Re-run this after regenerating any cue.
+</p>
+<p><button id="go">Measure cues</button> <button id="goRoar">Measure roars</button> <span id="status"></span></p>
+<div id="out"></div>
+
+<script>
+// Intended loudness per cue, in dBFS of the played result. Deliberately not flat:
+// a boss slam should land harder than a menu tap.
+const TARGET = {
+  whoosh: -34,
+  ui: -27, ui_back: -29, tick: -27,
+  reload: -26, shoot: -24,
+  good: -22, bad: -22, star: -22, pickup: -22, combo: -22, swipe: -22,
+  hit: -18, splash: -18,
+  star_pop: -18, badge: -18, heart: -18, box_open: -17,
+  boss_warn: -20, boss_slam: -14,
+  go: -16, win: -14, lose: -14,
+  fanfare: -13, region_clear: -13,
+};
+// cue name -> the key it has in the S table, where they differ
+const S_KEY = {
+  star_pop: 'starPop', region_clear: 'regionClear', box_open: 'boxOpen',
+  ui_back: 'uiBack', boss_warn: 'bossWarn', boss_slam: 'bossSlam', pickup: 'catch',
+};
+
+const dB = v => (v > 0 ? 20 * Math.log10(v) : -Infinity);
+const fmt = v => (v > 0 ? dB(v).toFixed(1) : '-inf');
+
+async function measure(ac, name) {
+  const buf = await fetch(`../assets/audio/sfx/${name}.mp3`)
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+    .then(a => ac.decodeAudioData(a));
+  const d = buf.getChannelData(0), sr = buf.sampleRate;
+  const W = Math.round(sr * 0.005), wins = [];        // 5 ms windows
+  for (let i = 0; i + W <= d.length; i += W) {
+    let s = 0; for (let j = i; j < i + W; j++) s += d[j] * d[j];
+    wins.push(Math.sqrt(s / W));
+  }
+  const GATE = 0.015;
+  let peak = 0; for (let i = 0; i < d.length; i++) { const a = Math.abs(d[i]); if (a > peak) peak = a; }
+  const loud = wins.filter(w => w > GATE);
+  const rms = loud.length ? Math.sqrt(loud.reduce((s, w) => s + w * w, 0) / loud.length) : 0;
+  const first = wins.findIndex(w => w > GATE);
+  let firstTakeEnd = null, run = 0;                   // a >=120ms gap means a second take
+  if (first >= 0) for (let i = first; i < wins.length; i++) {
+    if (wins[i] <= GATE) { if (++run >= 24) { firstTakeEnd = (i - run + 1) / 200; break; } } else run = 0;
+  }
+  let lastLoud = -1; for (let i = wins.length - 1; i >= 0; i--) if (wins[i] > GATE) { lastLoud = i; break; }
+  const soundEnd = lastLoud < 0 ? buf.duration : (lastLoud + 1) / 200;
+  return { name, dur: buf.duration, peak, rms,
+           lead: first < 0 ? 0 : first / 200, firstTakeEnd, soundEnd,
+           multi: firstTakeEnd !== null && firstTakeEnd < soundEnd - 0.02 };
+}
+
+// The creature roars and stingers in assets/audio/ are sampled files played by
+// sfx(), not by the S table. They arrived 21 dB apart with up to 1.2s of lead-in
+// silence, so they get the same treatment via the ROAR table in util.js.
+const ROAR_TARGET = -20;
+const ROAR_FILES = [
+  'bo','chocker','chomper','chunky','cliggy','clubbo','creeper','demonder','diver','fertle',
+  'fixie','flick','fygar','glob','gus','minyar','peeta-heater','roger-dodger','sixter',
+  'skyjumper','snapper','stinger','swack','waterwolf','whipper','yellogen','yelp','zappo',
+].map(n => `${n}_entrance.wav`).concat([
+  'catch.wav','shatter.wav','spell_break.wav','crown_crack.wav','glob_laugh.wav',
+  'glob_enrage.wav','glob_defeat.wav','minyar_defeat.wav','demonder_defeat.wav','clubbo_defeat.wav',
+]);
+
+document.getElementById('goRoar').onclick = async () => {
+  const status = document.getElementById('status'), out = document.getElementById('out');
+  out.innerHTML = ''; status.textContent = 'measuring roars…';
+  const ac = new AudioContext();
+  const rows = [], lines = [];
+  for (const f of ROAR_FILES) {
+    try {
+      const buf = await fetch(`../assets/audio/${encodeURIComponent(f)}`)
+        .then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+        .then(a => ac.decodeAudioData(a));
+      const d = buf.getChannelData(0), sr = buf.sampleRate;
+      const W = Math.round(sr * 0.005), wins = [];
+      for (let i = 0; i + W <= d.length; i += W) {
+        let s = 0; for (let j = i; j < i + W; j++) s += d[j] * d[j];
+        wins.push(Math.sqrt(s / W));
+      }
+      const GATE = 0.015;
+      let peak = 0; for (let i = 0; i < d.length; i++) { const a = Math.abs(d[i]); if (a > peak) peak = a; }
+      const loud = wins.filter(w => w > GATE);
+      const rms = loud.length ? Math.sqrt(loud.reduce((s, w) => s + w * w, 0) / loud.length) : 0;
+      const first = wins.findIndex(w => w > GATE);
+      let last = -1; for (let i = wins.length - 1; i >= 0; i--) if (wins[i] > GATE) { last = i; break; }
+      rows.push({ f, dur: buf.duration, peak, rms,
+                  lead: first < 0 ? 0 : first / 200,
+                  sound: last < 0 ? 0 : (last - Math.max(0, first)) / 200 });
+    } catch (e) { rows.push({ f, err: String(e.message || e) }); }
+  }
+
+  let html = '<table><tr><th>file</th><th>rms</th><th>peak</th><th>lead-in</th>'
+           + '<th>sound</th><th>gain</th><th>notes</th></tr>';
+  for (const r of rows.sort((a, b) => (a.rms ?? 9) - (b.rms ?? 9))) {
+    if (r.err) { html += `<tr><td>${r.f}</td><td colspan="6" class="bad">${r.err}</td></tr>`; continue; }
+    const g = Math.round(Math.pow(10, (ROAR_TARGET - dB(r.rms)) / 20) * 100) / 100;
+    const at = r.lead > 0.06 ? +(r.lead - 0.03).toFixed(2) : 0;
+    const notes = [];
+    if (at) notes.push(`starts ${Math.round(r.lead * 1000)}ms late`);
+    if (r.sound < 0.25) notes.push('barely any sound in the file');
+    if (g > 2) notes.push('very quiet — consider regenerating');
+    lines.push(`  '${r.f}': { g: ${g}${at ? `, at: ${at}` : ''} },`);
+    html += `<tr><td>${r.f}</td><td>${fmt(r.rms)}</td><td>${r.peak.toFixed(3)}</td>`
+          + `<td>${r.lead.toFixed(2)}s</td><td>${r.sound.toFixed(2)}s</td><td><b>${g}</b></td>`
+          + `<td class="${notes.length ? 'warn' : ''}">${notes.join('; ')}</td></tr>`;
+  }
+  html += '</table><p>Paste into the <code>ROAR</code> table in <code>scripts/battle/util.js</code>:</p>'
+        + '<pre>' + lines.join('\n') + '</pre>';
+  out.innerHTML = html;
+  status.textContent = `done — ${rows.length} files`;
+};
+
+document.getElementById('go').onclick = async () => {
+  const status = document.getElementById('status'), out = document.getElementById('out');
+  out.innerHTML = ''; status.textContent = 'measuring…';
+  let names;
+  try { names = await fetch('../assets/audio/sfx/manifest.json').then(r => r.json()); }
+  catch { status.textContent = 'could not read the manifest — are you serving over http?'; return; }
+
+  const ac = new AudioContext();
+  const rows = [], lines = [];
+  for (const n of names) {
+    try { rows.push(await measure(ac, n)); }
+    catch (e) { rows.push({ name: n, err: String(e.message || e) }); }
+  }
+
+  let html = '<table><tr><th>cue</th><th>dur</th><th>rms</th><th>peak</th>'
+           + '<th>gain</th><th>result</th><th>notes</th></tr>';
+  for (const r of rows) {
+    if (r.err) { html += `<tr><td>${r.name}</td><td colspan="6" class="bad">${r.err}</td></tr>`; continue; }
+    if (r.rms <= 0.004) {
+      html += `<tr><td>${r.name}</td><td>${r.dur.toFixed(2)}s</td><td class="bad">silent</td>`
+            + `<td>${r.peak.toFixed(3)}</td><td>—</td><td>—</td>`
+            + `<td class="bad">dud — regenerate: node tools/generate-sfx.js --force ${r.name}</td></tr>`;
+      continue;
+    }
+    const t = TARGET[r.name] ?? -20;
+    let gain = Math.pow(10, (t - dB(r.rms)) / 20);
+    const ceiling = 0.95 / r.peak, capped = gain > ceiling;
+    if (capped) gain = ceiling;
+    gain = Math.round(gain * 100) / 100;
+
+    const notes = [], clip = {};
+    if (capped) notes.push('at peak ceiling');
+    if (r.multi) { notes.push(`2 takes → play first ${r.firstTakeEnd.toFixed(2)}s`); clip.dur = +r.firstTakeEnd.toFixed(2); }
+    if (r.lead > 0.05) { notes.push(`${Math.round(r.lead * 1000)}ms lead-in → skipped`); clip.at = +(r.lead - 0.02).toFixed(2); }
+
+    const clipStr = Object.keys(clip).length
+      ? ', { ' + Object.entries(clip).map(([k, v]) => `${k}: ${v}`).join(', ') + ' }' : '';
+    lines.push(`${(S_KEY[r.name] || r.name).padEnd(12)} → ${gain}${clipStr}`);
+
+    html += `<tr><td>${r.name}</td><td>${r.dur.toFixed(2)}s</td><td>${fmt(r.rms)}</td>`
+          + `<td>${r.peak.toFixed(3)}</td><td><b>${gain}</b></td>`
+          + `<td>${(dB(r.rms) + dB(gain)).toFixed(1)}</td>`
+          + `<td class="${notes.length ? 'warn' : ''}">${notes.join('; ')}</td></tr>`;
+  }
+  html += '</table>';
+  html += '<p>Apply these as the volume argument (and optional clip window) of each '
+        + '<code>cue(...)</code> in <code>scripts/battle/util.js</code>:</p>'
+        + '<pre>' + lines.join('\n') + '</pre>';
+  out.innerHTML = html;
+  status.textContent = `done — ${rows.length} cues`;
+};
+</script>
+</body>
+</html>

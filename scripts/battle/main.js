@@ -24,7 +24,9 @@ import { SPINS_BY_MODE, modelRoster, modelInfo, modelUrl } from './collection.js
 import { openModelViewer } from './viewer.js';
 
 const APP = byId('app');
-const show = html => { APP.innerHTML = html; };
+/* every screen change funnels through here, so the transition sweep lives here
+   too — quiet by design, and silent until whoosh.mp3 is generated */
+const show = html => { APP.innerHTML = html; S.whoosh(); };
 
 /* ── battle music: one track per champion/henchman (id.mp3, underscores→hyphens
    to match the existing asset-naming convention) + one per region ── */
@@ -59,12 +61,15 @@ async function boot() {
 function installChrome() {
   const m = el('button', 'mute-btn', isMuted() ? '🔇' : '🔊');
   m.setAttribute('aria-label', 'Toggle sound');
-  m.addEventListener('pointerdown', e => { e.preventDefault(); const muted = toggleMute(); m.textContent = muted ? '🔇' : '🔊'; if (!muted) S.ui(); });
+  m.addEventListener('pointerdown', e => { e.preventDefault(); const muted = toggleMute(); m.textContent = muted ? '🔇' : '🔊'; if (!muted) S.toggle(); });
   document.body.appendChild(m);
-  // soft click on navigation buttons
+  // soft click on navigation buttons — back/cancel gets its own softer tap
   document.addEventListener('pointerdown', e => {
     const b = e.target.closest && e.target.closest('.btn, .btn-link');
-    if (b) S.ui();
+    if (!b) return;
+    if (b.classList.contains('btn-link')) S.uiBack();
+    else if (b.classList.contains('btn-go')) S.start();   // the big forward action
+    else S.ui();
   });
 }
 
@@ -199,6 +204,7 @@ function screenSelect() {
   const grid = byId('grid'), info = byId('info'), begin = byId('begin'), selanim = byId('selanim');
   grid.querySelectorAll('.sel-cell').forEach(c => {
     c.onclick = () => {
+      S.select();
       grid.querySelectorAll('.sel-cell').forEach(x => x.classList.remove('on'));
       c.classList.add('on');
       chosen = c.dataset.id;
@@ -474,7 +480,7 @@ async function runBattle(entry, foeDisp, opts = {}) {
 function revealStars(stars) {
   const slots = [...document.querySelectorAll('.star-slot')];
   slots.forEach((s, i) => {
-    if (i < stars) setTimeout(() => { s.textContent = '★'; s.classList.add('lit'); S.star(); buzz(15); }, 350 + i * 320);
+    if (i < stars) setTimeout(() => { s.textContent = '★'; s.classList.add('lit'); S.starPop(); buzz(15); }, 350 + i * 320);
   });
 }
 
@@ -589,7 +595,7 @@ function screenRegionClear(toKing = false) {
         <button class="btn btn-go" id="go">${toKing ? 'To the Throne ▸' : 'Onward ▸'}</button>
       </div>
     </div>`);
-  S.win();
+  S.regionClear();
   confetti(document.querySelector('.screen'), 50);
   byId('go').onclick = () => toKing ? screenMap() : screenRegionIntro(state.region);
 }
@@ -655,7 +661,7 @@ function screenGlobDefeat() {
 let spinsJustWon = 0;
 
 function screenEnding() {
-  playMusic('victory.mp3', 0.3);
+  playMusic('ending.mp3', 0.38, 'victory.mp3');   // the long finale theme, or the short cue
   const hero = getPet(state.heroId);
   const score = finalScore(), max = maxStars();
   const clean = state.continues === 0;
@@ -778,7 +784,7 @@ function screenLeaderboard(highlight, tab) {
 let G = null;
 
 function screenGauntletSelect() {
-  playMusic('title.mp3', 0.26);
+  playMusic('gauntlet.mp3', 0.26, 'title.mp3');
   const lives = livesFor(getMode());
   const best = gauntletBest();
   let pick = null;
@@ -803,6 +809,7 @@ function screenGauntletSelect() {
   const grid = byId('grid'), info = byId('info'), begin = byId('begin');
   grid.querySelectorAll('.sel-cell').forEach(c => {
     c.onclick = () => {
+      S.select();
       grid.querySelectorAll('.sel-cell').forEach(x => x.classList.remove('on'));
       c.classList.add('on');
       pick = c.dataset.id;
@@ -968,6 +975,7 @@ function screenGauntletOver() {
 
 /* ════════ 🎁 COLLECTION (Mystery Box 3D models) ════════ */
 function screenCollection() {
+  playMusic('mysterybox.mp3', 0.34, 'title.mp3');
   const roster = modelRoster();
   const owned = ownedModelCount();
   const spins = spinsLeft();
@@ -1003,6 +1011,7 @@ function screenCollection() {
   byId('back').onclick = () => screenTitle();
   byId('open').onclick = () => { if (spinsLeft() > 0) screenMysteryBox(); };
   APP.querySelectorAll('.col-cell.owned').forEach(c => c.onclick = () => {
+    S.select();
     const m = modelInfo(c.dataset.id);
     openModelViewer(m, modelUrl(c.dataset.id));
   });
@@ -1070,7 +1079,7 @@ function screenMysteryBox(backFn = screenCollection) {
 
     function land() {
       box.classList.remove('shake'); box.classList.add('burst');
-      S.win(); if (isNew) S.fanfare();
+      S.boxOpen(); if (isNew) S.fanfare();
       sfx(prize.sfx, 0.85); buzz(isNew ? 70 : 35);
       const scr = document.querySelector('.screen');
       confetti(scr, isNew ? 60 : 24);
@@ -1102,6 +1111,7 @@ function screenMysteryBox(backFn = screenCollection) {
 
 /* ════════ CRITTERDEX (collection + badges) ════════ */
 function screenDex() {
+  playMusic('gallery.mp3', 0.42, 'title.mp3');
   show(`
     <div class="screen dex">
       <h2 class="screen-title">📖 Critterdex</h2>
@@ -1127,7 +1137,7 @@ function screenDex() {
       <div class="dex-foot"><button class="btn btn-go" id="back">◂ Back to Title</button></div>
     </div>`);
   byId('back').onclick = () => screenTitle();
-  APP.querySelectorAll('.dex-cell').forEach(c => c.onclick = () => dexDetail(c.dataset.id));
+  APP.querySelectorAll('.dex-cell').forEach(c => c.onclick = () => { S.select(); dexDetail(c.dataset.id); });
 }
 
 function dexDetail(id) {

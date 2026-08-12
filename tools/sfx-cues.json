@@ -1,0 +1,291 @@
+{
+  "_comment": [
+    "Battle of the Realm — the one-shot SFX catalogue. Shared source of truth for",
+    "tools/generate-sfx.js (which buys them) and tools/trim-sfx.sh (which cuts them).",
+    "",
+    "Every name here is a cue the game already triggers — see the `S` table in",
+    "scripts/battle/util.js. Generating one upgrades every call site at once; a cue",
+    "you never generate simply keeps its built-in WebAudio synth voice.",
+    "",
+    "`cap` is the trimmed ceiling in seconds. These fire fast and often and several",
+    "can overlap, so anything that reads as an impact stays short. Edit a prompt and",
+    "re-run with --force to buy a new take.",
+    "",
+    "House style: storybook fantasy, warm and playful, never harsh — this is a",
+    "children's game about freeing creatures, not a shooter. Dry and punchy: reverb",
+    "tails smear together when cues stack.",
+    "",
+    "Do NOT ask for a quiet sound. Words like quiet, soft, subtle and unobtrusive are",
+    "taken literally and come back at a peak of about 0.03, which is inaudible — that",
+    "is how the first whoosh and box_open takes were lost. Ask for a present, clear",
+    "sound and set how loud it actually plays in the S table in scripts/battle/util.js."
+  ],
+  "hit": {
+    "cap": 0.45,
+    "prompt": "Cartoon battle impact — a solid meaty thwack with a short low thud underneath, storybook creature duel, punchy and satisfying, completely dry, no reverb tail"
+  },
+  "splash": {
+    "cap": 0.9,
+    "prompt": "A creature belly-flopping into water — a big cartoon splash with a quick watery gulp and light droplet patter, playful not harsh, short tail"
+  },
+  "shoot": {
+    "cap": 0.35,
+    "prompt": "Light cartoon projectile launch — a soft airy pew with a quick woody snap of a slingshot releasing, storybook not military, clean and dry, very short"
+  },
+  "reload": {
+    "cap": 0.6,
+    "prompt": "Quick cartoon reload — a light wooden clack-clack of pouches being refilled, tidy mechanical two-beat, warm and toylike, dry, short"
+  },
+  "good": {
+    "cap": 0.5,
+    "prompt": "Bright cheerful success blip — a crisp two-note ascending chime, small win confirmation, warm and encouraging, very short and dry"
+  },
+  "bad": {
+    "cap": 0.6,
+    "prompt": "Gentle cartoon mistake sound — a soft descending two-note wobble, disappointed but kind, never harsh or buzzy, short and dry"
+  },
+  "star": {
+    "cap": 0.6,
+    "prompt": "Sparkling star pickup — a bright glassy twinkle rising with a light magical shimmer, collectible reward, clean and short, no tail"
+  },
+  "star_pop": {
+    "cap": 0.7,
+    "prompt": "A single gold star stamping onto a results card — a bright bell ding with a quick sparkle burst and a satisfying soft thump underneath, proud and punchy, arcade results screen, short and dry"
+  },
+  "combo": {
+    "cap": 0.5,
+    "prompt": "Combo streak ding — an exciting bright digital chime a step higher than the last, rewarding escalation, crisp and very short"
+  },
+  "heart": {
+    "cap": 1.0,
+    "prompt": "Health fully restored — a warm gentle magical swell rising into a soft glowing chime, comforting and generous, storybook healing, clean, medium-short"
+  },
+  "tick": {
+    "cap": 0.3,
+    "prompt": "Short dry countdown tick — a clean wooden clock blip, neutral and crisp, tiny, absolutely no tail"
+  },
+  "go": {
+    "cap": 1.0,
+    "prompt": "FIGHT! countdown release — a bright rising horn-and-chime stab that launches the round, energetic and heroic, punchy, short tail"
+  },
+  "swipe": {
+    "cap": 0.5,
+    "prompt": "Fast cartoon whoosh — a light airy swish of a creature darting past, soft and clean, short, no reverb"
+  },
+  "ui": {
+    "cap": 0.25,
+    "prompt": "Crisp UI confirm tap — a light wooden mallet click with a soft warm tone, storybook menu button press, snappy and dry, tiny"
+  },
+  "ui_back": {
+    "cap": 0.25,
+    "prompt": "Soft UI back tap — a muted low wooden knock with a gentle downward tone, menu cancel or return, quieter and rounder than a confirm, tiny and dry"
+  },
+  "whoosh": {
+    "cap": 0.5,
+    "prompt": "Airy whoosh sweep — a clear rush of air moving past like a page turned fast, crisp and present, clean, dry, no reverb, short"
+  },
+  "win": {
+    "cap": 1.8,
+    "prompt": "Short victory jingle — a triumphant ascending major-key flourish with bells and a bright sparkle, a duel won, celebratory, resolves cleanly"
+  },
+  "lose": {
+    "cap": 1.8,
+    "prompt": "Gentle defeat jingle — a soft descending minor-key phrase, wistful and kind rather than punishing, encourages another try, resolves and ends"
+  },
+  "region_clear": {
+    "cap": 3.0,
+    "prompt": "A whole region freed from an evil spell — a big warm orchestral-lite fanfare, horns and strings rising over sparkling bells and a triumphant drum roll, spell shattering into light, joyful and emotional, grander than a single duel win, resolves on a full major chord"
+  },
+  "fanfare": {
+    "cap": 2.5,
+    "prompt": "Regal royal fanfare announcing an evil king — bold brass fanfare with a dark ominous undertow and a deep timpani hit, storybook villain arrival, dramatic"
+  },
+  "badge": {
+    "cap": 1.2,
+    "prompt": "Achievement unlocked chime — a warm rising bell arpeggio finishing on a bright sparkle, proud and rewarding, clean and short"
+  },
+  "box_open": {
+    "cap": 1.8,
+    "prompt": "A treasure chest bursting open — a bright pop of ribbon and paper into a full shower of magical sparkles and a warm rising chime, delighted surprise, present and twinkly, medium-short"
+  },
+  "boss_warn": {
+    "cap": 0.6,
+    "prompt": "Danger telegraph before a boss attack lands — a tense low pulsing warning tone with a quick sharp edge, readable at a glance, urgent but not shrill, dry and short"
+  },
+  "boss_slam": {
+    "cap": 0.9,
+    "prompt": "A huge boss slamming the ground — a deep heavy whump with a low rumbling boom and a dusty crunch, enormous weight, cartoon-scaled not gory, punchy with a short tail"
+  },
+  "start": {
+    "cap": 0.6,
+    "prompt": "Big adventure-start chime — a bright confident two-note rise with a warm bloom behind it, the moment a quest begins, storybook fantasy, clean and present, dry"
+  },
+  "select": {
+    "cap": 0.25,
+    "prompt": "Light selection tick — a small warm marimba blip choosing an item from a grid, pleasant and quick, storybook menu, tiny, dry, no reverb"
+  },
+  "toggle": {
+    "cap": 0.3,
+    "prompt": "Sound toggle click — a small round wooden switch flicking over, neutral and tactile, tiny, dry, no reverb"
+  },
+  "log_roll": {
+    "cap": 0.3,
+    "prompt": "A floating log rolling a half-turn underfoot — a short hollow wooden knock with a wet creak, riverside, tactile, dry, very short"
+  },
+  "orb_pop": {
+    "cap": 0.35,
+    "prompt": "A glowing magic orb popping when tapped — a bright glassy burst with a quick sparkle, clean and satisfying, arcade, very short, no tail"
+  },
+  "bomb": {
+    "cap": 0.7,
+    "prompt": "Small cartoon bomb going off — a muffled comedic thud-boom with a puff, harmless and silly rather than violent, children's game, dry, short"
+  },
+  "star_catch": {
+    "cap": 0.35,
+    "prompt": "Catching a falling star in your hands — a soft bright twinkle landing with a warm little chime, gentle and rewarding, clean, very short"
+  },
+  "blast": {
+    "cap": 0.7,
+    "prompt": "A charged magic blast firing — a deep whoomph releasing into a bright energy burst, powerful and satisfying, storybook special move, punchy, short tail"
+  },
+  "claw_grab": {
+    "cap": 0.5,
+    "prompt": "A metal claw closing on a prize — a quick mechanical clamp with a light metallic clink, arcade grabber machine, tactile, dry, short"
+  },
+  "hop": {
+    "cap": 0.3,
+    "prompt": "A light springy hop — a soft bouncy boing with a puff of air, cartoon jump, weightless and cheerful, tiny, dry"
+  },
+  "dive_slam": {
+    "cap": 0.7,
+    "prompt": "A creature diving down and slamming the ground — a rushing swoop into a solid dusty thud, weighty impact, cartoon-scaled, punchy, short tail"
+  },
+  "dodge_hit": {
+    "cap": 0.45,
+    "prompt": "A swiping attack connecting with a creature — a quick cloth-and-body whump with a soft ouch of impact, cartoon combat, not gory, dry and punchy"
+  },
+  "caught": {
+    "cap": 0.9,
+    "prompt": "Caught in the act — a sudden accusing sting, sharp gasp of strings with a dropping tone, playground game of statues, tense but playful, short"
+  },
+  "flap": {
+    "cap": 0.3,
+    "prompt": "A single wing flap — a soft feathery whoomp of air catching under wings, light and buoyant, clean, very short, no reverb"
+  },
+  "cloud_pass": {
+    "cap": 0.4,
+    "prompt": "Sailing cleanly through a gap in the clouds — a soft airy swish with a light sparkle of approval, weightless, brief and pleasant"
+  },
+  "tile_hop": {
+    "cap": 0.3,
+    "prompt": "Hopping onto a stone tile — a light gritty stone tap with a small scuff, tactile, dry, very short"
+  },
+  "tile_burst": {
+    "cap": 0.7,
+    "prompt": "A floor tile bursting into flame — a sharp crack followed by a whooshing gout of fire, sudden and hot, cartoon hazard, dry, short tail"
+  },
+  "curl_slide": {
+    "cap": 0.8,
+    "prompt": "A curling stone released across ice — a smooth gliding hiss with a low grinding rumble, long slick slide, clean, no reverb"
+  },
+  "bullseye": {
+    "cap": 0.7,
+    "prompt": "Landing dead on the bullseye — a crisp bright ding with a triumphant sparkle flourish, precision rewarded, clean and short"
+  },
+  "rune_1": {
+    "cap": 0.5,
+    "prompt": "A carved stone rune lighting up, lowest of four tones — a warm round mallet chime like a marimba, magical and clear, single soft note, dry, short"
+  },
+  "rune_2": {
+    "cap": 0.5,
+    "prompt": "A carved stone rune lighting up, second of four rising tones — a warm round mallet chime a step higher, magical and clear, single soft note, dry, short"
+  },
+  "rune_3": {
+    "cap": 0.5,
+    "prompt": "A carved stone rune lighting up, third of four rising tones — a warm round mallet chime higher again, magical and clear, single soft note, dry, short"
+  },
+  "rune_4": {
+    "cap": 0.5,
+    "prompt": "A carved stone rune lighting up, highest of four tones — a bright round mallet chime at the top of the run, magical and clear, single soft note, dry, short"
+  },
+  "paddle_bounce": {
+    "cap": 0.25,
+    "prompt": "A ball bouncing off a paddle — a firm rubbery pock, clean and tight, arcade, tiny, absolutely no tail"
+  },
+  "brick_break": {
+    "cap": 0.4,
+    "prompt": "A brick shattering — a short crisp ceramic crack with a scatter of debris, satisfying break, dry, no reverb"
+  },
+  "pedal": {
+    "cap": 0.25,
+    "prompt": "One pedal stroke of a toy trike — a light plastic-and-metal creak with a small ratchet click, comic and childlike, tiny, dry"
+  },
+  "wail_lock": {
+    "cap": 0.35,
+    "prompt": "Holding a singing note perfectly on pitch — a pure glassy shimmer swelling briefly, ethereal and rewarding, clean, short"
+  },
+  "strike_green": {
+    "cap": 0.6,
+    "prompt": "A perfectly timed power strike landing — a heavy wind-up whoosh into a solid satisfying thwack, weighty and rewarding, cartoon combat, punchy"
+  },
+  "draw_signal": {
+    "cap": 0.6,
+    "prompt": "The STRIKE signal in a duel — a single sharp bright alarm ping cutting the silence, unmistakable go-signal, tense, clean, very short"
+  },
+  "reel_land": {
+    "cap": 0.8,
+    "prompt": "Landing a fish — a wet flapping splash out of the water into a triumphant little chime, playful fishing success, short"
+  },
+  "rope_jump": {
+    "cap": 0.3,
+    "prompt": "A quick standing jump — a light scuff of feet leaving the ground with a soft whoomp, agile and springy, tiny, dry"
+  },
+  "rope_pass": {
+    "cap": 0.3,
+    "prompt": "A skipping rope whipping past underfoot — a fast airy whip-swish, rhythmic, clean, very short, no reverb"
+  },
+  "screech_launch": {
+    "cap": 0.5,
+    "prompt": "A sonic screech launching upward — a piercing rising shriek of compressed air, bird-like and urgent, clean, short"
+  },
+  "crystal_burst": {
+    "cap": 0.6,
+    "prompt": "A crystal shattering in a burst of sound — a bright glassy explosion with ringing shards, satisfying break, crisp, short tail"
+  },
+  "slab_thread": {
+    "cap": 0.4,
+    "prompt": "Slipping cleanly through a narrow gap in falling stone — a quick stony scrape rushing past with a relieved swish, near-miss, dry, short"
+  },
+  "sling_thwack": {
+    "cap": 0.45,
+    "prompt": "A slingshot pellet smacking its target — a sharp elastic-driven thwack into something solid, precise and punchy, dry, no tail"
+  },
+  "orb_eat": {
+    "cap": 0.35,
+    "prompt": "A creature gulping down a glowing orb — a quick wet swallow with a bright magical blip, gluttonous and cute, tiny, dry"
+  },
+  "arrow_show": {
+    "cap": 0.25,
+    "prompt": "A direction arrow snapping into view — a crisp short digital tick with a tiny whoosh, alert and clean, tiny, no tail"
+  },
+  "swipe_ok": {
+    "cap": 0.35,
+    "prompt": "A swipe landing in the right direction — a fast clean slash with a bright confirming ping, decisive, dry, very short"
+  },
+  "trace_dot": {
+    "cap": 0.25,
+    "prompt": "Passing a finger through a glowing waypoint — a soft glassy bead-tick, delicate and precise, tiny, dry, no reverb"
+  },
+  "rune_done": {
+    "cap": 0.8,
+    "prompt": "A magic rune completed and flaring to life — a rising magical shimmer resolving on a warm bright chime, a spell breaking, clean, short"
+  },
+  "tug": {
+    "cap": 0.25,
+    "prompt": "One hard heave on a rope — a short creaking fibre strain with a gritty pull, effortful, tiny, dry"
+  },
+  "link_snap": {
+    "cap": 0.4,
+    "prompt": "A binding link snapping apart — a taut sharp pop of breaking cord with a bright metallic ring, freeing, crisp, very short"
+  }
+}

@@ -61,7 +61,7 @@ export default {
           const z = zones[i]; z.slamAt -= dt;
           if (z.slamAt <= tele * 0.35) z.node.classList.add('arm');
           if (!z.slammed && z.slamAt <= 0) {
-            z.slammed = true; z.node.classList.add('slam'); S.hit(); buzz(20);
+            z.slammed = true; z.node.classList.add('slam'); S.diveSlam(); buzz(20);
             if (iframe <= 0 && Math.hypot(z.x - hx, z.y - hy) < z.r + hr * 0.5) {
               iframe = 0.8; hearts--; heartsEl.textContent = '❤'.repeat(Math.max(0, hearts));
               me.classList.remove('hurt'); void me.offsetWidth; me.classList.add('hurt');

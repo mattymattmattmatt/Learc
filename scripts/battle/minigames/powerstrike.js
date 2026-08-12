@@ -61,7 +61,7 @@ export default {
         else if (dz <= zoneW / 2) { dmg = 1; txt = 'Hit! −1'; }
         const r = bar.getBoundingClientRect();
         floatText(area, r.left + x * r.width - area.getBoundingClientRect().left, r.top - area.getBoundingClientRect().top, txt, dmg ? 'good' : 'bad');
-        if (dmg) { hp = Math.max(0, hp - dmg); hpEl.textContent = '❤'.repeat(hp); hitFlash(foeEl); S.good(); buzz(20); }
+        if (dmg) { hp = Math.max(0, hp - dmg); hpEl.textContent = '❤'.repeat(hp); hitFlash(foeEl); S.strikeGreen(); buzz(20); }
         else { hitFlash(heroEl); S.bad(); buzz(40); }
         swings--; swEl.textContent = 'Swings left: ' + swings;
         placeZone(); drawZone();                  // relocate the target for the next swing

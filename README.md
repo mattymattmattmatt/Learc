@@ -154,9 +154,12 @@ designs drive the whole game.
 
 ## Polish
 
-- **Procedural sound** — all SFX (taps, hits, stars, fanfares, countdown) are
-  synthesized live with the WebAudio API, so there are no audio downloads and it
-  works fully offline. Creatures still use their own recorded entrance roars.
+- **Procedural sound, upgradeable** — every SFX (taps, hits, stars, fanfares,
+  countdown) is synthesized live with the WebAudio API, so the game is never silent
+  and works fully offline with no audio downloads. Drop a generated sample into
+  `assets/audio/sfx/` and that cue plays the sample instead — see
+  [SOUND_DESIGN.md](SOUND_DESIGN.md) and `tools/generate-sfx.js`. Creatures still use
+  their own recorded entrance roars.
 - **Juice** — confetti on wins, stars that pop in one-by-one with a ding, screen
   shakes, sparkles and floating damage text, haptic buzz on mobile.
 - **🔊 Mute toggle** (top-right, remembered between sessions).
@@ -191,6 +194,7 @@ designs drive the whole game.
 | `scripts/data/pets.json` | the 24 creatures (name, sprite, sound, power, tags) |
 | `assets/Char_Anim/` | per-character & per-boss animation clips (play on select / pre-battle) |
 | `assets/img/Extra_Images/` | story art — `Captured.png` (intro) and `Win.png` (finale) |
+| `tools/` | ElevenLabs audio generators (`generate-sfx.js`, `generate-music.js`, `trim-sfx.sh`) — see [SOUND_DESIGN.md](SOUND_DESIGN.md) |
 | `service-worker.js` | offline cache (precached shell + cache-as-you-play assets) |
 | `firebase/firestore.rules` | leaderboard security rules (deploy to enable cloud scores) |
 | `crittercatch.html`, `kingsgold.html` | earlier games, still playable |

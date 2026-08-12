@@ -1,0 +1,7 @@
+# API keys for the audio generators in tools/ — never commit these
+.env
+elevenlabs.env
+*.env
+
+node_modules/
+.DS_Store

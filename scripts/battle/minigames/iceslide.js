@@ -62,7 +62,7 @@ export default {
         const dx = start.x - pull.x, dy = start.y - pull.y;
         if (Math.hypot(dx, dy) < 16) return;
         vel = { x: dx * K, y: dy * K };
-        shots--; shEl.textContent = shots; S.swipe(); buzz(15);
+        shots--; shEl.textContent = shots; S.curlSlide(); buzz(15);
       };
       function updateAim(e) {
         const r = field.getBoundingClientRect();
@@ -102,7 +102,7 @@ export default {
         if (d < tr * 0.33) { pts = 3; txt = 'BULLSEYE! +3'; }
         else if (d < tr * 0.66) { pts = 2; txt = 'Nice! +2'; }
         else if (d < tr) { pts = 1; txt = '+1'; }
-        if (pts) { score += pts; scEl.textContent = score; sparkle(field, pos.x, pos.y, 7); S.star(); }
+        if (pts) { score += pts; scEl.textContent = score; sparkle(field, pos.x, pos.y, 7); S.bullseye(); }
         else S.bad();
         floatText(area, pos.x, pos.y - 10, txt, pts ? 'good' : 'bad');
         if (score >= goal) return finish(true);

@@ -78,7 +78,7 @@ export default {
             const cx = px + size / 2;
             const inGap = cx > s.hx + size * 0.3 && cx < s.hx + s.hw - size * 0.3;
             if (inGap) {
-              s.hit = true; passed++; cntEl.textContent = passed; S.good(); buzz(10);
+              s.hit = true; passed++; cntEl.textContent = passed; S.slabThread(); buzz(10);
               s.node.classList.add('cleared');
               if (passed >= goal) return end(true);
             } else if (iframe <= 0) {

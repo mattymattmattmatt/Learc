@@ -83,7 +83,7 @@ export default {
         progress = clamp(progress + (inBand ? fillRate : -drainRate) * dt, 0, 100);
         pf.style.width = progress + '%';
         tf.style.width = clamp((left / TIME) * 100, 0, 100) + '%';
-        if (inBand) { sparkAcc += dt; if (sparkAcc > 0.18) { sparkAcc = 0; sparkle(field, birdX, by, 3, ['🎵', '✨']); S.tick(); } }
+        if (inBand) { sparkAcc += dt; if (sparkAcc > 0.18) { sparkAcc = 0; sparkle(field, birdX, by, 3, ['🎵', '✨']); S.wailLock(); } }
         if (progress >= 100) return end(true);
         if (left <= 0) return end(false);
       });

@@ -84,7 +84,7 @@ export default {
             p.node.remove(); projs.splice(i, 1);
             hp--; iframe = 0.9; heartsEl.textContent = '❤'.repeat(Math.max(0, hp));
             me.classList.remove('hurt'); void me.offsetWidth; me.classList.add('hurt');
-            S.hit(); buzz(60);
+            S.dodgeHit(); buzz(60);
             floatText(area, hx, hy, '−1', 'bad');
             if (hp <= 0) return end(false);
           }

@@ -56,7 +56,7 @@ export default {
           prog = clamp(prog - 0.2, 0, 1); place();
           me.classList.remove('caught'); void me.offsetWidth; me.classList.add('caught');
           floatText(area, me.getBoundingClientRect().left - area.getBoundingClientRect().left, 40, 'CAUGHT!', 'bad');
-          S.hit(); buzz(70);
+          S.caught(); buzz(70);
           if (hearts <= 0) return finish(false);
         }
       });
