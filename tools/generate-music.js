@@ -21,24 +21,11 @@ const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'assets/Music');
 
 // ── the key ────────────────────────────────────────────────────
-function readKey() {
-  if (process.env.ELEVENLABS_API_KEY) return process.env.ELEVENLABS_API_KEY.trim();
-  for (const f of ['.env', 'elevenlabs.env']) {
-    const p = path.join(ROOT, f);
-    if (!fs.existsSync(p)) continue;
-    const m = fs.readFileSync(p, 'utf8').match(/^\s*ELEVENLABS_API_KEY\s*=\s*(.+?)\s*$/m);
-    if (m) return m[1].replace(/^["']|["']$/g, '');
-  }
-  return null;
-}
+const { requireKey } = require('./eleven-key');
 
-const API_KEY = readKey();
-if (!API_KEY) {
-  console.error('❌ No ELEVENLABS_API_KEY found.');
-  console.error('   Put it in a gitignored .env at the repo root:');
-  console.error('     ELEVENLABS_API_KEY=sk_...');
-  process.exit(1);
-}
+let API_KEY;
+try { API_KEY = requireKey().key; }
+catch (e) { console.error(`❌ ${e.message}`); process.exit(1); }
 
 // ── the tracks ─────────────────────────────────────────────────
 // The 24 champion themes, the three region themes and title/captured/victory

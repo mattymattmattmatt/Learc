@@ -18,10 +18,24 @@ existing one to fall back on, so an ungenerated track is never a silent screen.
 bash tools/generate-all.sh
 ```
 
-It checks for Node, asks for your API key if there isn't one yet, generates all 25
-sound effects, trims them if `ffmpeg` is available, then **pauses for confirmation**
-before the more expensive music stage. It prints your ElevenLabs credit balance
-before and after each stage, so a run can't quietly drain the account.
+It checks for Node, asks for your API key if there isn't one yet, **verifies the key
+before spending anything**, generates all 25 sound effects, trims them if `ffmpeg` is
+available, then **pauses for confirmation** before the more expensive music stage. It
+prints your ElevenLabs credit balance before and after each stage, so a run can't
+quietly drain the account.
+
+If anything about the key looks wrong, check it on its own:
+
+```bash
+node tools/eleven-key.js
+```
+
+That says where the key was found, what invisible characters it stripped, and whether
+ElevenLabs accepts it. Keys picked up from a clipboard or Notepad routinely carry a
+UTF-8 BOM, a trailing CR from a CRLF file, wrapping quotes, or a non-breaking space —
+none of which are legal in an HTTP header, and Node reports them only as
+`Invalid character in header content ["xi-api-key"]` without naming the byte.
+`tools/eleven-key.js` strips all of those, and names any character it can't.
 
 **The manual way** — the generators need an ElevenLabs API key in a **gitignored**
 `.env` at the repo root (`.gitignore` already covers `.env`, `elevenlabs.env` and

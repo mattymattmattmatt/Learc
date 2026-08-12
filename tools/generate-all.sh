@@ -31,31 +31,26 @@ if [ ! -f .env ] && [ ! -f elevenlabs.env ] && [ -z "${ELEVENLABS_API_KEY:-}" ];
   echo "Wrote .env"
 fi
 
+# ── preflight ──────────────────────────────────────────────────
+# One request that proves the key is readable, header-legal and accepted, so a
+# bad key costs one clear error instead of 29 identical ones.
+say "Checking your API key"
+node tools/eleven-key.js || die "
+Nothing was generated and no credits were spent.
+Fix the problem above, then re-run: bash tools/generate-all.sh"
+
 # ── credit balance ─────────────────────────────────────────────
 # Printed before and after each stage so a run can never quietly drain the
 # account. Failures here are informational only and never stop the run.
 balance() {
   node -e '
-    const fs = require("fs"), https = require("https");
-    let key = process.env.ELEVENLABS_API_KEY;
-    if (!key) for (const f of [".env", "elevenlabs.env"]) {
-      if (!fs.existsSync(f)) continue;
-      const m = fs.readFileSync(f, "utf8").match(/^\s*ELEVENLABS_API_KEY\s*=\s*(.+?)\s*$/m);
-      if (m) { key = m[1].replace(/^["\x27]|["\x27]$/g, ""); break; }
-    }
-    if (!key) process.exit(0);
-    https.get({ hostname: "api.elevenlabs.io", path: "/v1/user/subscription",
-                headers: { "xi-api-key": key } }, res => {
-      const c = []; res.on("data", d => c.push(d));
-      res.on("end", () => {
-        try {
-          const j = JSON.parse(Buffer.concat(c).toString());
-          if (typeof j.character_count === "number") {
-            process.stdout.write(String(j.character_limit - j.character_count));
-          }
-        } catch {}
-      });
-    }).on("error", () => {});
+    const { requireKey, check } = require("./tools/eleven-key");
+    (async () => {
+      try {
+        const r = await check(requireKey().key);
+        if (r.ok && typeof r.remaining === "number") process.stdout.write(String(r.remaining));
+      } catch {}
+    })();
   ' 2>/dev/null
 }
 
