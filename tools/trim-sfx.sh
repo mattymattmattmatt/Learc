@@ -49,6 +49,7 @@ if [ ${#NAMES[@]} -eq 0 ]; then
   )
 fi
 [ ${#NAMES[@]} -gt 0 ] || { echo "No cues to trim."; exit 0; }
+SILENT=""
 
 for name in "${NAMES[@]}"; do
   f="$SFX/$name.mp3"
@@ -58,17 +59,25 @@ for name in "${NAMES[@]}"; do
         | awk -F: '{print ($1*3600)+($2*60)+$3}')
   cap=$(cap_for "$name")
 
-  # already short enough — nothing to do
+  # Find where sound actually starts and ends. This runs for every cue, not just
+  # the over-long ones: a short file can still be silent, and reporting that is
+  # the whole point — an unheard cue is a wasted generation.
+  ev=$(ffmpeg -hide_banner -i "$f" -af silencedetect=noise=-45dB:d=0.12 -f null - 2>&1 \
+       | sed -n 's/.*silence_\(start\|end\): \([0-9.]*\).*/\1 \2/p') || true
+
+  if printf '%s\n' "$ev" | awk -v dur="$dur" '
+       $1 == "start" { n++; s[n] = $2 } $1 == "end" { e[n] = $2 }
+       END { exit !(n > 0 && s[1] <= 0.05 && e[1] != "" && e[1] >= dur - 0.1) }'; then
+    printf '  %-12s %ss \033[31mSILENT — nothing above -45dB\033[0m\n' "$name" "$dur"
+    SILENT="$SILENT $name"
+    continue
+  fi
+
+  # already short enough — nothing to cut
   if awk "BEGIN{exit !($dur <= $cap + 0.05)}"; then
     printf '  %-12s %ss (already trimmed)\n' "$name" "$dur"
     continue
   fi
-
-  # The cut has to find where the sound *starts* as well as where it ends —
-  # trimming from zero would ship silent cues for the files that open with
-  # lead-in silence.
-  ev=$(ffmpeg -hide_banner -i "$f" -af silencedetect=noise=-45dB:d=0.12 -f null - 2>&1 \
-       | sed -n 's/.*silence_\(start\|end\): \([0-9.]*\).*/\1 \2/p') || true
 
   read -r start len <<EOF
 $(printf '%s\n' "$ev" | awk -v cap="$cap" -v dur="$dur" '
@@ -77,12 +86,18 @@ $(printf '%s\n' "$ev" | awk -v cap="$cap" -v dur="$dur" '
     END {
       # a silence starting at (or within a frame of) zero is lead-in
       begin = (n > 0 && s[1] <= 0.05 && e[1] != "") ? e[1] : 0
+      # If that lead-in runs to the end of the file, the whole thing is below the
+      # threshold: the generator returned silence. Cutting from there would ask
+      # ffmpeg for a window past the end and write a file with nothing in it, so
+      # report it instead and leave the original alone.
+      if (begin >= dur - 0.1) { print "-1 0"; exit }
       # the take ends at the first silence that begins after the sound does
       stop = dur
       for (i = 1; i <= n; i++) if (s[i] > begin + 0.02) { stop = s[i]; break }
       L = stop - begin
       if (L > cap) L = cap
       if (L < 0.15) L = 0.15
+      if (L > dur - begin) L = dur - begin      # never run past the end
       printf "%.3f %.3f", begin, L
     }')
 EOF
@@ -95,3 +110,10 @@ EOF
   mv "$tmp" "$f"
   printf '  %-12s %ss -> %ss (from %ss)\n' "$name" "$dur" "$len" "$start"
 done
+
+if [ -n "$SILENT" ]; then
+  echo
+  echo "These came back silent and need a new take with a more assertive prompt:"
+  echo "   node tools/generate-sfx.js --force$SILENT"
+  echo "(Words like tiny, small, soft and quiet in a prompt are taken literally.)"
+fi

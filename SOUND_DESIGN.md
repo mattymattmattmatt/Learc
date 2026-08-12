@@ -88,6 +88,13 @@ tools/trim-sfx.sh hit win  # just these
 
 The music endpoint returns one continuous track and needs no trimming.
 
+The trimmer also **reports any cue that came back silent** and leaves it alone. It
+checks every cue for this, not just the over-long ones — a short file can be silent
+too, which is how the first `whoosh` and `box_open` takes got through unnoticed. When
+the whole file sits below −45 dB there is no take to keep, so cutting one would write
+a window past the end of the file; it names the cue and prints the command to re-buy
+it instead.
+
 ---
 
 ## The one-shot cues
