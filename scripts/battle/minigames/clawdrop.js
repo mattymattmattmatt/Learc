@@ -94,7 +94,7 @@ export default {
                 score += gain; scEl.textContent = score; showCombo();
                 sparkle(field, clawX, topY + 20, held.kind === 'gold' ? 12 : 7);
                 floatText(area, clawX, topY + 24, bonus ? `+${held.val} +${bonus}🔥` : `+${held.val}`, 'good');
-                S.star(); buzz(held.kind === 'gold' ? 35 : 25);
+                (bonus ? S.combo : S.star)(); buzz(held.kind === 'gold' ? 35 : 25);
               } else {
                 combo = 0; showCombo(); floatText(area, clawX, topY + 24, 'Junk! 🥾', 'bad'); S.bad(); buzz(50);
               }

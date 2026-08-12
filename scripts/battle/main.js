@@ -655,7 +655,7 @@ function screenGlobDefeat() {
 let spinsJustWon = 0;
 
 function screenEnding() {
-  playMusic('victory.mp3', 0.3);
+  playMusic('ending.mp3', 0.3, 'victory.mp3');   // the long finale theme, or the short cue
   const hero = getPet(state.heroId);
   const score = finalScore(), max = maxStars();
   const clean = state.continues === 0;
@@ -778,7 +778,7 @@ function screenLeaderboard(highlight, tab) {
 let G = null;
 
 function screenGauntletSelect() {
-  playMusic('title.mp3', 0.26);
+  playMusic('gauntlet.mp3', 0.26, 'title.mp3');
   const lives = livesFor(getMode());
   const best = gauntletBest();
   let pick = null;
@@ -968,6 +968,7 @@ function screenGauntletOver() {
 
 /* ════════ 🎁 COLLECTION (Mystery Box 3D models) ════════ */
 function screenCollection() {
+  playMusic('mysterybox.mp3', 0.22, 'title.mp3');
   const roster = modelRoster();
   const owned = ownedModelCount();
   const spins = spinsLeft();

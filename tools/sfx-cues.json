@@ -1,0 +1,77 @@
+{
+  "_comment": [
+    "Battle of the Realm — the one-shot SFX catalogue. Shared source of truth for",
+    "tools/generate-sfx.js (which buys them) and tools/trim-sfx.sh (which cuts them).",
+    "",
+    "Every name here is a cue the game already triggers — see the `S` table in",
+    "scripts/battle/util.js. Generating one upgrades every call site at once; a cue",
+    "you never generate simply keeps its built-in WebAudio synth voice.",
+    "",
+    "`cap` is the trimmed ceiling in seconds. These fire fast and often and several",
+    "can overlap, so anything that reads as an impact stays short. Edit a prompt and",
+    "re-run with --force to buy a new take."
+  ],
+
+  "hit": {
+    "cap": 0.45,
+    "prompt": "Cartoon battle impact — a solid meaty thwack with a short low thud underneath, storybook creature duel, punchy and satisfying, completely dry, no reverb tail"
+  },
+  "splash": {
+    "cap": 0.9,
+    "prompt": "A creature belly-flopping into water — a big cartoon splash with a quick watery gulp and light droplet patter, playful not harsh, short tail"
+  },
+  "good": {
+    "cap": 0.5,
+    "prompt": "Bright cheerful success blip — a crisp two-note ascending chime, small win confirmation, warm and encouraging, very short and dry"
+  },
+  "bad": {
+    "cap": 0.6,
+    "prompt": "Gentle cartoon mistake sound — a soft descending two-note wobble, disappointed but kind, never harsh or buzzy, short and dry"
+  },
+  "star": {
+    "cap": 0.6,
+    "prompt": "Sparkling star pickup — a bright glassy twinkle rising with a light magical shimmer, collectible reward, clean and short, no tail"
+  },
+  "pickup": {
+    "cap": 0.35,
+    "prompt": "Tiny bright collect pop — a quick glassy blip catching something, clean arcade pickup, very short, no reverb"
+  },
+  "combo": {
+    "cap": 0.5,
+    "prompt": "Combo streak ding — an exciting bright digital chime a step higher than the last, rewarding escalation, crisp and very short"
+  },
+
+  "tick": {
+    "cap": 0.3,
+    "prompt": "Short dry countdown tick — a clean wooden clock blip, neutral and crisp, tiny, absolutely no tail"
+  },
+  "go": {
+    "cap": 1.0,
+    "prompt": "FIGHT! countdown release — a bright rising horn-and-chime stab that launches the round, energetic and heroic, punchy, short tail"
+  },
+  "swipe": {
+    "cap": 0.5,
+    "prompt": "Fast cartoon whoosh — a light airy swish of a creature darting past, soft and clean, short, no reverb"
+  },
+  "ui": {
+    "cap": 0.25,
+    "prompt": "Crisp UI confirm tap — a light wooden mallet click with a soft warm tone, storybook menu button press, snappy and dry, tiny"
+  },
+
+  "win": {
+    "cap": 1.8,
+    "prompt": "Short victory jingle — a triumphant ascending major-key flourish with bells and a bright sparkle, a duel won, celebratory, resolves cleanly"
+  },
+  "lose": {
+    "cap": 1.8,
+    "prompt": "Gentle defeat jingle — a soft descending minor-key phrase, wistful and kind rather than punishing, encourages another try, resolves and ends"
+  },
+  "fanfare": {
+    "cap": 2.5,
+    "prompt": "Regal royal fanfare announcing an evil king — bold brass fanfare with a dark ominous undertow and a deep timpani hit, storybook villain arrival, dramatic"
+  },
+  "badge": {
+    "cap": 1.2,
+    "prompt": "Achievement unlocked chime — a warm rising bell arpeggio finishing on a bright sparkle, proud and rewarding, clean and short"
+  }
+}

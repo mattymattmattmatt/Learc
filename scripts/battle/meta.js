@@ -100,7 +100,7 @@ function nextToast() {
   const t = el('div', 'badge-toast',
     `<span class="bt-icon">${def.icon}</span><span class="bt-txt"><b>Badge earned!</b><br>${def.name}</span>`);
   document.body.appendChild(t);
-  S.star(); buzz(20);
+  S.badge(); buzz(20);
   setTimeout(() => t.classList.add('out'), 2100);
   setTimeout(() => { t.remove(); nextToast(); }, 2500);
 }
