@@ -33,7 +33,7 @@
   fetches the audio. Paste the generated block into the <code>S</code> table in
   <code>scripts/battle/util.js</code>. Re-run this after regenerating any cue.
 </p>
-<p><button id="go">Measure</button> <span id="status"></span></p>
+<p><button id="go">Measure cues</button> <button id="goRoar">Measure roars</button> <span id="status"></span></p>
 <div id="out"></div>
 
 <script>
@@ -84,6 +84,68 @@ async function measure(ac, name) {
            lead: first < 0 ? 0 : first / 200, firstTakeEnd, soundEnd,
            multi: firstTakeEnd !== null && firstTakeEnd < soundEnd - 0.02 };
 }
+
+// The creature roars and stingers in assets/audio/ are sampled files played by
+// sfx(), not by the S table. They arrived 21 dB apart with up to 1.2s of lead-in
+// silence, so they get the same treatment via the ROAR table in util.js.
+const ROAR_TARGET = -20;
+const ROAR_FILES = [
+  'bo','chocker','chomper','chunky','cliggy','clubbo','creeper','demonder','diver','fertle',
+  'fixie','flick','fygar','glob','gus','minyar','peeta-heater','roger-dodger','sixter',
+  'skyjumper','snapper','stinger','swack','waterwolf','whipper','yellogen','yelp','zappo',
+].map(n => `${n}_entrance.wav`).concat([
+  'catch.wav','shatter.wav','spell_break.wav','crown_crack.wav','glob_laugh.wav',
+  'glob_enrage.wav','glob_defeat.wav','minyar_defeat.wav','demonder_defeat.wav','clubbo_defeat.wav',
+]);
+
+document.getElementById('goRoar').onclick = async () => {
+  const status = document.getElementById('status'), out = document.getElementById('out');
+  out.innerHTML = ''; status.textContent = 'measuring roars…';
+  const ac = new AudioContext();
+  const rows = [], lines = [];
+  for (const f of ROAR_FILES) {
+    try {
+      const buf = await fetch(`../assets/audio/${encodeURIComponent(f)}`)
+        .then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+        .then(a => ac.decodeAudioData(a));
+      const d = buf.getChannelData(0), sr = buf.sampleRate;
+      const W = Math.round(sr * 0.005), wins = [];
+      for (let i = 0; i + W <= d.length; i += W) {
+        let s = 0; for (let j = i; j < i + W; j++) s += d[j] * d[j];
+        wins.push(Math.sqrt(s / W));
+      }
+      const GATE = 0.015;
+      let peak = 0; for (let i = 0; i < d.length; i++) { const a = Math.abs(d[i]); if (a > peak) peak = a; }
+      const loud = wins.filter(w => w > GATE);
+      const rms = loud.length ? Math.sqrt(loud.reduce((s, w) => s + w * w, 0) / loud.length) : 0;
+      const first = wins.findIndex(w => w > GATE);
+      let last = -1; for (let i = wins.length - 1; i >= 0; i--) if (wins[i] > GATE) { last = i; break; }
+      rows.push({ f, dur: buf.duration, peak, rms,
+                  lead: first < 0 ? 0 : first / 200,
+                  sound: last < 0 ? 0 : (last - Math.max(0, first)) / 200 });
+    } catch (e) { rows.push({ f, err: String(e.message || e) }); }
+  }
+
+  let html = '<table><tr><th>file</th><th>rms</th><th>peak</th><th>lead-in</th>'
+           + '<th>sound</th><th>gain</th><th>notes</th></tr>';
+  for (const r of rows.sort((a, b) => (a.rms ?? 9) - (b.rms ?? 9))) {
+    if (r.err) { html += `<tr><td>${r.f}</td><td colspan="6" class="bad">${r.err}</td></tr>`; continue; }
+    const g = Math.round(Math.pow(10, (ROAR_TARGET - dB(r.rms)) / 20) * 100) / 100;
+    const at = r.lead > 0.06 ? +(r.lead - 0.03).toFixed(2) : 0;
+    const notes = [];
+    if (at) notes.push(`starts ${Math.round(r.lead * 1000)}ms late`);
+    if (r.sound < 0.25) notes.push('barely any sound in the file');
+    if (g > 2) notes.push('very quiet — consider regenerating');
+    lines.push(`  '${r.f}': { g: ${g}${at ? `, at: ${at}` : ''} },`);
+    html += `<tr><td>${r.f}</td><td>${fmt(r.rms)}</td><td>${r.peak.toFixed(3)}</td>`
+          + `<td>${r.lead.toFixed(2)}s</td><td>${r.sound.toFixed(2)}s</td><td><b>${g}</b></td>`
+          + `<td class="${notes.length ? 'warn' : ''}">${notes.join('; ')}</td></tr>`;
+  }
+  html += '</table><p>Paste into the <code>ROAR</code> table in <code>scripts/battle/util.js</code>:</p>'
+        + '<pre>' + lines.join('\n') + '</pre>';
+  out.innerHTML = html;
+  status.textContent = `done — ${rows.length} files`;
+};
 
 document.getElementById('go').onclick = async () => {
   const status = document.getElementById('status'), out = document.getElementById('out');

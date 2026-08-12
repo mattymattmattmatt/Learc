@@ -150,6 +150,17 @@ plays them at a frequency it computes at runtime, which a fixed sample can't do.
 henchman/Glob defeat and laugh clips, `spell_break`, `crown_crack`, `shatter` and
 `catch` all live in `assets/audio/` as hand-picked `.wav`s and play via `sfx()`.
 
+They get the same level treatment, through the `ROAR` table in `util.js` — measure them
+with the **Measure roars** button on `tools/measure-sfx.html`. As generated they were
+**21 dB apart**, so Clubbo's defeat bellowed while Flick's chirp was inaudible, and
+several opened with lead-in silence that delayed the roar past the tap that asked for
+it. `flick_entrance.wav` is the extreme case: **1.24s of silence in front of 0.2s of
+sound**. Playback now starts past the silence, using a `#t=` media fragment.
+
+One caveat: an element's volume can't exceed 1, so a file quieter than the target can
+only be brought up so far. `flick_entrance.wav` is still about 5 dB under everything
+else and is the one roar genuinely worth regenerating.
+
 ---
 
 ## The music

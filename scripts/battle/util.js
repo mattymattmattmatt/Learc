@@ -129,10 +129,63 @@ export function stopMusic() {
   curEl = null; curName = '';
 }
 
+/* Per-file trim for the sampled roars and stingers in assets/audio/.
+   Measured, not guessed — open tools/measure-sfx.html and press "Measure roars".
+   `g` scales the level: these arrived 21 dB apart, so Clubbo's defeat bellowed
+   while Flick's chirp was inaudible. `at` skips lead-in silence, which several
+   files open with — Flick's is 1.24s of nothing before 0.2s of sound, so its
+   roar used to land well after the tap that asked for it. */
+const ROAR = {
+  'flick_entrance.wav': { g: 2.2, at: 1.21 },
+  'snapper_entrance.wav': { g: 1.38, at: 0.66 },
+  'stinger_entrance.wav': { g: 1.18, at: 0.13 },
+  'roger-dodger_entrance.wav': { g: 1.17 },
+  'chocker_entrance.wav': { g: 0.99, at: 0.14 },
+  'shatter.wav': { g: 0.88 },
+  'fixie_entrance.wav': { g: 0.88 },
+  'diver_entrance.wav': { g: 0.75, at: 0.96 },
+  'bo_entrance.wav': { g: 0.71 },
+  'creeper_entrance.wav': { g: 0.71 },
+  'chunky_entrance.wav': { g: 0.71, at: 0.63 },
+  'spell_break.wav': { g: 0.7 },
+  'catch.wav': { g: 0.68 },
+  'minyar_entrance.wav': { g: 0.63 },
+  'zappo_entrance.wav': { g: 0.61, at: 0.7 },
+  'glob_entrance.wav': { g: 0.6, at: 0.31 },
+  'sixter_entrance.wav': { g: 0.6 },
+  'gus_entrance.wav': { g: 0.59 },
+  'fygar_entrance.wav': { g: 0.57 },
+  'yellogen_entrance.wav': { g: 0.53, at: 0.24 },
+  'whipper_entrance.wav': { g: 0.51 },
+  'glob_enrage.wav': { g: 0.46 },
+  'swack_entrance.wav': { g: 0.43 },
+  'cliggy_entrance.wav': { g: 0.43, at: 0.49 },
+  'skyjumper_entrance.wav': { g: 0.41 },
+  'demonder_entrance.wav': { g: 0.4 },
+  'glob_laugh.wav': { g: 0.39 },
+  'minyar_defeat.wav': { g: 0.38 },
+  'glob_defeat.wav': { g: 0.36 },
+  'waterwolf_entrance.wav': { g: 0.36 },
+  'demonder_defeat.wav': { g: 0.34 },
+  'chomper_entrance.wav': { g: 0.33 },
+  'fertle_entrance.wav': { g: 0.32 },
+  'yelp_entrance.wav': { g: 0.32 },
+  'peeta-heater_entrance.wav': { g: 0.29, at: 0.29 },
+  'clubbo_entrance.wav': { g: 0.28 },
+  'crown_crack.wav': { g: 0.24 },
+  'clubbo_defeat.wav': { g: 0.2 },
+};
+
 /* play a sampled file (used for the creatures' own entrance roars) */
 export function sfx(file, vol = 0.8) {
   if (!file || muted) return;
-  try { const a = new Audio(AUDIO(file)); a.volume = vol; a.play().catch(() => {}); } catch {}
+  const t = ROAR[file];
+  try {
+    // a media fragment starts playback past the silence with no seek
+    const a = new Audio(AUDIO(file) + (t && t.at ? `#t=${t.at}` : ''));
+    a.volume = clamp(vol * (t ? t.g : 1), 0, 1);
+    a.play().catch(() => {});
+  } catch {}
 }
 /* one-shot stinger from the Music folder (e.g. a boss's musical entrance) */
 export function sfxMusic(file, vol = 0.8) {
