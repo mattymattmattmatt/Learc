@@ -327,15 +327,16 @@ isn't available to your key).
 |---------|-------|-------|-----------|
 | `narrator` | **George** | the opening tale, the three region blurbs | steady and warm — a bedtime-story reader |
 | `glob` | **Brian** | Glob's throne-room speech and his defeat | low stability, high style: theatrical, swinging from boast to shriek |
-| `minyar` | **Bill** | his taunt and his defeat | wound right up — rushed, cracking, indignant |
-| `demonder` | **Bill** | his taunt and his defeat | steady and amused — he thinks this is fun |
-| `clubbo` | **Bill** | his taunt and his defeat | slowed and flattened — short blunt bursts |
+| `minyar` | **Callum** | his taunt and his defeat | husky trickster, wound right up — rushed and cracking |
+| `demonder` | **Harry** | his taunt and his defeat | warrior weight pulled back to amused, not raging |
+| `clubbo` | **Charlie** | his taunt and his defeat | deep but flattened — slow, blunt bursts |
 
-Three voices across five speakers: the two you hear for a stretch get their own
-timbre, and the henchmen share Bill separated by delivery. They appear one per
-region and never share a scene, so they don't collide. If you'd rather one had his
-own voice, put another name in his `voice` field and re-run just that block —
-`node tools/generate-voice.js clubbo`.
+Five speakers, five voices. Names are matched on the part before the `-`, so
+`George` resolves `George - Warm, Captivating Storyteller` — put a short name, a
+full label or a voice ID in the `voice` field, whichever reads better.
+
+Recasting anyone costs only their lines: change the name and run
+`node tools/generate-voice.js clubbo --force`.
 
 ### How it plays
 

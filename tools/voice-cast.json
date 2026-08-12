@@ -15,9 +15,10 @@
     "more variable between takes; higher = steadier. The narrator wants steadiness,",
     "the tantrum-throwing villains do not.",
     "",
-    "Cast: George narrates, Brian is Glob, Bill plays all three henchmen with a",
-    "different delivery each. They meet one per region so they never share a scene.",
-    "To give a henchman his own timbre, put another voice name in his `voice` field."
+    "Cast: George narrates, Brian is Glob, and the three henchmen have their own",
+    "voices — Callum, Harry and Charlie. Short names are fine here: the lookup",
+    "matches the leading name, so \"George\" finds \"George - Warm, Captivating",
+    "Storyteller\"."
   ],
   "model_id": "eleven_multilingual_v2",
   "speakers": {
@@ -42,7 +43,7 @@
       }
     },
     "minyar": {
-      "voice": "Bill",
+      "voice": "Callum",
       "description": "A whiny, wound-up little bully mid-tantrum — nasal, fast, indignant, forever on the edge of stamping a foot and telling on you. Comic and childish rather than menacing.",
       "settings": {
         "stability": 0.3,
@@ -50,10 +51,10 @@
         "style": 0.65,
         "use_speaker_boost": true
       },
-      "casting_note": "Bill, wound right up: low stability and high style so he rushes and cracks — frantic, indignant, about to tell on you."
+      "casting_note": "Callum's husky trickster read, wound right up: low stability and high style so he rushes and cracks."
     },
     "demonder": {
-      "voice": "Bill",
+      "voice": "Harry",
       "description": "A gruff, swaggering brawler who thinks this is all a bit of fun — low, gravelly, amused, the sort who cracks his knuckles and grins. Confident and unhurried, tough but never nasty.",
       "settings": {
         "stability": 0.5,
@@ -61,18 +62,18 @@
         "style": 0.45,
         "use_speaker_boost": true
       },
-      "casting_note": "Bill, steady and amused: middling stability, easy swagger — he thinks this is fun."
+      "casting_note": "Harry's warrior weight, pulled back to amused rather than raging — he thinks this is fun."
     },
     "clubbo": {
-      "voice": "Bill",
+      "voice": "Charlie",
       "description": "An enormous, slow, simple-minded crusher — very deep, booming and rumbling, speaking in short blunt bursts with big pauses. Dim and weirdly good-natured underneath all the smashing. Lumbering, not evil.",
       "settings": {
-        "stability": 0.7,
+        "stability": 0.75,
         "similarity_boost": 0.8,
         "style": 0.2,
         "use_speaker_boost": true
       },
-      "casting_note": "Bill, slowed and flattened: high stability, low style so he lumbers in short blunt bursts."
+      "casting_note": "Charlie is deep but energetic, so high stability and low style flatten him into slow blunt bursts."
     }
   },
   "casting": {
