@@ -45,7 +45,7 @@ catch (e) { console.error(`❌ ${e.message}`); process.exit(1); }
 // Statuses where every remaining cue would fail for the same reason.
 const FATAL = new Set([401, 403, 422]);
 const EXPLAIN = {
-  401: 'ElevenLabs rejected the key. Check ELEVENLABS_API_KEY in your .env — if you rotated it, paste the new one.',
+  401: 'ElevenLabs rejected the key. If the message above mentions a permission, the key is scoped — edit it at https://elevenlabs.io/app/settings/api-keys and enable Sound Generation. Otherwise the key is wrong or revoked.',
   403: 'Access denied. Either the key lacks sound-generation permission, your credits are exhausted, or the host is blocked by a network policy.',
   422: 'ElevenLabs rejected the request shape. If this followed an edit to tools/sfx-cues.json, check the prompt and cap for that cue.',
 };

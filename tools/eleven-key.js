@@ -90,7 +90,7 @@ function requireKey() {
     throw Object.assign(new Error(
       'No ELEVENLABS_API_KEY found.\n' +
       '   Put it in a gitignored .env at the repo root:\n' +
-      "     printf 'ELEVENLABS_API_KEY=%s\\n' 'sk_your_key_here' > .env\n" +
+      "     printf 'ELEVENLABS_API_KEY=%s\\n' 'PASTE-YOUR-KEY' > .env\n" +
       '   (or export it in your shell), then re-run.'), { clean: true });
   }
   if (!found.key) {
@@ -129,7 +129,16 @@ function check(key) {
       res.on('end', () => {
         const body = Buffer.concat(chunks).toString();
         if (res.statusCode !== 200) {
-          return resolve({ ok: false, status: res.statusCode, body: body.slice(0, 200) });
+          // ElevenLabs explains itself in `detail`, as either a string or
+          // { status, message }. Surfacing it is the whole point of this check —
+          // "invalid key" and "this key lacks a permission" are different problems.
+          let code = '', message = body.slice(0, 300);
+          try {
+            const d = JSON.parse(body).detail;
+            if (typeof d === 'string') message = d;
+            else if (d && typeof d === 'object') { code = d.status || ''; message = d.message || message; }
+          } catch {}
+          return resolve({ ok: false, status: res.statusCode, code, message });
         }
         try {
           const j = JSON.parse(body);
@@ -137,8 +146,8 @@ function check(key) {
         } catch { resolve({ ok: true }); }
       });
     });
-    req.on('timeout', () => { req.destroy(); resolve({ ok: false, status: 0, body: 'timed out' }); });
-    req.on('error', (e) => resolve({ ok: false, status: 0, body: e.message }));
+    req.on('timeout', () => { req.destroy(); resolve({ ok: false, status: 0, message: 'timed out' }); });
+    req.on('error', (e) => resolve({ ok: false, status: 0, message: e.message }));
     req.end();
   });
 }
@@ -167,19 +176,47 @@ if (require.main === module) {
 
     process.stdout.write('· asking ElevenLabs… ');
     const res = await check(found.key);
+
     if (res.ok) {
       console.log('accepted.');
       if (typeof res.remaining === 'number') {
         console.log(`  credits remaining: ${res.remaining.toLocaleString()} of ${res.limit.toLocaleString()}${res.tier ? ` (${res.tier})` : ''}`);
       }
-    } else if (res.status === 401) {
-      console.log('rejected.');
-      console.error('❌ ElevenLabs says this key is invalid. If you rotated it, paste the new one.');
-      process.exit(1);
-    } else {
-      console.log('failed.');
-      console.error(`❌ ${res.status || ''} ${res.body}`);
+      return;
+    }
+
+    console.log('rejected.');
+    console.error(`   ElevenLabs said: ${res.code ? res.code + ' — ' : ''}${res.message}`);
+
+    // A scoped key that can generate audio but can't read the account is fine
+    // for our purposes: this endpoint only fetches the credit balance.
+    const permissionsOnly = res.status === 401 &&
+      (/missing_permission/i.test(res.code) || /permission/i.test(res.message));
+    if (permissionsOnly) {
+      console.log('');
+      console.log('⚠️  This key just lacks the "user" read permission, which is only used to');
+      console.log('   show your credit balance. Generating audio may still work.');
+      console.log('   To see the balance too, edit the key at');
+      console.log('   https://elevenlabs.io/app/settings/api-keys and enable User → Read.');
+      console.log('');
+      console.log('   Continuing — run: bash tools/generate-all.sh');
+      return;                                    // exit 0: do not block generation
+    }
+
+    if (/quota|credit/i.test(res.code) || /quota|credit/i.test(res.message)) {
+      console.error('');
+      console.error('❌ The key works, but the account is out of credits. Top up or wait for the');
+      console.error('   monthly reset at https://elevenlabs.io/app/subscription — nothing to fix here.');
       process.exit(1);
     }
+
+    if (res.status === 401) {
+      console.error('');
+      console.error('❌ The key itself was rejected. Check at https://elevenlabs.io/app/settings/api-keys that:');
+      console.error('   · the key still exists and has not been revoked');
+      console.error('   · you copied the whole thing (it should be sk_ + 48 hex characters)');
+      console.error('   · it belongs to the workspace whose credits you want to spend');
+    }
+    process.exit(1);
   })();
 }
