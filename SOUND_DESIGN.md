@@ -12,8 +12,20 @@ existing one to fall back on, so an ungenerated track is never a silent screen.
 
 ## Generating the audio
 
-The generators need an ElevenLabs API key. Put it in a **gitignored** `.env` at the
-repo root (`.gitignore` already covers `.env`, `elevenlabs.env` and `*.env`):
+**The easy way** — from Git Bash (or any shell) at the repo root:
+
+```bash
+bash tools/generate-all.sh
+```
+
+It checks for Node, asks for your API key if there isn't one yet, generates all 25
+sound effects, trims them if `ffmpeg` is available, then **pauses for confirmation**
+before the more expensive music stage. It prints your ElevenLabs credit balance
+before and after each stage, so a run can't quietly drain the account.
+
+**The manual way** — the generators need an ElevenLabs API key in a **gitignored**
+`.env` at the repo root (`.gitignore` already covers `.env`, `elevenlabs.env` and
+`*.env`):
 
 ```
 ELEVENLABS_API_KEY=sk_...
@@ -22,12 +34,15 @@ ELEVENLABS_API_KEY=sk_...
 …or export `ELEVENLABS_API_KEY` in your shell. Then:
 
 ```bash
-node tools/generate-sfx.js            # the 15 one-shot cues → assets/audio/sfx/
-node tools/generate-music.js          # the 3 new tracks     → assets/Music/
+node tools/generate-sfx.js            # the 25 one-shot cues → assets/audio/sfx/
+node tools/generate-music.js          # the 4 new tracks     → assets/Music/
 ```
 
-Both scripts are dependency-free (plain Node, no `npm install`) and both **skip
-anything already on disk**, so a re-run costs no credits. Useful flags:
+All three scripts are dependency-free (plain Node + bash, no `npm install`) and both
+generators **skip anything already on disk**, so a re-run costs no credits — and a
+retake of one cue you didn't like costs exactly one cue. They also stop immediately
+on a rejected key or an exhausted quota rather than repeating the same error 25
+times. Useful flags:
 
 ```bash
 node tools/generate-sfx.js --force        # re-buy everything
@@ -68,23 +83,50 @@ Every name below is a cue the game **already triggers** — they map to the `S` 
 and length caps live in `tools/sfx-cues.json`; edit a prompt there and re-run with
 `--force` to buy a new take.
 
+### Combat & minigames
+
 | Cue | Fires when | Cap |
 |-----|-----------|-----|
 | `hit` | any strike lands — attacks, collisions, Glob's crown cracking | 0.45s |
 | `splash` | a creature hits the water (Balance, sea games) | 0.9s |
+| `shoot` | Sharpshooter fires, Slingshot releases — **the shot, not the impact** (Sharpshooter was playing `hit` for its own gun) | 0.35s |
+| `reload` | Sharpshooter refills its clip (**was silent**) | 0.6s |
 | `good` | a small success — a gap cleared, a correct input | 0.5s |
 | `bad` | a small mistake — a miss, a slip, a dropped combo | 0.6s |
-| `star` | a star or prize collected | 0.6s |
+| `star` | a star or prize collected mid-game | 0.6s |
 | `pickup` | a catch lands (Reel It In, catch games) | 0.35s |
 | `combo` | a combo grab in Claw Drop (was borrowing `star`) | 0.5s |
+| `heart` | hearts restored in a boss duel (was borrowing `star`) | 1.0s |
 | `tick` | the 3-2-1 countdown, and each face flying past on the Mystery Box reel | 0.3s |
 | `go` | **FIGHT!** — the countdown releasing | 1.0s |
-| `swipe` | a dash, a swipe, a slingshot release | 0.5s |
-| `ui` | any menu button | 0.25s |
+| `swipe` | a dash, a boss sweep starting | 0.5s |
+
+### Boss duels
+
+| Cue | Fires when | Cap |
+|-----|-----------|-----|
+| `boss_warn` | an attack zone arms, just before it lands (**was silent** — the telegraph was visual only) | 0.6s |
+| `boss_slam` | a boss slams the ground (was the generic `hit`, giving a giant king the same weight as a tap) | 0.9s |
+
+### Menus & screens
+
+| Cue | Fires when | Cap |
+|-----|-----------|-----|
+| `ui` | a confirm / forward button | 0.25s |
+| `ui_back` | a back or cancel link — softer and rounder (was identical to confirm) | 0.25s |
+| `whoosh` | any screen change, via the single `show()` funnel in `main.js`. Quiet by design; delete `S.whoosh()` from that one line if you'd rather have silent transitions | 0.5s |
+
+### Results & rewards
+
+| Cue | Fires when | Cap |
+|-----|-----------|-----|
 | `win` | a duel won | 1.8s |
 | `lose` | a duel lost | 1.8s |
+| `star_pop` | each star stamping onto the result card, one at a time (was the generic `star`) | 0.7s |
+| `region_clear` | a whole region freed — bigger than a single duel win, which it was reusing | 3.0s |
 | `fanfare` | Evil King Glob announced, and a **new** Mystery Box unlock | 2.5s |
 | `badge` | a badge earned (was borrowing `star`) | 1.2s |
+| `box_open` | the Mystery Box bursting open (was the generic `win`) | 1.8s |
 
 **Deliberately left on the synth:** `pad` (Memory's four coloured pads), `charge`
 (Charge Shot's rising meter) and `note` (Pitch Wail) are *pitch-continuous* — the game
@@ -106,6 +148,7 @@ already ship in `assets/Music/`. These three screens had no music of their own:
 | `ending.mp3` | the finale + credits (was reusing the short `victory` cue) | 75s | `victory.mp3` |
 | `mysterybox.mp3` | the Collection screen (and the Mystery Box opened from it) | 45s | `title.mp3` |
 | `gauntlet.mp3` | The Gauntlet — champion select and rounds | 60s | `title.mp3` |
+| `gallery.mp3` | the Critterdex — browsing all 24 champions | 45s | `title.mp3` |
 
 Prompts are in `tools/generate-music.js`. Each is written as a **loop**: these play
 under a screen for minutes at a time, so a track with a big intro or a hard ending

@@ -53,7 +53,7 @@ export default {
       const fireAt = (cx, cy) => {
         if (reloading) { return; }
         if (ammo <= 0) { startReload(); return; }
-        ammo--; drawAmmo(); S.hit(); buzz(18);
+        ammo--; drawAmmo(); S.shoot(); buzz(18);
         cross.hidden = false; cross.style.left = cx + 'px'; cross.style.top = cy + 'px';
         cross.classList.remove('fire'); void cross.offsetWidth; cross.classList.add('fire');
         // hit-test (nearest target under the shot)
@@ -72,7 +72,7 @@ export default {
         if (ammo <= 0) startReload();
       };
       function startReload() {
-        if (reloading) return; reloading = true; drawAmmo();
+        if (reloading) return; reloading = true; drawAmmo(); S.reload();
         setTimeout(() => { ammo = CLIP; reloading = false; drawAmmo(); }, 1000);
       }
 

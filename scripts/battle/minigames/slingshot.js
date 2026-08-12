@@ -84,7 +84,7 @@ export default {
         proj = { x: anchor.x, y: anchor.y, vx: v.x, vy: v.y };
         stones--; stEl.textContent = '●'.repeat(Math.max(0, stones));
         stoneEl.hidden = false; stoneEl.style.left = anchor.x + 'px'; stoneEl.style.top = anchor.y + 'px';
-        traj.innerHTML = ''; clearBands(); restPouch(); S.swipe(); buzz(20);
+        traj.innerHTML = ''; clearBands(); restPouch(); S.shoot(); buzz(20);
       };
       function updatePull(e) {
         const r = field.getBoundingClientRect();

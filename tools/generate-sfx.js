@@ -55,6 +55,14 @@ if (!API_KEY) {
   process.exit(1);
 }
 
+// Statuses where every remaining cue would fail for the same reason.
+const FATAL = new Set([401, 403, 422]);
+const EXPLAIN = {
+  401: 'ElevenLabs rejected the key. Check ELEVENLABS_API_KEY in your .env — if you rotated it, paste the new one.',
+  403: 'Access denied. Either the key lacks sound-generation permission, your credits are exhausted, or the host is blocked by a network policy.',
+  422: 'ElevenLabs rejected the request shape. If this followed an edit to tools/sfx-cues.json, check the prompt and cap for that cue.',
+};
+
 // ── HTTP ───────────────────────────────────────────────────────
 function generate(name, cue) {
   const payload = JSON.stringify({
@@ -82,7 +90,9 @@ function generate(name, cue) {
       res.on('end', () => {
         const body = Buffer.concat(chunks);
         if (res.statusCode !== 200) {
-          return reject(new Error(`${res.statusCode} ${body.toString().slice(0, 300)}`));
+          const err = new Error(`${res.statusCode} ${body.toString().slice(0, 300)}`);
+          err.status = res.statusCode;
+          return reject(err);
         }
         fs.mkdirSync(OUT, { recursive: true });
         fs.writeFileSync(path.join(OUT, `${name}.mp3`), body);
@@ -163,6 +173,13 @@ async function main() {
     } catch (e) {
       console.error(`✗ ${name}: ${e.message}`);
       failed.push(name);
+      // A rejected key, a blocked host or an exhausted quota fails identically
+      // for every remaining cue — stop rather than print it 25 times.
+      if (FATAL.has(e.status)) {
+        console.error(`\n⛔ ${EXPLAIN[e.status]}`);
+        console.error(`   Stopping — the other ${names.length - made.length - 1} cue(s) would fail the same way.`);
+        break;
+      }
     }
     await new Promise((r) => setTimeout(r, 150));   // be gentle on the endpoint
   }

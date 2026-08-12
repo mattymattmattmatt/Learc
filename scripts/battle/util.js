@@ -239,6 +239,24 @@ export const S = {
   /* cues that used to borrow another sound — now their own, synth included */
   combo: cue('combo', () => { tone({ f: 880, dur: 0.07, type: 'square', vol: 0.18 }); tone({ f: 1320, dur: 0.09, delay: 0.05, type: 'square', vol: 0.16 }); }, 0.6),
   badge: cue('badge', () => [659, 880, 1319].forEach((f, i) => tone({ f, dur: 0.14, delay: i * 0.09, type: 'triangle', vol: 0.2 })), 0.7),
+  /* the stars stamping onto a result card, one at a time */
+  starPop: cue('star_pop', () => { tone({ f: 990, dur: 0.08, type: 'triangle', vol: 0.22 }); tone({ f: 1480, dur: 0.12, delay: 0.05, type: 'triangle', vol: 0.18 }); }, 0.7),
+  /* a whole region freed — grander than a single duel win */
+  regionClear: cue('region_clear', () => {
+    [523, 659, 784].forEach((f, i) => tone({ f, dur: 0.16, delay: i * 0.12, type: 'triangle', vol: 0.22 }));
+    tone({ f: 1047, dur: 0.6, delay: 0.36, type: 'triangle', vol: 0.24, release: 0.35 });
+  }, 0.85),
+  boxOpen: cue('box_open', () => { noise({ dur: 0.12, vol: 0.2, lp: 4000, hp: 800 }); [784, 988, 1319].forEach((f, i) => tone({ f, dur: 0.14, delay: 0.06 + i * 0.08, type: 'triangle', vol: 0.2 })); }, 0.8),
+  heart: cue('heart', () => [523, 659, 784, 880].forEach((f, i) => tone({ f, dur: 0.18, delay: i * 0.07, type: 'sine', vol: 0.2, release: 0.14 })), 0.75),
+  /* UI: a confirm and a softer, rounder back */
+  uiBack: cue('ui_back', () => tone({ f: 320, f2: 240, dur: 0.07, type: 'triangle', vol: 0.14 }), 0.35),
+  whoosh: cue('whoosh', () => noise({ dur: 0.18, vol: 0.1, lp: 2600, hp: 500 }), 0.3),
+  /* boss telegraphs — the warning had no sound at all before */
+  bossWarn: cue('boss_warn', () => tone({ f: 300, f2: 220, dur: 0.14, type: 'square', vol: 0.14 }), 0.5),
+  bossSlam: cue('boss_slam', () => { noise({ dur: 0.24, vol: 0.34, lp: 900 }); tone({ f: 110, f2: 45, dur: 0.22, type: 'square', vol: 0.26 }); }, 0.8),
+  /* shooting games: the shot itself, not the impact */
+  shoot: cue('shoot', () => { noise({ dur: 0.07, vol: 0.16, lp: 5000, hp: 1200 }); tone({ f: 900, f2: 1600, dur: 0.07, type: 'triangle', vol: 0.16 }); }, 0.5),
+  reload: cue('reload', () => { tone({ f: 260, dur: 0.05, type: 'square', vol: 0.14 }); tone({ f: 340, dur: 0.05, delay: 0.12, type: 'square', vol: 0.14 }); }, 0.5),
   /* pitch-continuous by design — a fixed sample can't stand in for these */
   pad:   i => tone({ f: [330, 440, 554, 660][i % 4], dur: 0.16, type: 'sine', vol: 0.22 }),
   charge:lvl => tone({ f: 200 + lvl * 700, dur: 0.05, type: 'sawtooth', vol: 0.12 }),

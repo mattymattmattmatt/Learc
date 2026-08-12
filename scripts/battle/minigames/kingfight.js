@@ -302,7 +302,7 @@ export default {
         for (let i = zones.length - 1; i >= 0; i--) {
           const z = zones[i]; z.t -= dt;
           if (z.state === 'warn' && z.t <= 0) {
-            z.state = 'slam'; z.t = 0.24; z.node.classList.add('slam'); S.hit(); buzz(20);
+            z.state = 'slam'; z.t = 0.24; z.node.classList.add('slam'); S.bossSlam(); buzz(20);
             if (iframe <= 0 && Math.hypot(z.x - h.x, z.y - h.y) < z.r * 0.9 + hr * 0.5) hurt();
           } else if (z.state === 'slam' && z.t <= 0) { z.node.remove(); zones.splice(i, 1); }
         }

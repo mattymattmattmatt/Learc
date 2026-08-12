@@ -65,6 +65,11 @@ const TRACKS = {
     fallback: 'title.mp3',
     prompt: `Endless-mode arena loop — friendly duels against an unbroken line of champions. ${STYLE}. Driving 138 BPM, relentless propulsive groove with tribal drums and a confident brass-and-marimba riff, exciting and sporting rather than menacing, keeps its energy up across many repeats. Seamless loop.`,
   },
+  gallery: {
+    ms: 45000,
+    fallback: 'title.mp3',
+    prompt: `Creature-encyclopedia browsing loop — a quiet gallery of every champion in the realm. ${STYLE}. Slow and spacious around 85 BPM, gentle rocking woodwind melody over soft plucked strings, unhurried and affectionate, the feeling of leafing through a beloved picture book. Stays out of the way. Seamless loop.`,
+  },
 };
 
 // The API has moved around; try the documented shape first and fall back

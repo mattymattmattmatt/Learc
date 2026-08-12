@@ -9,7 +9,11 @@
     "",
     "`cap` is the trimmed ceiling in seconds. These fire fast and often and several",
     "can overlap, so anything that reads as an impact stays short. Edit a prompt and",
-    "re-run with --force to buy a new take."
+    "re-run with --force to buy a new take.",
+    "",
+    "House style: storybook fantasy, warm and playful, never harsh — this is a",
+    "children's game about freeing creatures, not a shooter. Dry and punchy: reverb",
+    "tails smear together when cues stack."
   ],
 
   "hit": {
@@ -20,6 +24,15 @@
     "cap": 0.9,
     "prompt": "A creature belly-flopping into water — a big cartoon splash with a quick watery gulp and light droplet patter, playful not harsh, short tail"
   },
+  "shoot": {
+    "cap": 0.35,
+    "prompt": "Light cartoon projectile launch — a soft airy pew with a quick woody snap of a slingshot releasing, storybook not military, clean and dry, very short"
+  },
+  "reload": {
+    "cap": 0.6,
+    "prompt": "Quick cartoon reload — a light wooden clack-clack of pouches being refilled, tidy mechanical two-beat, warm and toylike, dry, short"
+  },
+
   "good": {
     "cap": 0.5,
     "prompt": "Bright cheerful success blip — a crisp two-note ascending chime, small win confirmation, warm and encouraging, very short and dry"
@@ -32,6 +45,10 @@
     "cap": 0.6,
     "prompt": "Sparkling star pickup — a bright glassy twinkle rising with a light magical shimmer, collectible reward, clean and short, no tail"
   },
+  "star_pop": {
+    "cap": 0.7,
+    "prompt": "A single gold star stamping onto a results card — a bright bell ding with a quick sparkle burst and a satisfying soft thump underneath, proud and punchy, arcade results screen, short and dry"
+  },
   "pickup": {
     "cap": 0.35,
     "prompt": "Tiny bright collect pop — a quick glassy blip catching something, clean arcade pickup, very short, no reverb"
@@ -39,6 +56,10 @@
   "combo": {
     "cap": 0.5,
     "prompt": "Combo streak ding — an exciting bright digital chime a step higher than the last, rewarding escalation, crisp and very short"
+  },
+  "heart": {
+    "cap": 1.0,
+    "prompt": "Health fully restored — a warm gentle magical swell rising into a soft glowing chime, comforting and generous, storybook healing, clean, medium-short"
   },
 
   "tick": {
@@ -53,9 +74,18 @@
     "cap": 0.5,
     "prompt": "Fast cartoon whoosh — a light airy swish of a creature darting past, soft and clean, short, no reverb"
   },
+
   "ui": {
     "cap": 0.25,
     "prompt": "Crisp UI confirm tap — a light wooden mallet click with a soft warm tone, storybook menu button press, snappy and dry, tiny"
+  },
+  "ui_back": {
+    "cap": 0.25,
+    "prompt": "Soft UI back tap — a muted low wooden knock with a gentle downward tone, menu cancel or return, quieter and rounder than a confirm, tiny and dry"
+  },
+  "whoosh": {
+    "cap": 0.5,
+    "prompt": "Soft storybook page-turn sweep — a gentle airy whoosh with a hint of paper, screen transition, smooth and unobtrusive, quiet, short"
   },
 
   "win": {
@@ -66,6 +96,10 @@
     "cap": 1.8,
     "prompt": "Gentle defeat jingle — a soft descending minor-key phrase, wistful and kind rather than punishing, encourages another try, resolves and ends"
   },
+  "region_clear": {
+    "cap": 3.0,
+    "prompt": "A whole region freed from an evil spell — a big warm orchestral-lite fanfare, horns and strings rising over sparkling bells and a triumphant drum roll, spell shattering into light, joyful and emotional, grander than a single duel win, resolves on a full major chord"
+  },
   "fanfare": {
     "cap": 2.5,
     "prompt": "Regal royal fanfare announcing an evil king — bold brass fanfare with a dark ominous undertow and a deep timpani hit, storybook villain arrival, dramatic"
@@ -73,5 +107,18 @@
   "badge": {
     "cap": 1.2,
     "prompt": "Achievement unlocked chime — a warm rising bell arpeggio finishing on a bright sparkle, proud and rewarding, clean and short"
+  },
+  "box_open": {
+    "cap": 1.8,
+    "prompt": "A treasure gift box bursting open — a soft paper-and-ribbon pop opening into a shower of magical sparkle and a warm rising chime, delighted surprise, generous and twinkly, medium-short"
+  },
+
+  "boss_warn": {
+    "cap": 0.6,
+    "prompt": "Danger telegraph before a boss attack lands — a tense low pulsing warning tone with a quick sharp edge, readable at a glance, urgent but not shrill, dry and short"
+  },
+  "boss_slam": {
+    "cap": 0.9,
+    "prompt": "A huge boss slamming the ground — a deep heavy whump with a low rumbling boom and a dusty crunch, enormous weight, cartoon-scaled not gory, punchy with a short tail"
   }
 }

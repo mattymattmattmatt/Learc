@@ -24,7 +24,9 @@ import { SPINS_BY_MODE, modelRoster, modelInfo, modelUrl } from './collection.js
 import { openModelViewer } from './viewer.js';
 
 const APP = byId('app');
-const show = html => { APP.innerHTML = html; };
+/* every screen change funnels through here, so the transition sweep lives here
+   too — quiet by design, and silent until whoosh.mp3 is generated */
+const show = html => { APP.innerHTML = html; S.whoosh(); };
 
 /* ── battle music: one track per champion/henchman (id.mp3, underscores→hyphens
    to match the existing asset-naming convention) + one per region ── */
@@ -61,10 +63,10 @@ function installChrome() {
   m.setAttribute('aria-label', 'Toggle sound');
   m.addEventListener('pointerdown', e => { e.preventDefault(); const muted = toggleMute(); m.textContent = muted ? '🔇' : '🔊'; if (!muted) S.ui(); });
   document.body.appendChild(m);
-  // soft click on navigation buttons
+  // soft click on navigation buttons — back/cancel gets its own softer tap
   document.addEventListener('pointerdown', e => {
     const b = e.target.closest && e.target.closest('.btn, .btn-link');
-    if (b) S.ui();
+    if (b) (b.classList.contains('btn-link') ? S.uiBack : S.ui)();
   });
 }
 
@@ -474,7 +476,7 @@ async function runBattle(entry, foeDisp, opts = {}) {
 function revealStars(stars) {
   const slots = [...document.querySelectorAll('.star-slot')];
   slots.forEach((s, i) => {
-    if (i < stars) setTimeout(() => { s.textContent = '★'; s.classList.add('lit'); S.star(); buzz(15); }, 350 + i * 320);
+    if (i < stars) setTimeout(() => { s.textContent = '★'; s.classList.add('lit'); S.starPop(); buzz(15); }, 350 + i * 320);
   });
 }
 
@@ -589,7 +591,7 @@ function screenRegionClear(toKing = false) {
         <button class="btn btn-go" id="go">${toKing ? 'To the Throne ▸' : 'Onward ▸'}</button>
       </div>
     </div>`);
-  S.win();
+  S.regionClear();
   confetti(document.querySelector('.screen'), 50);
   byId('go').onclick = () => toKing ? screenMap() : screenRegionIntro(state.region);
 }
@@ -1071,7 +1073,7 @@ function screenMysteryBox(backFn = screenCollection) {
 
     function land() {
       box.classList.remove('shake'); box.classList.add('burst');
-      S.win(); if (isNew) S.fanfare();
+      S.boxOpen(); if (isNew) S.fanfare();
       sfx(prize.sfx, 0.85); buzz(isNew ? 70 : 35);
       const scr = document.querySelector('.screen');
       confetti(scr, isNew ? 60 : 24);
@@ -1103,6 +1105,7 @@ function screenMysteryBox(backFn = screenCollection) {
 
 /* ════════ CRITTERDEX (collection + badges) ════════ */
 function screenDex() {
+  playMusic('gallery.mp3', 0.2, 'title.mp3');
   show(`
     <div class="screen dex">
       <h2 class="screen-title">📖 Critterdex</h2>
