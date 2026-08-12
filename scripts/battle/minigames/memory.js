@@ -30,7 +30,7 @@ export default {
       const pads = [...area.querySelectorAll('.mem-pad')];
       const foeEl = area.querySelector('.foe'), heroEl = area.querySelector('.hero');
 
-      const light = i => { pads[i].classList.add('lit'); S.pad(i); setTimeout(() => pads[i].classList.remove('lit'), showMs * 0.6); };
+      const light = i => { pads[i].classList.add('lit'); S.rune(i); setTimeout(() => pads[i].classList.remove('lit'), showMs * 0.6); };
 
       async function playSeq() {
         await wait(500);
@@ -46,7 +46,7 @@ export default {
           const i = +p.dataset.i;
           p.classList.add('lit'); setTimeout(() => p.classList.remove('lit'), 160);
           if (i === seq[pos]) {
-            pos++; buzz(12); S.pad(i);
+            pos++; buzz(12); S.rune(i);
             if (pos >= seq.length) finish(true);
             else st.textContent = `${pos} / ${seq.length} — keep going!`;
           } else {

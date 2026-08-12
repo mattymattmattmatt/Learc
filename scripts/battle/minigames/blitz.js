@@ -40,8 +40,8 @@ export default {
           e.preventDefault();
           if (done || t._gone) return; t._gone = true;
           const cx = x + s / 2, cy = y + s / 2;
-          if (bomb) { score = Math.max(0, score - 2); buzz(70); S.hit(); t.classList.add('boom'); }
-          else { score++; buzz(15); S.star(); sparkle(field, cx, cy, 6); t.classList.add('pop'); }
+          if (bomb) { score = Math.max(0, score - 2); buzz(70); S.bomb(); t.classList.add('boom'); }
+          else { score++; buzz(15); S.orbPop(); sparkle(field, cx, cy, 6); t.classList.add('pop'); }
           scEl.textContent = score;
           setTimeout(() => t.remove(), 160);
           remove(t);

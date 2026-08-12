@@ -19,7 +19,7 @@ bash tools/generate-all.sh
 ```
 
 It checks for Node, asks for your API key if there isn't one yet, **verifies the key
-before spending anything**, generates all 25 sound effects, trims them if `ffmpeg` is
+before spending anything**, generates all 67 sound effects, trims them if `ffmpeg` is
 available, then **pauses for confirmation** before the more expensive music stage. It
 prints your ElevenLabs credit balance before and after each stage, so a run can't
 quietly drain the account.
@@ -48,14 +48,14 @@ ELEVENLABS_API_KEY=sk_...
 …or export `ELEVENLABS_API_KEY` in your shell. Then:
 
 ```bash
-node tools/generate-sfx.js            # the 25 one-shot cues → assets/audio/sfx/
+node tools/generate-sfx.js            # the 67 one-shot cues → assets/audio/sfx/
 node tools/generate-music.js          # the 4 new tracks     → assets/Music/
 ```
 
 All three scripts are dependency-free (plain Node + bash, no `npm install`) and both
 generators **skip anything already on disk**, so a re-run costs no credits — and a
 retake of one cue you didn't like costs exactly one cue. They also stop immediately
-on a rejected key or an exhausted quota rather than repeating the same error 25
+on a rejected key or an exhausted quota rather than repeating the same error 67
 times. Useful flags:
 
 ```bash
@@ -97,7 +97,49 @@ Every name below is a cue the game **already triggers** — they map to the `S` 
 and length caps live in `tools/sfx-cues.json`; edit a prompt there and re-run with
 `--force` to buy a new take.
 
-### Combat & minigames
+### One signature cue per minigame
+
+Every microgame now has at least one sound that is **its own**, rather than sharing the
+generic feedback set. The trigger named is the existing one it replaced.
+
+| Game | Cue | Fires when |
+|------|-----|-----------|
+| Log Roll | `log_roll` | each tap rolls the log underfoot |
+| Target Blitz | `orb_pop` | a glowing orb is tapped |
+| Star Catch | `star_catch` | a falling star is caught |
+| *(Blitz / Star Catch / Sharpshooter)* | `bomb` | a bomb is hit — shared by all three |
+| Charge Shot | `blast` | the charged shot fires |
+| Claw Machine | `claw_grab` | the claw closes on a fish |
+| Cloud Runner | `hop` | each hop |
+| Dive Dodge | `dive_slam` | the foe slams a zone |
+| Dodge! | `dodge_hit` | an attack connects |
+| Freeze! | `caught` | the eye catches you moving |
+| Windrider | `flap`, `cloud_pass` | flapping; clearing a gap |
+| Hot Floor | `tile_hop`, `tile_burst` | hopping a tile; a tile igniting |
+| Ice Curling | `curl_slide`, `bullseye` | the stone released; landing on target |
+| Memory Echo | `rune_1`–`rune_4` | each of the four rune pads — four fixed pitches, so four cues |
+| Fin Smash | `paddle_bounce`, `brick_break` | ball off the paddle; a brick smashing |
+| Tantrum Trike Race | `pedal` | each pedal stroke |
+| Banshee Wail | `wail_lock` | holding the note inside the band (**was silent**) |
+| Power Strike | `strike_green` | stopping the slider in the green |
+| Quick Draw | `draw_signal` | the STRIKE! signal |
+| Reel It In | `reel_land` | a fish landed |
+| Rope-a-Demon | `rope_jump`, `rope_pass` | jumping; the rope whipping past |
+| Sonic Screech | `screech_launch`, `crystal_burst` | launching a screech; a crystal shattering |
+| Slab Squeeze | `slab_thread` | threading a gap cleanly |
+| Slingshot | `sling_thwack` | the pellet hitting its target |
+| Venom Trail | `orb_eat` | eating an orb |
+| Swipe Strike | `arrow_show`, `swipe_ok` | a new arrow appears; a correct swipe |
+| Break the Trance | `trace_dot`, `rune_done` | passing a waypoint; completing a rune |
+| Tug of War | `tug` | each heave on the rope |
+| Break Free | `link_snap` | snapping a link |
+
+Boss duels keep `boss_warn` and `boss_slam`; Rhythm Rush and the two Banshee Wail
+variants stay on the pitched synth for their melody lines, since those pitches are
+computed at runtime.
+
+### Combat & feedback (shared across games)
+
 
 | Cue | Fires when | Cap |
 |-----|-----------|-----|
@@ -126,8 +168,11 @@ and length caps live in `tools/sfx-cues.json`; edit a prompt there and re-run wi
 
 | Cue | Fires when | Cap |
 |-----|-----------|-----|
-| `ui` | a confirm / forward button | 0.25s |
+| `start` | the big forward action — START, FIGHT, Enter the Gauntlet | 0.6s |
+| `ui` | an ordinary confirm button | 0.25s |
 | `ui_back` | a back or cancel link — softer and rounder (was identical to confirm) | 0.25s |
+| `select` | tapping a champion on the select grid, the Critterdex or the Collection (**was silent** on two of the three) | 0.25s |
+| `toggle` | the 🔊 mute button | 0.3s |
 | `whoosh` | any screen change, via the single `show()` funnel in `main.js`. Played very quietly; delete `S.whoosh()` from that one line if you'd rather have silent transitions. **Currently on the synth** — the first take came back silent | 0.5s |
 
 ### Results & rewards

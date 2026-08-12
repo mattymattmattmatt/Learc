@@ -33,7 +33,7 @@ export default {
         deadline = performance.now() + perArrow;
         clearTimeout(timer);
         timer = setTimeout(() => judge(null), perArrow);
-        S.tick();
+        S.arrowShow();
       }
       // shrink the timer bar
       let raf = 0;
@@ -50,7 +50,7 @@ export default {
         const ok = dir === cur;
         clearTimeout(timer);
         const wasCur = cur; cur = null;
-        if (ok) { hits++; hitEl.textContent = hits; hitFlash(foeEl); S.good(); buzz(14); }
+        if (ok) { hits++; hitEl.textContent = hits; hitFlash(foeEl); S.swipeOk(); buzz(14); }
         else { misses++; missEl.textContent = `❌ ${misses}/3`; hitFlash(heroEl); S.bad(); buzz(50); }
         if (hits >= need) return end(true);
         if (misses >= 3) return end(false);

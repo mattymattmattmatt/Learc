@@ -81,14 +81,14 @@ export default {
           const ang = hitp * 1.05;                       // launch angle off vertical (max ~60°)
           ball.vx = Math.sin(ang) * spd; ball.vy = -Math.abs(Math.cos(ang) * spd);
           ball.y = py - br - 1;
-          S.ui(); buzz(8);
+          S.paddleBounce(); buzz(8);
         }
         // bricks
         for (let i = bricks.length - 1; i >= 0; i--) {
           const b = bricks[i];
           if (ball.x > b.x - br && ball.x < b.x + b.w + br && ball.y > b.y - br && ball.y < b.y + b.h + br) {
             b.node.classList.add('pop'); const nn = b.node; setTimeout(() => nn.remove(), 150); bricks.splice(i, 1);
-            sparkle(field, ball.x, ball.y, 5); S.good(); buzz(12); bkEl.textContent = bricks.length;
+            sparkle(field, ball.x, ball.y, 5); S.brickBreak(); buzz(12); bkEl.textContent = bricks.length;
             // bounce vertically (simple)
             ball.vy = -ball.vy;
             if (bricks.length === 0) return finish(true);

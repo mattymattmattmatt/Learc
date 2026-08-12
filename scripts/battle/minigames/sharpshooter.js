@@ -66,7 +66,7 @@ export default {
           hitT.node.style.left = (hitT.x - hitT.r) + 'px'; hitT.node.style.top = (hitT.y - hitT.r) + 'px';
           hitT.node.classList.add(hitT.bomb ? 'boom' : 'pop');
           setTimeout(() => hitT.node.remove(), 160);
-          if (hitT.bomb) { score = Math.max(0, score - 2); floatText(area, cx, cy, '💥 −2', 'bad'); S.bad(); buzz(70); field.classList.add('flash'); setTimeout(() => field.classList.remove('flash'), 120); }
+          if (hitT.bomb) { score = Math.max(0, score - 2); floatText(area, cx, cy, '💥 −2', 'bad'); S.bomb(); buzz(70); field.classList.add('flash'); setTimeout(() => field.classList.remove('flash'), 120); }
           else { score++; scEl.textContent = score; sparkle(field, cx, cy, 7); floatText(area, cx, cy, 'HIT!', 'good'); S.star(); if (score >= goal) return finish(true); }
         }
         if (ammo <= 0) startReload();

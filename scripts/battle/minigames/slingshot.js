@@ -118,7 +118,7 @@ export default {
           if (Math.hypot(proj.x - foe.x, proj.y - foe.y) < foe.r + 8) {
             sparkle(field, foe.x, foe.y, 9); floatText(area, foe.x, foe.y, 'BONK!', 'good');
             foeEl.classList.remove('hit'); void foeEl.offsetWidth; foeEl.classList.add('hit');
-            hp--; hpEl.textContent = '❤'.repeat(Math.max(0, hp)); S.hit(); buzz(40);
+            hp--; hpEl.textContent = '❤'.repeat(Math.max(0, hp)); S.slingThwack(); buzz(40);
             proj = null; stoneEl.hidden = true; newWaypoint();
             if (hp <= 0) return finish(true);
           } else if (proj.x < -30 || proj.x > W + 30 || proj.y > H + 30) {

@@ -62,10 +62,10 @@ export default {
         const x = e.clientX - r.left, y = e.clientY - r.top;
         if (Math.hypot(x - pts[cur].x, y - pts[cur].y) < radius()) {
           dots[cur].classList.remove('next'); dots[cur].classList.add('hit');
-          sparkle(field, pts[cur].x, pts[cur].y, 4); S.tick(); buzz(8);
+          sparkle(field, pts[cur].x, pts[cur].y, 4); S.traceDot(); buzz(8);
           cur++; updateGlow();
           if (cur >= pts.length) {
-            doneCount++; scEl.textContent = doneCount; S.good(); buzz(20);
+            doneCount++; scEl.textContent = doneCount; S.runeDone(); buzz(20);
             if (doneCount >= need) return finish(true);
             loadSigil();
           } else { dots[cur].classList.add('next'); }

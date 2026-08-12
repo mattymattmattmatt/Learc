@@ -42,7 +42,7 @@ export default {
         walls.push({ top, bot, x: W, gy, scored: false });
       }
 
-      const flapFn = e => { e && e.preventDefault(); if (done) return; vy = flap; me.classList.remove('flap'); void me.offsetWidth; me.classList.add('flap'); S.ui(); };
+      const flapFn = e => { e && e.preventDefault(); if (done) return; vy = flap; me.classList.remove('flap'); void me.offsetWidth; me.classList.add('flap'); S.flap(); };
       field.addEventListener('pointerdown', flapFn);
 
       const stop = loop((dt) => {
@@ -59,7 +59,7 @@ export default {
           const w = walls[i]; w.x -= speed * dt;
           const tx = `translate3d(${w.x}px,0,0)`;
           w.top.style.transform = tx; w.bot.style.transform = tx;
-          if (!w.scored && w.x + 28 < mx) { w.scored = true; passed++; scEl.textContent = passed; S.good(); sparkle(field, mx, y, 5); if (passed >= goal) return finish(true); }
+          if (!w.scored && w.x + 28 < mx) { w.scored = true; passed++; scEl.textContent = passed; S.cloudPass(); sparkle(field, mx, y, 5); if (passed >= goal) return finish(true); }
           // collision: within wall x-range and outside gap
           if (iframe <= 0 && Math.abs(w.x + 14 - mx) < 14 + mr && (y - mr < w.gy - gapH / 2 || y + mr > w.gy + gapH / 2)) hit();
           if (w.x < -40) { w.top.remove(); w.bot.remove(); walls.splice(i, 1); }

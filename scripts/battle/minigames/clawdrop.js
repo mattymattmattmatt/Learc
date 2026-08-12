@@ -78,7 +78,7 @@ export default {
             let hit = -1, bd = grabW;
             items.forEach((it, i) => { if (it.grabbed) return; const d = Math.abs(it.x - clawX); if (d < bd) { bd = d; hit = i; } });
             claw.classList.add('grab'); setTimeout(() => claw.classList.remove('grab'), 220);
-            if (hit >= 0) { held = items[hit]; held.grabbed = true; held.node.classList.add('held'); S.good(); buzz(20); }
+            if (hit >= 0) { held = items[hit]; held.grabbed = true; held.node.classList.add('held'); S.clawGrab(); buzz(20); }
             else { S.bad(); combo = 0; showCombo(); }
             phase = 'up';
           }

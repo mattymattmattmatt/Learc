@@ -67,7 +67,7 @@ export default {
         }
         // eat orb
         if (Math.hypot(pos.x - orb.x, pos.y - orb.y) < hr + hr * 1.4) {
-          eaten++; scEl.textContent = eaten; sparkle(field, orb.x, orb.y, 7); S.star(); buzz(15);
+          eaten++; scEl.textContent = eaten; sparkle(field, orb.x, orb.y, 7); S.orbEat(); buzz(15);
           if (eaten >= goal) return finish(true);
           placeOrb();
         }

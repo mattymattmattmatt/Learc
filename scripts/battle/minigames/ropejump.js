@@ -41,7 +41,7 @@ export default {
       const measure = () => { const r = field.getBoundingClientRect(); W = r.width; H = r.height; feetY = H * 0.8; amp = H * 0.54; };
       measure(); window.addEventListener('resize', measure);
 
-      function doJump() { if (done || air > 0) return; air = hang; S.tick(); buzz(10); }
+      function doJump() { if (done || air > 0) return; air = hang; S.ropeJump(); buzz(10); }
       const tap = e => { e.preventDefault(); doJump(); };
       jump.addEventListener('pointerdown', tap);
       field.addEventListener('pointerdown', tap);
@@ -60,7 +60,7 @@ export default {
         me.style.transform = `translateX(-50%) translateY(${hopY}px)`;
         if (passed) {
           if (air > 0) {
-            count++; cntEl.textContent = count; S.good(); buzz(12);
+            count++; cntEl.textContent = count; S.ropePass(); buzz(12);
             if (count % 4 === 0) { period = Math.max(0.5, period * 0.9); flash('Faster!', 'warn'); }
             if (count >= goal) return end(true);
           } else {

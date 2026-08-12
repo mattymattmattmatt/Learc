@@ -55,7 +55,7 @@ export default {
         }
         lastPedal = pedal; taps++; tapsEl.textContent = taps;
         heroPos += step; disp = clamp(disp + 0.16, 0, 1);
-        place(); S.tick(); buzz(8);
+        place(); S.pedal(); buzz(8);
       }
       const dL = e => { e.preventDefault(); press(-1, pedL); };
       const dR = e => { e.preventDefault(); press(1, pedR); };

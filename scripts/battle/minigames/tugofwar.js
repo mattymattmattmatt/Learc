@@ -33,7 +33,7 @@ export default {
         pos = clamp(pos + pull, -1, 1);
         taps++; tapsEl.textContent = taps;
         pad.classList.remove('mash'); void pad.offsetWidth; pad.classList.add('mash');
-        if (Math.random() < 0.4) S.tick();
+        if (Math.random() < 0.4) S.tug();
       };
       pad.addEventListener('pointerdown', onPad);
 

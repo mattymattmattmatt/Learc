@@ -36,7 +36,7 @@ export default {
         if (Math.abs(r - cr) + Math.abs(c - cc) > 2) return;   // only hop a short distance
         const t = tileAt(r, c);
         if (t.state === 'lava') { return; }
-        cr = r; cc = c; placeMe(); S.ui(); buzz(8);
+        cr = r; cc = c; placeMe(); S.tileHop(); buzz(8);
       });
 
       let acc = 0, every = clamp(1.05 - ctx.difficulty * 0.055, 0.4, 1.05), iframe = 0;
@@ -56,7 +56,7 @@ export default {
         tf.style.width = clamp((left / TIME) * 100, 0, 100) + '%';
         acc += dt; if (acc >= every) { acc = 0; warnWave(); }
         for (const t of tiles) {
-          if (t.state === 'warn') { t.t -= dt; if (t.t <= 0) { t.state = 'lava'; t.t = 0.9; t.node.classList.remove('warn'); t.node.classList.add('lava'); t.node.textContent = '🔥'; S.hit();
+          if (t.state === 'warn') { t.t -= dt; if (t.t <= 0) { t.state = 'lava'; t.t = 0.9; t.node.classList.remove('warn'); t.node.classList.add('lava'); t.node.textContent = '🔥'; S.tileBurst();
             if (iframe <= 0 && t.r === cr && t.c === cc) { iframe = 0.6; hearts--; heartsEl.textContent = '❤'.repeat(Math.max(0, hearts)); me.classList.remove('hurt'); void me.offsetWidth; me.classList.add('hurt'); floatText(area, me.offsetLeft, me.offsetTop, '−1', 'bad'); buzz(70); if (hearts <= 0) return end(false); } } }
           else if (t.state === 'lava') { t.t -= dt; if (t.t <= 0) { t.state = 'cool'; t.node.classList.remove('lava'); t.node.textContent = ''; } }
         }

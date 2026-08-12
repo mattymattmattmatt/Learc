@@ -279,7 +279,16 @@ const cue = (name, synth, vol = 0.7, clip = null) => () => {
   if (!playSample(name, vol, clip)) synth();
 };
 
+/* Memory Echo's four pads: fixed pitches, so four cues rather than one */
+const RUNE = [
+  cue('rune_1', () => tone({ f: 330, dur: 0.16, type: 'sine', vol: 0.22 }), 0.5),
+  cue('rune_2', () => tone({ f: 440, dur: 0.16, type: 'sine', vol: 0.22 }), 0.5),
+  cue('rune_3', () => tone({ f: 554, dur: 0.16, type: 'sine', vol: 0.22 }), 0.5),
+  cue('rune_4', () => tone({ f: 660, dur: 0.16, type: 'sine', vol: 0.22 }), 0.5),
+];
+
 /* named one-shots */
+
 export const S = {
   tick:  cue('tick', () => tone({ f: 540, dur: 0.05, type: 'square', vol: 0.18 }), 0.26),
   go:    cue('go', () => { tone({ f: 660, f2: 990, dur: 0.18, type: 'sawtooth', vol: 0.25 }); tone({ f: 990, dur: 0.18, delay: 0.04, vol: 0.18 }); }, 0.79),
@@ -289,7 +298,6 @@ export const S = {
   bad:   cue('bad', () => tone({ f: 200, f2: 90, dur: 0.22, type: 'sawtooth', vol: 0.22 }), 0.25),
   star:  cue('star', () => { tone({ f: 1180, dur: 0.07, type: 'triangle', vol: 0.2 }); tone({ f: 1760, dur: 0.1, delay: 0.05, type: 'triangle', vol: 0.16 }); }, 1.89),
   swipe: cue('swipe', () => { noise({ dur: 0.16, vol: 0.22, lp: 3500, hp: 600 }); tone({ f: 300, f2: 760, dur: 0.14, type: 'sine', vol: 0.14 }); }, 0.37, { at: 0.09 }),
-  catch: cue('pickup', () => tone({ f: 720, f2: 1080, dur: 0.08, type: 'triangle', vol: 0.2 }), 0.58),
   splash:cue('splash', () => { noise({ dur: 0.3, vol: 0.3, lp: 1400, hp: 300 }); tone({ f: 380, f2: 120, dur: 0.25, type: 'sine', vol: 0.16 }); }, 1.26),
   win:   cue('win', () => [523, 659, 784, 1047].forEach((f, i) => tone({ f, dur: 0.16, delay: i * 0.1, type: 'triangle', vol: 0.24 })), 0.96),
   /* a regal brass-y sting (announces the King) */
@@ -320,8 +328,51 @@ export const S = {
   /* shooting games: the shot itself, not the impact */
   shoot: cue('shoot', () => { noise({ dur: 0.07, vol: 0.16, lp: 5000, hp: 1200 }); tone({ f: 900, f2: 1600, dur: 0.07, type: 'triangle', vol: 0.16 }); }, 0.43),
   reload: cue('reload', () => { tone({ f: 260, dur: 0.05, type: 'square', vol: 0.14 }); tone({ f: 340, dur: 0.05, delay: 0.12, type: 'square', vol: 0.14 }); }, 0.61),
+
+  /* ── menus ───────────────────────────────────────────────────── */
+  start: cue('start', () => { tone({ f: 523, dur: 0.12, type: 'triangle', vol: 0.2 }); tone({ f: 784, dur: 0.22, delay: 0.1, type: 'triangle', vol: 0.2, release: 0.16 }); }, 0.7),
+  select: cue('select', () => tone({ f: 620, dur: 0.05, type: 'sine', vol: 0.14 }), 0.4),
+  toggle: cue('toggle', () => tone({ f: 400, f2: 520, dur: 0.05, type: 'square', vol: 0.14 }), 0.45),
+
+  /* ── one per minigame: the thing that game is about ──────────── */
+  logRoll:      cue('log_roll', () => tone({ f: 190, f2: 140, dur: 0.07, type: 'triangle', vol: 0.16 }), 0.5),
+  orbPop:       cue('orb_pop', () => { tone({ f: 840, f2: 1260, dur: 0.06, type: 'triangle', vol: 0.18 }); }, 0.55),
+  bomb:         cue('bomb', () => { noise({ dur: 0.22, vol: 0.3, lp: 800 }); tone({ f: 120, f2: 45, dur: 0.2, type: 'square', vol: 0.22 }); }, 0.6),
+  starCatch:    cue('star_catch', () => { tone({ f: 900, dur: 0.06, type: 'triangle', vol: 0.18 }); tone({ f: 1350, dur: 0.08, delay: 0.04, type: 'triangle', vol: 0.14 }); }, 0.55),
+  blast:        cue('blast', () => { noise({ dur: 0.16, vol: 0.26, lp: 2400 }); tone({ f: 320, f2: 90, dur: 0.2, type: 'sawtooth', vol: 0.22 }); }, 0.65),
+  clawGrab:     cue('claw_grab', () => { tone({ f: 300, dur: 0.04, type: 'square', vol: 0.16 }); tone({ f: 1100, dur: 0.05, delay: 0.05, type: 'square', vol: 0.12 }); }, 0.55),
+  hop:          cue('hop', () => tone({ f: 300, f2: 620, dur: 0.09, type: 'sine', vol: 0.18 }), 0.5),
+  diveSlam:     cue('dive_slam', () => { noise({ dur: 0.18, vol: 0.28, lp: 1100 }); tone({ f: 180, f2: 60, dur: 0.16, type: 'square', vol: 0.2 }); }, 0.6),
+  dodgeHit:     cue('dodge_hit', () => { noise({ dur: 0.11, vol: 0.28, lp: 1500 }); tone({ f: 170, f2: 70, dur: 0.1, type: 'square', vol: 0.2 }); }, 0.6),
+  caught:       cue('caught', () => { tone({ f: 660, f2: 200, dur: 0.28, type: 'sawtooth', vol: 0.22 }); }, 0.7),
+  flap:         cue('flap', () => noise({ dur: 0.1, vol: 0.14, lp: 1800, hp: 300 }), 0.5),
+  cloudPass:    cue('cloud_pass', () => { noise({ dur: 0.12, vol: 0.12, lp: 3200, hp: 700 }); tone({ f: 1050, dur: 0.07, delay: 0.03, type: 'triangle', vol: 0.12 }); }, 0.5),
+  tileHop:      cue('tile_hop', () => noise({ dur: 0.06, vol: 0.16, lp: 2600, hp: 500 }), 0.45),
+  tileBurst:    cue('tile_burst', () => { noise({ dur: 0.26, vol: 0.26, lp: 2000, hp: 200 }); tone({ f: 240, f2: 90, dur: 0.18, type: 'sawtooth', vol: 0.16 }); }, 0.6),
+  curlSlide:    cue('curl_slide', () => noise({ dur: 0.5, vol: 0.14, lp: 1400, hp: 200 }), 0.55),
+  bullseye:     cue('bullseye', () => { tone({ f: 1050, dur: 0.07, type: 'triangle', vol: 0.2 }); tone({ f: 1580, dur: 0.12, delay: 0.06, type: 'triangle', vol: 0.16 }); }, 0.6),
+  rune:         i => RUNE[i % 4](),
+  paddleBounce: cue('paddle_bounce', () => tone({ f: 480, dur: 0.04, type: 'square', vol: 0.16 }), 0.45),
+  brickBreak:   cue('brick_break', () => { noise({ dur: 0.09, vol: 0.22, lp: 4000, hp: 800 }); tone({ f: 700, f2: 400, dur: 0.07, type: 'square', vol: 0.14 }); }, 0.5),
+  pedal:        cue('pedal', () => tone({ f: 260, f2: 200, dur: 0.05, type: 'square', vol: 0.14 }), 0.45),
+  wailLock:     cue('wail_lock', () => tone({ f: 1180, dur: 0.09, type: 'sine', vol: 0.14, release: 0.1 }), 0.45),
+  strikeGreen:  cue('strike_green', () => { noise({ dur: 0.1, vol: 0.2, lp: 2200 }); tone({ f: 200, f2: 80, dur: 0.14, type: 'square', vol: 0.22 }); }, 0.6),
+  drawSignal:   cue('draw_signal', () => { tone({ f: 1320, dur: 0.09, type: 'square', vol: 0.24 }); }, 0.7),
+  reelLand:     cue('reel_land', () => { noise({ dur: 0.18, vol: 0.2, lp: 1600, hp: 300 }); tone({ f: 700, f2: 1100, dur: 0.12, delay: 0.08, type: 'triangle', vol: 0.18 }); }, 0.65),
+  ropeJump:     cue('rope_jump', () => noise({ dur: 0.08, vol: 0.14, lp: 2200, hp: 400 }), 0.45),
+  ropePass:     cue('rope_pass', () => noise({ dur: 0.1, vol: 0.16, lp: 4000, hp: 900 }), 0.45),
+  screechLaunch:cue('screech_launch', () => tone({ f: 700, f2: 2200, dur: 0.16, type: 'sawtooth', vol: 0.16 }), 0.5),
+  crystalBurst: cue('crystal_burst', () => { noise({ dur: 0.14, vol: 0.22, lp: 6000, hp: 1500 }); tone({ f: 1600, f2: 900, dur: 0.1, type: 'triangle', vol: 0.14 }); }, 0.55),
+  slabThread:   cue('slab_thread', () => noise({ dur: 0.14, vol: 0.16, lp: 2600, hp: 400 }), 0.5),
+  slingThwack:  cue('sling_thwack', () => { noise({ dur: 0.08, vol: 0.24, lp: 1800 }); tone({ f: 220, f2: 90, dur: 0.09, type: 'square', vol: 0.18 }); }, 0.55),
+  orbEat:       cue('orb_eat', () => tone({ f: 500, f2: 900, dur: 0.07, type: 'sine', vol: 0.18 }), 0.5),
+  arrowShow:    cue('arrow_show', () => tone({ f: 700, dur: 0.04, type: 'square', vol: 0.14 }), 0.45),
+  swipeOk:      cue('swipe_ok', () => { noise({ dur: 0.08, vol: 0.16, lp: 4000, hp: 900 }); tone({ f: 880, dur: 0.06, delay: 0.03, type: 'square', vol: 0.16 }); }, 0.5),
+  traceDot:     cue('trace_dot', () => tone({ f: 900, dur: 0.04, type: 'sine', vol: 0.14 }), 0.45),
+  runeDone:     cue('rune_done', () => { [700, 950, 1300].forEach((f, i) => tone({ f, dur: 0.1, delay: i * 0.06, type: 'triangle', vol: 0.18 })); }, 0.6),
+  tug:          cue('tug', () => tone({ f: 170, f2: 130, dur: 0.06, type: 'sawtooth', vol: 0.14 }), 0.45),
+  linkSnap:     cue('link_snap', () => { tone({ f: 900, f2: 300, dur: 0.06, type: 'square', vol: 0.18 }); noise({ dur: 0.07, vol: 0.14, lp: 5000, hp: 1200 }); }, 0.5),
   /* pitch-continuous by design — a fixed sample can't stand in for these */
-  pad:   i => tone({ f: [330, 440, 554, 660][i % 4], dur: 0.16, type: 'sine', vol: 0.22 }),
   charge:lvl => tone({ f: 200 + lvl * 700, dur: 0.05, type: 'sawtooth', vol: 0.12 }),
   note:  f => tone({ f, dur: 0.2, type: 'triangle', vol: 0.24, release: 0.12 })
 };

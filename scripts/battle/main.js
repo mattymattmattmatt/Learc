@@ -61,12 +61,15 @@ async function boot() {
 function installChrome() {
   const m = el('button', 'mute-btn', isMuted() ? '🔇' : '🔊');
   m.setAttribute('aria-label', 'Toggle sound');
-  m.addEventListener('pointerdown', e => { e.preventDefault(); const muted = toggleMute(); m.textContent = muted ? '🔇' : '🔊'; if (!muted) S.ui(); });
+  m.addEventListener('pointerdown', e => { e.preventDefault(); const muted = toggleMute(); m.textContent = muted ? '🔇' : '🔊'; if (!muted) S.toggle(); });
   document.body.appendChild(m);
   // soft click on navigation buttons — back/cancel gets its own softer tap
   document.addEventListener('pointerdown', e => {
     const b = e.target.closest && e.target.closest('.btn, .btn-link');
-    if (b) (b.classList.contains('btn-link') ? S.uiBack : S.ui)();
+    if (!b) return;
+    if (b.classList.contains('btn-link')) S.uiBack();
+    else if (b.classList.contains('btn-go')) S.start();   // the big forward action
+    else S.ui();
   });
 }
 
@@ -201,6 +204,7 @@ function screenSelect() {
   const grid = byId('grid'), info = byId('info'), begin = byId('begin'), selanim = byId('selanim');
   grid.querySelectorAll('.sel-cell').forEach(c => {
     c.onclick = () => {
+      S.select();
       grid.querySelectorAll('.sel-cell').forEach(x => x.classList.remove('on'));
       c.classList.add('on');
       chosen = c.dataset.id;
@@ -805,6 +809,7 @@ function screenGauntletSelect() {
   const grid = byId('grid'), info = byId('info'), begin = byId('begin');
   grid.querySelectorAll('.sel-cell').forEach(c => {
     c.onclick = () => {
+      S.select();
       grid.querySelectorAll('.sel-cell').forEach(x => x.classList.remove('on'));
       c.classList.add('on');
       pick = c.dataset.id;
@@ -1006,6 +1011,7 @@ function screenCollection() {
   byId('back').onclick = () => screenTitle();
   byId('open').onclick = () => { if (spinsLeft() > 0) screenMysteryBox(); };
   APP.querySelectorAll('.col-cell.owned').forEach(c => c.onclick = () => {
+    S.select();
     const m = modelInfo(c.dataset.id);
     openModelViewer(m, modelUrl(c.dataset.id));
   });
@@ -1131,7 +1137,7 @@ function screenDex() {
       <div class="dex-foot"><button class="btn btn-go" id="back">◂ Back to Title</button></div>
     </div>`);
   byId('back').onclick = () => screenTitle();
-  APP.querySelectorAll('.dex-cell').forEach(c => c.onclick = () => dexDetail(c.dataset.id));
+  APP.querySelectorAll('.dex-cell').forEach(c => c.onclick = () => { S.select(); dexDetail(c.dataset.id); });
 }
 
 function dexDetail(id) {
