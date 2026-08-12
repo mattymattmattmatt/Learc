@@ -199,64 +199,74 @@ fetch(SFX_DIR + 'manifest.json')
   })
   .catch(() => {});
 
-/* true if the cue had a decoded sample and it is now playing */
-function playSample(name, vol) {
+/* true if the cue had a decoded sample and it is now playing.
+   `clip` optionally plays a window of the file: { at } skips lead-in silence so
+   the cue lands the instant it fires, { dur } stops before a second take. */
+function playSample(name, vol, clip) {
   const buf = sampleBuf[name];
   if (!buf) { if (sampleNames.has(name)) loadSample(name); return false; }
   const c = ac(); if (!c) return false;
   const s = c.createBufferSource(); s.buffer = buf;
   const g = c.createGain(); g.gain.value = vol;
-  s.connect(g).connect(c.destination); s.start();
+  s.connect(g).connect(c.destination);
+  if (clip) s.start(0, clip.at || 0, clip.dur); else s.start();
   return true;
 }
 
-/* a cue: its generated take if there is one, else the built-in synth */
-const cue = (name, synth, vol = 0.7) => () => {
+/* A cue: its generated take if there is one, else the built-in synth.
+
+   `vol` is the sample's playback gain, and the numbers below are measured, not
+   guessed — open tools/measure-sfx.html over a local server to re-derive them.
+   The generated files land anywhere from −27 dB to −3 dB depending on what the
+   model felt like, so without this a boss slam is 20 dB louder than a star. Gain
+   above 1 is safe where a file is quiet: each is capped so peak × gain stays
+   under 1. Regenerating a cue means re-measuring it. */
+const cue = (name, synth, vol = 0.7, clip = null) => () => {
   if (muted) return;
-  if (!playSample(name, vol)) synth();
+  if (!playSample(name, vol, clip)) synth();
 };
 
 /* named one-shots */
 export const S = {
-  tick:  cue('tick', () => tone({ f: 540, dur: 0.05, type: 'square', vol: 0.18 }), 0.45),
-  go:    cue('go', () => { tone({ f: 660, f2: 990, dur: 0.18, type: 'sawtooth', vol: 0.25 }); tone({ f: 990, dur: 0.18, delay: 0.04, vol: 0.18 }); }, 0.75),
-  ui:    cue('ui', () => tone({ f: 480, dur: 0.06, type: 'triangle', vol: 0.16 }), 0.4),
-  hit:   cue('hit', () => { noise({ dur: 0.13, vol: 0.32, lp: 1600 }); tone({ f: 160, f2: 60, dur: 0.12, type: 'square', vol: 0.22 }); }, 0.7),
-  good:  cue('good', () => { tone({ f: 620, dur: 0.07, type: 'square', vol: 0.2 }); tone({ f: 930, dur: 0.09, delay: 0.06, type: 'square', vol: 0.18 }); }, 0.55),
-  bad:   cue('bad', () => tone({ f: 200, f2: 90, dur: 0.22, type: 'sawtooth', vol: 0.22 }), 0.55),
-  star:  cue('star', () => { tone({ f: 1180, dur: 0.07, type: 'triangle', vol: 0.2 }); tone({ f: 1760, dur: 0.1, delay: 0.05, type: 'triangle', vol: 0.16 }); }, 0.55),
-  swipe: cue('swipe', () => { noise({ dur: 0.16, vol: 0.22, lp: 3500, hp: 600 }); tone({ f: 300, f2: 760, dur: 0.14, type: 'sine', vol: 0.14 }); }, 0.5),
-  catch: cue('pickup', () => tone({ f: 720, f2: 1080, dur: 0.08, type: 'triangle', vol: 0.2 }), 0.55),
-  splash:cue('splash', () => { noise({ dur: 0.3, vol: 0.3, lp: 1400, hp: 300 }); tone({ f: 380, f2: 120, dur: 0.25, type: 'sine', vol: 0.16 }); }, 0.7),
-  win:   cue('win', () => [523, 659, 784, 1047].forEach((f, i) => tone({ f, dur: 0.16, delay: i * 0.1, type: 'triangle', vol: 0.24 })), 0.8),
+  tick:  cue('tick', () => tone({ f: 540, dur: 0.05, type: 'square', vol: 0.18 }), 0.26),
+  go:    cue('go', () => { tone({ f: 660, f2: 990, dur: 0.18, type: 'sawtooth', vol: 0.25 }); tone({ f: 990, dur: 0.18, delay: 0.04, vol: 0.18 }); }, 0.79),
+  ui:    cue('ui', () => tone({ f: 480, dur: 0.06, type: 'triangle', vol: 0.16 }), 0.46),
+  hit:   cue('hit', () => { noise({ dur: 0.13, vol: 0.32, lp: 1600 }); tone({ f: 160, f2: 60, dur: 0.12, type: 'square', vol: 0.22 }); }, 2.52),
+  good:  cue('good', () => { tone({ f: 620, dur: 0.07, type: 'square', vol: 0.2 }); tone({ f: 930, dur: 0.09, delay: 0.06, type: 'square', vol: 0.18 }); }, 0.99),
+  bad:   cue('bad', () => tone({ f: 200, f2: 90, dur: 0.22, type: 'sawtooth', vol: 0.22 }), 0.25),
+  star:  cue('star', () => { tone({ f: 1180, dur: 0.07, type: 'triangle', vol: 0.2 }); tone({ f: 1760, dur: 0.1, delay: 0.05, type: 'triangle', vol: 0.16 }); }, 1.89),
+  swipe: cue('swipe', () => { noise({ dur: 0.16, vol: 0.22, lp: 3500, hp: 600 }); tone({ f: 300, f2: 760, dur: 0.14, type: 'sine', vol: 0.14 }); }, 0.37, { at: 0.09 }),
+  catch: cue('pickup', () => tone({ f: 720, f2: 1080, dur: 0.08, type: 'triangle', vol: 0.2 }), 0.58),
+  splash:cue('splash', () => { noise({ dur: 0.3, vol: 0.3, lp: 1400, hp: 300 }); tone({ f: 380, f2: 120, dur: 0.25, type: 'sine', vol: 0.16 }); }, 1.26),
+  win:   cue('win', () => [523, 659, 784, 1047].forEach((f, i) => tone({ f, dur: 0.16, delay: i * 0.1, type: 'triangle', vol: 0.24 })), 0.96),
   /* a regal brass-y sting (announces the King) */
   fanfare: cue('fanfare', () => {
     [392, 523, 659].forEach((f, i) => tone({ f, dur: 0.14, delay: i * 0.13, type: 'sawtooth', vol: 0.2, release: 0.1 }));
     tone({ f: 784, dur: 0.5, delay: 0.39, type: 'sawtooth', vol: 0.22, release: 0.3 });
     tone({ f: 392, dur: 0.5, delay: 0.39, type: 'triangle', vol: 0.16, release: 0.3 });
-  }, 0.85),
-  lose:  cue('lose', () => [392, 330, 262].forEach((f, i) => tone({ f, dur: 0.22, delay: i * 0.12, type: 'sawtooth', vol: 0.22 })), 0.8),
+  }, 1),
+  lose:  cue('lose', () => [392, 330, 262].forEach((f, i) => tone({ f, dur: 0.22, delay: i * 0.12, type: 'sawtooth', vol: 0.22 })), 0.57),
   /* cues that used to borrow another sound — now their own, synth included */
-  combo: cue('combo', () => { tone({ f: 880, dur: 0.07, type: 'square', vol: 0.18 }); tone({ f: 1320, dur: 0.09, delay: 0.05, type: 'square', vol: 0.16 }); }, 0.6),
-  badge: cue('badge', () => [659, 880, 1319].forEach((f, i) => tone({ f, dur: 0.14, delay: i * 0.09, type: 'triangle', vol: 0.2 })), 0.7),
+  combo: cue('combo', () => { tone({ f: 880, dur: 0.07, type: 'square', vol: 0.18 }); tone({ f: 1320, dur: 0.09, delay: 0.05, type: 'square', vol: 0.16 }); }, 1.81),
+  badge: cue('badge', () => [659, 880, 1319].forEach((f, i) => tone({ f, dur: 0.14, delay: i * 0.09, type: 'triangle', vol: 0.2 })), 1.43),
   /* the stars stamping onto a result card, one at a time */
-  starPop: cue('star_pop', () => { tone({ f: 990, dur: 0.08, type: 'triangle', vol: 0.22 }); tone({ f: 1480, dur: 0.12, delay: 0.05, type: 'triangle', vol: 0.18 }); }, 0.7),
+  starPop: cue('star_pop', () => { tone({ f: 990, dur: 0.08, type: 'triangle', vol: 0.22 }); tone({ f: 1480, dur: 0.12, delay: 0.05, type: 'triangle', vol: 0.18 }); }, 1.97, { dur: 0.36 }),
   /* a whole region freed — grander than a single duel win */
   regionClear: cue('region_clear', () => {
     [523, 659, 784].forEach((f, i) => tone({ f, dur: 0.16, delay: i * 0.12, type: 'triangle', vol: 0.22 }));
     tone({ f: 1047, dur: 0.6, delay: 0.36, type: 'triangle', vol: 0.24, release: 0.35 });
-  }, 0.85),
+  }, 0.95),
   boxOpen: cue('box_open', () => { noise({ dur: 0.12, vol: 0.2, lp: 4000, hp: 800 }); [784, 988, 1319].forEach((f, i) => tone({ f, dur: 0.14, delay: 0.06 + i * 0.08, type: 'triangle', vol: 0.2 })); }, 0.8),
-  heart: cue('heart', () => [523, 659, 784, 880].forEach((f, i) => tone({ f, dur: 0.18, delay: i * 0.07, type: 'sine', vol: 0.2, release: 0.14 })), 0.75),
+  heart: cue('heart', () => [523, 659, 784, 880].forEach((f, i) => tone({ f, dur: 0.18, delay: i * 0.07, type: 'sine', vol: 0.2, release: 0.14 })), 0.74),
   /* UI: a confirm and a softer, rounder back */
-  uiBack: cue('ui_back', () => tone({ f: 320, f2: 240, dur: 0.07, type: 'triangle', vol: 0.14 }), 0.35),
+  uiBack: cue('ui_back', () => tone({ f: 320, f2: 240, dur: 0.07, type: 'triangle', vol: 0.14 }), 0.2),
   whoosh: cue('whoosh', () => noise({ dur: 0.18, vol: 0.1, lp: 2600, hp: 500 }), 0.3),
   /* boss telegraphs — the warning had no sound at all before */
-  bossWarn: cue('boss_warn', () => tone({ f: 300, f2: 220, dur: 0.14, type: 'square', vol: 0.14 }), 0.5),
-  bossSlam: cue('boss_slam', () => { noise({ dur: 0.24, vol: 0.34, lp: 900 }); tone({ f: 110, f2: 45, dur: 0.22, type: 'square', vol: 0.26 }); }, 0.8),
+  bossWarn: cue('boss_warn', () => tone({ f: 300, f2: 220, dur: 0.14, type: 'square', vol: 0.14 }), 0.14),
+  bossSlam: cue('boss_slam', () => { noise({ dur: 0.24, vol: 0.34, lp: 900 }); tone({ f: 110, f2: 45, dur: 0.22, type: 'square', vol: 0.26 }); }, 0.36),
   /* shooting games: the shot itself, not the impact */
-  shoot: cue('shoot', () => { noise({ dur: 0.07, vol: 0.16, lp: 5000, hp: 1200 }); tone({ f: 900, f2: 1600, dur: 0.07, type: 'triangle', vol: 0.16 }); }, 0.5),
-  reload: cue('reload', () => { tone({ f: 260, dur: 0.05, type: 'square', vol: 0.14 }); tone({ f: 340, dur: 0.05, delay: 0.12, type: 'square', vol: 0.14 }); }, 0.5),
+  shoot: cue('shoot', () => { noise({ dur: 0.07, vol: 0.16, lp: 5000, hp: 1200 }); tone({ f: 900, f2: 1600, dur: 0.07, type: 'triangle', vol: 0.16 }); }, 0.43),
+  reload: cue('reload', () => { tone({ f: 260, dur: 0.05, type: 'square', vol: 0.14 }); tone({ f: 340, dur: 0.05, delay: 0.12, type: 'square', vol: 0.14 }); }, 0.61),
   /* pitch-continuous by design — a fixed sample can't stand in for these */
   pad:   i => tone({ f: [330, 440, 554, 660][i % 4], dur: 0.16, type: 'sine', vol: 0.22 }),
   charge:lvl => tone({ f: 200 + lvl * 700, dur: 0.05, type: 'sawtooth', vol: 0.12 }),

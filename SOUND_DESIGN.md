@@ -128,7 +128,7 @@ and length caps live in `tools/sfx-cues.json`; edit a prompt there and re-run wi
 |-----|-----------|-----|
 | `ui` | a confirm / forward button | 0.25s |
 | `ui_back` | a back or cancel link — softer and rounder (was identical to confirm) | 0.25s |
-| `whoosh` | any screen change, via the single `show()` funnel in `main.js`. Quiet by design; delete `S.whoosh()` from that one line if you'd rather have silent transitions | 0.5s |
+| `whoosh` | any screen change, via the single `show()` funnel in `main.js`. Played very quietly; delete `S.whoosh()` from that one line if you'd rather have silent transitions. **Currently on the synth** — the first take came back silent | 0.5s |
 
 ### Results & rewards
 
@@ -140,7 +140,7 @@ and length caps live in `tools/sfx-cues.json`; edit a prompt there and re-run wi
 | `region_clear` | a whole region freed — bigger than a single duel win, which it was reusing | 3.0s |
 | `fanfare` | Evil King Glob announced, and a **new** Mystery Box unlock | 2.5s |
 | `badge` | a badge earned (was borrowing `star`) | 1.2s |
-| `box_open` | the Mystery Box bursting open (was the generic `win`) | 1.8s |
+| `box_open` | the Mystery Box bursting open (was the generic `win`). **Currently on the synth** — the first take came back silent | 1.8s |
 
 **Deliberately left on the synth:** `pad` (Memory's four coloured pads), `charge`
 (Charge Shot's rising meter) and `note` (Pitch Wail) are *pitch-continuous* — the game
@@ -155,7 +155,7 @@ henchman/Glob defeat and laugh clips, `spell_break`, `crown_crack`, `shatter` an
 ## The music
 
 The 24 champion themes, the three region themes and `title` / `captured` / `victory`
-already ship in `assets/Music/`. These three screens had no music of their own:
+already ship in `assets/Music/`. These four screens had no music of their own:
 
 | Track | Screen | Length | Falls back to |
 |-------|--------|--------|---------------|
@@ -163,6 +163,11 @@ already ship in `assets/Music/`. These three screens had no music of their own:
 | `mysterybox.mp3` | the Collection screen (and the Mystery Box opened from it) | 45s | `title.mp3` |
 | `gauntlet.mp3` | The Gauntlet — champion select and rounds | 60s | `title.mp3` |
 | `gallery.mp3` | the Critterdex — browsing all 24 champions | 45s | `title.mp3` |
+
+Their playback volumes at the call sites in `main.js` are also measured, against the
+average of the existing Suno tracks (−26 dB effective), so a crossfade between an old
+and a new track doesn't jump. `gallery` needed the most correction: it came back 9 dB
+quieter than everything else.
 
 Prompts are in `tools/generate-music.js`. Each is written as a **loop**: these play
 under a screen for minutes at a time, so a track with a big intro or a hard ending
@@ -176,6 +181,38 @@ Opening the Mystery Box **from the ending screen** deliberately keeps the ending
 playing rather than switching tracks mid-celebration.
 
 ---
+
+## Levels: measure, don't guess
+
+The generated files come back at wildly different loudness — anything from −27 dB to
+−3 dB depending on what the model felt like on the day. Left alone that made a boss
+slam roughly **20 dB louder than a star pickup**. Each cue therefore plays at a
+measured gain, which is the volume argument of its `cue(...)` in
+`scripts/battle/util.js`.
+
+To re-derive those numbers after regenerating anything, serve the repo and open the
+measurement page:
+
+```bash
+python3 -m http.server 8000
+# then open http://localhost:8000/tools/measure-sfx.html and press Measure
+```
+
+It decodes every cue in the manifest, reports level, peak, lead-in silence and
+whether the file contains more than one take, and prints a copy-pasteable list of
+gains. Gains above 1 are normal and safe: each is capped so peak × gain stays under 1.
+The page also flags:
+
+- **duds** — a cue that came back silent, with the command to re-buy just that one.
+- **lead-in silence** — playback then starts at an offset, via the `{ at }` clip
+  window, so the cue lands the instant it fires instead of a tenth of a second later.
+- **two takes in one file** — playback stops after the first, via `{ dur }`. This is
+  what `tools/trim-sfx.sh` would have removed if ffmpeg had been available.
+
+**Prompt wording matters more than you'd expect.** Asking for a *quiet*, *soft* or
+*unobtrusive* sound is taken literally and returns a file with a peak around 0.03 —
+inaudible. That's how the first `whoosh` and `box_open` takes were lost. Ask for a
+clear, present sound and set how loud it actually plays in the `S` table.
 
 ## How the fallback works
 

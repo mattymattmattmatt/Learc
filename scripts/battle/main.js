@@ -657,7 +657,7 @@ function screenGlobDefeat() {
 let spinsJustWon = 0;
 
 function screenEnding() {
-  playMusic('ending.mp3', 0.3, 'victory.mp3');   // the long finale theme, or the short cue
+  playMusic('ending.mp3', 0.38, 'victory.mp3');   // the long finale theme, or the short cue
   const hero = getPet(state.heroId);
   const score = finalScore(), max = maxStars();
   const clean = state.continues === 0;
@@ -970,7 +970,7 @@ function screenGauntletOver() {
 
 /* ════════ 🎁 COLLECTION (Mystery Box 3D models) ════════ */
 function screenCollection() {
-  playMusic('mysterybox.mp3', 0.22, 'title.mp3');
+  playMusic('mysterybox.mp3', 0.34, 'title.mp3');
   const roster = modelRoster();
   const owned = ownedModelCount();
   const spins = spinsLeft();
@@ -1105,7 +1105,7 @@ function screenMysteryBox(backFn = screenCollection) {
 
 /* ════════ CRITTERDEX (collection + badges) ════════ */
 function screenDex() {
-  playMusic('gallery.mp3', 0.2, 'title.mp3');
+  playMusic('gallery.mp3', 0.42, 'title.mp3');
   show(`
     <div class="screen dex">
       <h2 class="screen-title">📖 Critterdex</h2>

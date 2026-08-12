@@ -13,7 +13,12 @@
     "",
     "House style: storybook fantasy, warm and playful, never harsh — this is a",
     "children's game about freeing creatures, not a shooter. Dry and punchy: reverb",
-    "tails smear together when cues stack."
+    "tails smear together when cues stack.",
+    "",
+    "Do NOT ask for a quiet sound. Words like quiet, soft, subtle and unobtrusive are",
+    "taken literally and come back at a peak of about 0.03, which is inaudible — that",
+    "is how the first whoosh and box_open takes were lost. Ask for a present, clear",
+    "sound and set how loud it actually plays in the S table in scripts/battle/util.js."
   ],
 
   "hit": {
@@ -85,7 +90,7 @@
   },
   "whoosh": {
     "cap": 0.5,
-    "prompt": "Soft storybook page-turn sweep — a gentle airy whoosh with a hint of paper, screen transition, smooth and unobtrusive, quiet, short"
+    "prompt": "Airy whoosh sweep — a clear rush of air moving past like a page turned fast, crisp and present, clean, dry, no reverb, short"
   },
 
   "win": {
@@ -110,7 +115,7 @@
   },
   "box_open": {
     "cap": 1.8,
-    "prompt": "A treasure gift box bursting open — a soft paper-and-ribbon pop opening into a shower of magical sparkle and a warm rising chime, delighted surprise, generous and twinkly, medium-short"
+    "prompt": "A treasure chest bursting open — a bright pop of ribbon and paper into a full shower of magical sparkles and a warm rising chime, delighted surprise, present and twinkly, medium-short"
   },
 
   "boss_warn": {
