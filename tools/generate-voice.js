@@ -112,7 +112,29 @@ async function allVoices() {
   return voiceCache;
 }
 
-/* Accept either an ID or a name, so the cast file stays readable. */
+/* Pick a voice by ID or name. ElevenLabs ships the premade voices with a
+   description welded onto the name — "George - Warm, Captivating Storyteller" —
+   so an exact-match-only lookup rejects the very name the dashboard shows you.
+   Match the leading name too, and only complain if that is ambiguous.
+   Exported for testing; resolveVoice does the network part. */
+const norm = s => String(s || '').toLowerCase().trim();
+const leadName = v => norm(String(v.name || '').split(/\s+[-–—]\s+/)[0]);
+
+function pickVoice(voices, spec) {
+  const want = norm(spec);
+  const byId = voices.find(v => v.voice_id === spec);
+  if (byId) return { voice: byId };
+  const exact = voices.find(v => norm(v.name) === want);
+  if (exact) return { voice: exact };
+  const lead = voices.filter(v => leadName(v) === want);
+  if (lead.length === 1) return { voice: lead[0] };
+  if (lead.length > 1) return { ambiguous: lead };
+  const starts = voices.filter(v => norm(v.name).startsWith(want));
+  if (starts.length === 1) return { voice: starts[0] };
+  if (starts.length > 1) return { ambiguous: starts };
+  return {};
+}
+
 async function resolveVoice(spec, speakerName) {
   if (!spec) {
     throw new Error(
@@ -121,11 +143,14 @@ async function resolveVoice(spec, speakerName) {
       '   Or run with --design to build one from its description.');
   }
   const voices = await allVoices();
-  const byId = voices.find(v => v.voice_id === spec);
-  if (byId) return byId.voice_id;
-  const byName = voices.find(v => (v.name || '').toLowerCase() === spec.toLowerCase());
-  if (byName) return byName.voice_id;
-  // Name it, don't just say no — the premade voices come and go between accounts.
+  const hit = pickVoice(voices, spec);
+  if (hit.voice) return hit.voice.voice_id;
+  if (hit.ambiguous) {
+    throw new Error(
+      `voice "${spec}" (cast as ${speakerName}) matches more than one voice:\n` +
+      hit.ambiguous.map(v => `     ${v.name}`).join('\n') +
+      '\n   Use the full name or the voice ID in tools/voice-cast.json.');
+  }
   const names = voices.map(v => v.name).filter(Boolean).sort();
   throw new Error(
     `voice "${spec}" (cast as ${speakerName}) is not in your account.\n` +
@@ -291,4 +316,7 @@ async function main() {
   if (failed.length) { console.log(`❌ failed: ${failed.join(', ')}`); process.exitCode = 1; }
 }
 
-main().catch(e => { console.error(e); process.exitCode = 1; });
+// Only run when invoked directly, so the matcher can be unit-tested.
+if (require.main === module) main().catch(e => { console.error(e); process.exitCode = 1; });
+
+module.exports = { pickVoice };
