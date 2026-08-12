@@ -4,7 +4,7 @@
    audio) is cache-first with a background refresh. Bump CACHE on breaking
    changes to flush old caches. */
 
-const CACHE = 'botr-v20';
+const CACHE = 'botr-v21';
 
 const CORE = [
   './',
@@ -16,6 +16,7 @@ const CORE = [
   'assets/img/icons/apple-touch-icon.png',
   'scripts/data/pets.json',
   'assets/audio/sfx/manifest.json',
+  'assets/audio/voice/manifest.json',
   'scripts/battle/main.js',
   'scripts/battle/data.js',
   'scripts/battle/state.js',

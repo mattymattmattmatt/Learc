@@ -88,6 +88,13 @@ tools/trim-sfx.sh hit win  # just these
 
 The music endpoint returns one continuous track and needs no trimming.
 
+The trimmer also **reports any cue that came back silent** and leaves it alone. It
+checks every cue for this, not just the over-long ones — a short file can be silent
+too, which is how the first `whoosh` and `box_open` takes got through unnoticed. When
+the whole file sits below −45 dB there is no take to keep, so cutting one would write
+a window past the end of the file; it names the cue and prints the command to re-buy
+it instead.
+
 ---
 
 ## The one-shot cues
@@ -286,3 +293,61 @@ clear, present sound and set how loud it actually plays in the `S` table.
 
 Bump `CACHE` in `service-worker.js` after adding audio, or installed copies of the game
 will keep serving the old set.
+
+---
+
+## The spoken story
+
+The story beats can be **narrated**. `tools/generate-voice.js` records them with
+ElevenLabs text-to-speech, reading the lines **straight out of
+`scripts/battle/data.js`** — so the narration can never end up quoting an old draft
+of a line the screen has since changed.
+
+```bash
+node tools/generate-voice.js --lines   # every line and who says it (no key needed)
+node tools/generate-voice.js --list    # the voices in your account
+node tools/generate-voice.js           # record anything missing
+node tools/generate-voice.js intro     # just one block, or one line id
+node tools/generate-voice.js --design  # try to build voices from the descriptions
+```
+
+23 lines, about 2,500 characters. Text-to-speech is billed per character, so the
+whole script is cheap — but note that re-recording is per line: change one line of
+story and only that line needs `--force`.
+
+### The cast
+
+`tools/voice-cast.json` assigns a speaker to each block and holds a character brief
+for each. Set each speaker's `voice` to a name or ID from `--list`; the brief is
+there to paste into ElevenLabs Voice Design if you'd rather build a bespoke voice
+(`--design` attempts that automatically, and tells you to use the UI if the endpoint
+isn't available to your key).
+
+| Speaker | Voice | Reads | Direction |
+|---------|-------|-------|-----------|
+| `narrator` | **George** | the opening tale, the three region blurbs | steady and warm — a bedtime-story reader |
+| `glob` | **Brian** | Glob's throne-room speech and his defeat | low stability, high style: theatrical, swinging from boast to shriek |
+| `minyar` | **Callum** | his taunt and his defeat | husky trickster, wound right up — rushed and cracking |
+| `demonder` | **Harry** | his taunt and his defeat | warrior weight pulled back to amused, not raging |
+| `clubbo` | **Charlie** | his taunt and his defeat | deep but flattened — slow, blunt bursts |
+
+Five speakers, five voices. Names are matched on the part before the `-`, so
+`George` resolves `George - Warm, Captivating Storyteller` — put a short name, a
+full label or a voice ID in the `voice` field, whichever reads better.
+
+Recasting anyone costs only their lines: change the name and run
+`node tools/generate-voice.js clubbo --force`.
+
+### How it plays
+
+`dialogue()` is the single funnel for story text, so it takes a `voice` block name
+and speaks line *n* as `<block>_<n>` appears. Everything about it is optional:
+
+- A line with no recording is **silent** — the text still reads normally. Only ids in
+  `assets/audio/voice/manifest.json` are ever fetched, so unrecorded lines don't 404.
+- Advancing or skipping **cuts the current line**, so you never get two voices at once.
+- The music **ducks to 30%** while someone is speaking and fades back afterwards.
+- Muting stops narration mid-sentence, like everything else.
+
+The henchman taunt is spoken on the boss card 1.4s after his roar, so the two don't
+talk over each other.

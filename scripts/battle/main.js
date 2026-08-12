@@ -1,7 +1,8 @@
 /* main.js — Battle of the Realm: screen flow & glue */
 import {
   byId, el, petImg, SPRITE, playMusic, sfx, buzz, countdown,
-  S, confetti, isMuted, toggleMute, shuffle, sparkle, petAnim, animTag
+  S, confetti, isMuted, toggleMute, shuffle, sparkle, petAnim, animTag,
+  narrate, stopNarration
 } from './util.js';
 import {
   loadPets, getPet, allPets, flavor, REGIONS, BATTLES,
@@ -150,7 +151,7 @@ function drift(box) {
 function screenIntro() {
   playMusic('captured.mp3', 0.26);   // the adventure — and its music — begin here
   // the captured-realm splash appears once Glob throws his net (beats 3+)
-  dialogue({ image: STORY_CAPTURED, imageFrom: 2, name: 'The Tale of Liitokala', lines: INTRO, cls: 'intro', onDone: screenSelect });
+  dialogue({ image: STORY_CAPTURED, imageFrom: 2, name: 'The Tale of Liitokala', lines: INTRO, cls: 'intro', voice: 'intro', onDone: screenSelect });
 }
 
 /* ════════ CREDITS ════════ */
@@ -226,6 +227,7 @@ function screenSelect() {
 function screenRegionIntro(ri) {
   const r = REGIONS[ri];
   playMusic(REGION_MUSIC[r.theme], 0.24);
+  setTimeout(() => narrate(`region_${r.key}`), 500);
   show(`
     <div class="screen region-intro theme-${r.theme}">
       <div class="ri-card">
@@ -547,7 +549,7 @@ function onBossWon(entry, res) {
   setTimeout(() => sfx(`${entry.id}_defeat.wav`, 0.85), 220);   // the henchman's beaten grumble
   dialogue({
     video: petAnim(bm), poster: SPRITE(bm.img), name: bm.name,
-    lines: bossDefeatLines(entry.id), cls: 'king-dlg boss-dlg',
+    lines: bossDefeatLines(entry.id), cls: 'king-dlg boss-dlg', voice: `${entry.id}_defeat`,
     onDone: () => {
       const route = recordWin(entry.id, stars);
       screenRegionClear(route === 'glob');
@@ -623,6 +625,7 @@ function screenBossIntro() {
       </div>
     </div>`);
   setTimeout(() => sfx(bm.sfx, 0.75), 60);   // the henchman's roar (like the champions)
+  setTimeout(() => narrate(`${entry.id}_taunt_0`), 1400);   // …then the taunt on the card
   byId('begin').onclick = () => startBossFight(entry, bm);
   byId('back').onclick = () => screenMap();
 }
@@ -639,7 +642,7 @@ function screenGlobIntro() {
   setTimeout(() => sfx('glob_laugh.wav', 0.85), 900); // …then his spoiled cackle
   dialogue({
     video: petAnim(GLOB), poster: SPRITE(GLOB.img), name: GLOB.name,
-    lines: GLOB_INTRO, cls: 'king-dlg glob-dlg', onDone: startGlobFight
+    lines: GLOB_INTRO, cls: 'king-dlg glob-dlg', voice: 'glob_intro', onDone: startGlobFight
   });
 }
 function startGlobFight() {
@@ -651,7 +654,7 @@ function screenGlobDefeat() {
   setTimeout(() => sfx('glob_defeat.wav', 0.85), 200);   // his whiny "NO FAIR!" wail
   dialogue({
     video: petAnim(GLOB), poster: SPRITE(GLOB.img), name: GLOB.name,
-    lines: GLOB_DEFEAT, cls: 'king-dlg glob-dlg', onDone: screenEnding
+    lines: GLOB_DEFEAT, cls: 'king-dlg glob-dlg', voice: 'glob_defeat', onDone: screenEnding
   });
 }
 
@@ -1235,9 +1238,11 @@ function screenPracticeResult(foeId, diff, res) {
 /* ════════ shared dialogue ════════
    portrait: a small bobbing image · video: an autoplay clip (boss anim) ·
    image: a big scene splash (shown from beat `imageFrom` onward) */
-function dialogue({ portrait, video, poster, image, imageFrom = 0, name, lines, cls = '', onDone }) {
+function dialogue({ portrait, video, poster, image, imageFrom = 0, name, lines, cls = '', voice = null, onDone }) {
   let i = 0;
   const showScene = idx => image && idx >= imageFrom;
+  // `voice` names the recorded block; line n is <voice>_<n>. Silent if unrecorded.
+  const say = idx => { if (voice) narrate(`${voice}_${idx}`); };
   const render = () => {
     show(`
       <div class="screen story ${cls}">
@@ -1254,14 +1259,16 @@ function dialogue({ portrait, video, poster, image, imageFrom = 0, name, lines, 
     byId('next').onclick = () => {
       i++;
       if (i < lines.length) {
+        say(i);
         byId('stext').textContent = lines[i];
         byId('next').textContent = i < lines.length - 1 ? 'Next ▸' : 'Continue ▸';
         const sc = byId('sscene'); if (sc) sc.classList.toggle('hide', !showScene(i));
         if (i === lines.length - 1) { const sk = byId('skip'); if (sk) sk.remove(); }
-      } else onDone();
+      } else { stopNarration(); onDone(); }
     };
     const sk = byId('skip');
-    if (sk) sk.onclick = () => onDone();
+    if (sk) sk.onclick = () => { stopNarration(); onDone(); };
   };
   render();
+  say(0);
 }

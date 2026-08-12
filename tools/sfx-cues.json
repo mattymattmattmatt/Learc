@@ -126,7 +126,7 @@
   },
   "toggle": {
     "cap": 0.3,
-    "prompt": "Sound toggle click — a small round wooden switch flicking over, neutral and tactile, tiny, dry, no reverb"
+    "prompt": "A wooden switch flicking over — a firm rounded click with a solid tactile snap, clear and present, dry, no reverb, short"
   },
   "log_roll": {
     "cap": 0.3,
@@ -178,7 +178,7 @@
   },
   "tile_hop": {
     "cap": 0.3,
-    "prompt": "Hopping onto a stone tile — a light gritty stone tap with a small scuff, tactile, dry, very short"
+    "prompt": "Landing on a stone tile — a clear gritty stone tap with a scuffing footfall, solid and present, dry, no reverb, short"
   },
   "tile_burst": {
     "cap": 0.7,
