@@ -1,1 +1,27 @@
-[]
+[
+  "bad",
+  "badge",
+  "boss_slam",
+  "boss_warn",
+  "box_open",
+  "combo",
+  "fanfare",
+  "go",
+  "good",
+  "heart",
+  "hit",
+  "lose",
+  "pickup",
+  "region_clear",
+  "reload",
+  "shoot",
+  "splash",
+  "star",
+  "star_pop",
+  "swipe",
+  "tick",
+  "ui",
+  "ui_back",
+  "whoosh",
+  "win"
+]
