@@ -22,8 +22,11 @@ command -v node >/dev/null 2>&1 || die "Node.js is not installed. Get it from ht
 
 if [ ! -f .env ] && [ ! -f elevenlabs.env ] && [ -z "${ELEVENLABS_API_KEY:-}" ]; then
   say "No API key found."
-  echo "Paste your ElevenLabs API key (it will be written to .env, which is gitignored)."
-  echo "Note: the key committed to the Balitopia repo is public — use a freshly rotated one."
+  echo "Create one at https://elevenlabs.io/app/settings/api-keys, then paste it below."
+  echo "It will be written to .env, which is gitignored."
+  echo
+  echo "In Git Bash, paste with RIGHT-CLICK or Shift+Insert. Ctrl+V does not paste —"
+  echo "it types a control character that makes the key unusable."
   printf 'Key: '
   read -r KEY
   [ -n "$KEY" ] || die "No key entered."

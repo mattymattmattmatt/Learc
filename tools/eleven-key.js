@@ -57,6 +57,15 @@ function junkFound(raw) {
 
 const mask = (k) => (k.length <= 12 ? k : `${k.slice(0, 7)}…${k.slice(-4)} (${k.length} chars)`);
 
+// The placeholders that appear in this repo's docs and prompts. Pasting one of
+// these verbatim is an easy mistake and otherwise surfaces as a puzzling 401.
+const PLACEHOLDERS = new Set([
+  'sk_your_key_here', 'your_key_here', 'sk_test_fake', 'sk_xxx', 'sk_...', 'sk_', 'paste_your_key_here',
+]);
+// A real key looks like sk_ + 48 hex characters. Not enforced — only used to
+// warn, so a format change on ElevenLabs' side can't lock the tools up.
+const SHAPE = /^sk_[0-9a-f]{48}$/i;
+
 /* Find the key. Returns { key, source, junk } or null. */
 function findKey() {
   if (process.env.ELEVENLABS_API_KEY) {
@@ -93,7 +102,15 @@ function requireKey() {
     throw Object.assign(new Error(
       `The key in ${found.source} contains characters that can't go in an HTTP header: ${odd.join(', ')}\n` +
       '   Re-copy it from the ElevenLabs dashboard and rewrite the file with:\n' +
-      "     printf 'ELEVENLABS_API_KEY=%s\\n' 'sk_your_key_here' > .env"), { clean: true });
+      "     printf 'ELEVENLABS_API_KEY=%s\\n' 'PASTE-YOUR-KEY' > .env"), { clean: true });
+  }
+  if (PLACEHOLDERS.has(found.key.toLowerCase())) {
+    throw Object.assign(new Error(
+      `${found.source} still holds the placeholder "${found.key}", not a real key.\n` +
+      '   Create a key at https://elevenlabs.io/app/settings/api-keys, then:\n' +
+      "     printf 'ELEVENLABS_API_KEY=%s\\n' 'PASTE-YOUR-KEY' > .env\n" +
+      '   In Git Bash, paste with right-click or Shift+Insert — Ctrl+V types a\n' +
+      '   control character (U+0016) instead of pasting.'), { clean: true });
   }
   return found;
 }
@@ -138,6 +155,14 @@ if (require.main === module) {
     console.log(`✓ key found in ${found.source}: ${mask(found.key)}`);
     if (found.junk.length) {
       console.log(`  cleaned off: ${found.junk.join(', ')} — harmless now, but that is what broke the header.`);
+      if (found.junk.some((j) => j.includes('U+0016'))) {
+        console.log('  U+0016 is what Git Bash types when you press Ctrl+V. Paste with');
+        console.log('  right-click or Shift+Insert instead, and it will not come back.');
+      }
+    }
+    if (!SHAPE.test(found.key)) {
+      console.log('  note: this does not look like the usual sk_ + 48 hex characters —');
+      console.log('  it may be truncated. Checking with ElevenLabs anyway.');
     }
 
     process.stdout.write('· asking ElevenLabs… ');
