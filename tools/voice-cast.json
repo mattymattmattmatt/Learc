@@ -1,0 +1,59 @@
+{
+  "_comment": [
+    "Battle of the Realm — the spoken cast.",
+    "",
+    "The lines themselves are NOT here: tools/generate-voice.js reads them straight",
+    "out of scripts/battle/data.js, so editing the story never leaves the narration",
+    "quoting an old draft. Change a line there and re-run with --force for that id.",
+    "",
+    "`voice` picks who says it. Put either an ElevenLabs voice ID or the exact name",
+    "of a voice in your account — run `node tools/generate-voice.js --list` to see",
+    "what you have. `description` is the character brief: paste it into ElevenLabs",
+    "Voice Design to build a bespoke voice, or let --design try to do it for you.",
+    "",
+    "`settings` are ElevenLabs voice settings. Lower stability = more expressive and",
+    "more variable between takes; higher = steadier. The narrator wants steadiness,",
+    "the tantrum-throwing villains do not."
+  ],
+
+  "model_id": "eleven_multilingual_v2",
+
+  "speakers": {
+    "narrator": {
+      "voice": "",
+      "description": "A warm, unhurried storyteller reading a children's picture book aloud at bedtime. Kind and a little wondrous, with a gentle smile behind the voice. Clear enough for a six-year-old to follow, never syrupy, never sinister. Mid-range, softly resonant, unhurried pacing with room to breathe between images.",
+      "settings": { "stability": 0.55, "similarity_boost": 0.75, "style": 0.35, "use_speaker_boost": true }
+    },
+    "glob": {
+      "voice": "",
+      "description": "A spoiled child king throwing a royal tantrum — petulant, gleeful and utterly self-important, the voice of someone who has never once been told no. Bratty and theatrical, swinging from sing-song boasting to outraged shrieking mid-sentence. Comic villainy for children, never genuinely frightening.",
+      "settings": { "stability": 0.35, "similarity_boost": 0.7, "style": 0.65, "use_speaker_boost": true }
+    },
+    "minyar": {
+      "voice": "",
+      "description": "A whiny, wound-up little bully mid-tantrum — nasal, fast, indignant, forever on the edge of stamping a foot and telling on you. Comic and childish rather than menacing.",
+      "settings": { "stability": 0.35, "similarity_boost": 0.7, "style": 0.6, "use_speaker_boost": true }
+    },
+    "demonder": {
+      "voice": "",
+      "description": "A gruff, swaggering brawler who thinks this is all a bit of fun — low, gravelly, amused, the sort who cracks his knuckles and grins. Confident and unhurried, tough but never nasty.",
+      "settings": { "stability": 0.5, "similarity_boost": 0.72, "style": 0.45, "use_speaker_boost": true }
+    },
+    "clubbo": {
+      "voice": "",
+      "description": "An enormous, slow, simple-minded crusher — very deep, booming and rumbling, speaking in short blunt bursts with big pauses. Dim and weirdly good-natured underneath all the smashing. Lumbering, not evil.",
+      "settings": { "stability": 0.6, "similarity_boost": 0.7, "style": 0.4, "use_speaker_boost": true }
+    }
+  },
+
+  "casting": {
+    "_comment": "which speaker reads each block of story text",
+    "intro": "narrator",
+    "region": "narrator",
+    "glob_intro": "glob",
+    "glob_defeat": "glob",
+    "minyar": "minyar",
+    "demonder": "demonder",
+    "clubbo": "clubbo"
+  }
+}

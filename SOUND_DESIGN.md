@@ -293,3 +293,54 @@ clear, present sound and set how loud it actually plays in the `S` table.
 
 Bump `CACHE` in `service-worker.js` after adding audio, or installed copies of the game
 will keep serving the old set.
+
+---
+
+## The spoken story
+
+The story beats can be **narrated**. `tools/generate-voice.js` records them with
+ElevenLabs text-to-speech, reading the lines **straight out of
+`scripts/battle/data.js`** — so the narration can never end up quoting an old draft
+of a line the screen has since changed.
+
+```bash
+node tools/generate-voice.js --lines   # every line and who says it (no key needed)
+node tools/generate-voice.js --list    # the voices in your account
+node tools/generate-voice.js           # record anything missing
+node tools/generate-voice.js intro     # just one block, or one line id
+node tools/generate-voice.js --design  # try to build voices from the descriptions
+```
+
+23 lines, about 2,500 characters. Text-to-speech is billed per character, so the
+whole script is cheap — but note that re-recording is per line: change one line of
+story and only that line needs `--force`.
+
+### The cast
+
+`tools/voice-cast.json` assigns a speaker to each block and holds a character brief
+for each. Set each speaker's `voice` to a name or ID from `--list`; the brief is
+there to paste into ElevenLabs Voice Design if you'd rather build a bespoke voice
+(`--design` attempts that automatically, and tells you to use the UI if the endpoint
+isn't available to your key).
+
+| Speaker | Reads | Brief |
+|---------|-------|-------|
+| `narrator` | the opening tale, the three region blurbs | a warm bedtime-story reader |
+| `glob` | Glob's throne-room speech and his defeat | a spoiled child king mid-tantrum |
+| `minyar` | his taunt and his defeat | whiny, wound-up, about to tell on you |
+| `demonder` | his taunt and his defeat | gruff, amused, cracks his knuckles |
+| `clubbo` | his taunt and his defeat | enormous, slow, oddly good-natured |
+
+### How it plays
+
+`dialogue()` is the single funnel for story text, so it takes a `voice` block name
+and speaks line *n* as `<block>_<n>` appears. Everything about it is optional:
+
+- A line with no recording is **silent** — the text still reads normally. Only ids in
+  `assets/audio/voice/manifest.json` are ever fetched, so unrecorded lines don't 404.
+- Advancing or skipping **cuts the current line**, so you never get two voices at once.
+- The music **ducks to 30%** while someone is speaking and fades back afterwards.
+- Muting stops narration mid-sentence, like everything else.
+
+The henchman taunt is spoken on the boss card 1.4s after his roar, so the two don't
+talk over each other.

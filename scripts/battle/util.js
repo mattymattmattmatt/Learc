@@ -4,6 +4,7 @@
 export const SPRITE = p => `assets/img/characters/${encodeURIComponent(p)}`;
 export const AUDIO  = f => `assets/audio/${f}`;
 export const MUSIC  = f => `assets/Music/${encodeURIComponent(f)}`;
+export const VOICE  = id => `assets/audio/voice/${encodeURIComponent(id)}.mp3`;
 export const ANIM   = f => `assets/Char_Anim/${encodeURIComponent(f)}`;
 export const KING_GIF = 'assets/img/king_intro.gif';
 /* the character-select / story animation clip for a creature (derived from its
@@ -63,6 +64,7 @@ export function isMuted() { return muted; }
 export function setMuted(v) {
   muted = !!v;
   try { localStorage.setItem('realm:mute', muted ? '1' : '0'); } catch {}
+  if (muted) stopNarration();
   if (curEl) fade(curEl, muted ? 0 : musicVol, 200);
 }
 export function toggleMute() { setMuted(!muted); return muted; }
@@ -192,6 +194,51 @@ export function sfxMusic(file, vol = 0.8) {
   if (!file || muted) return;
   try { const a = new Audio(MUSIC(file)); a.volume = vol; a.play().catch(() => {}); } catch {}
 }
+/* ── spoken story ─────────────────────────────────────────────────
+   Recorded by tools/generate-voice.js from the same text data.js hands the
+   screen, so a line always says what it shows. Only ids in the manifest are
+   fetched, so an unrecorded line is silent rather than a 404 — and the story
+   still reads perfectly with the sound off. */
+let voiceIds = new Set();
+let narrEl = null;
+
+fetch('assets/audio/voice/manifest.json')
+  .then(r => (r.ok ? r.json() : []))
+  .then(list => { if (Array.isArray(list)) voiceIds = new Set(list); })
+  .catch(() => {});
+
+export const hasVoice = id => voiceIds.has(id);
+
+/* Music sits under the narration, so pull it down while someone is talking. */
+function duck(on) {
+  if (!curEl || muted) return;
+  fade(curEl, on ? musicVol * 0.3 : musicVol, on ? 250 : 500);
+}
+
+/* Speak one line. Any line already playing is cut off — advancing the story
+   should never leave two voices overlapping. */
+export function narrate(id) {
+  stopNarration();
+  if (!id || muted || !voiceIds.has(id)) return;
+  try {
+    const a = new Audio(VOICE(id));
+    a.volume = 1;
+    narrEl = a;
+    duck(true);
+    const done = () => { if (narrEl === a) { narrEl = null; duck(false); } };
+    a.addEventListener('ended', done, { once: true });
+    a.addEventListener('error', done, { once: true });
+    a.play().catch(done);
+  } catch { narrEl = null; duck(false); }
+}
+
+export function stopNarration() {
+  if (!narrEl) return;
+  try { narrEl.pause(); } catch {}
+  narrEl = null;
+  duck(false);
+}
+
 export const buzz = ms => { if (!muted) { try { navigator.vibrate?.(ms); } catch {} } };
 
 /* ── tiny synth: build crisp arcade SFX with no downloads ─────────── */
