@@ -323,13 +323,19 @@ there to paste into ElevenLabs Voice Design if you'd rather build a bespoke voic
 (`--design` attempts that automatically, and tells you to use the UI if the endpoint
 isn't available to your key).
 
-| Speaker | Reads | Brief |
-|---------|-------|-------|
-| `narrator` | the opening tale, the three region blurbs | a warm bedtime-story reader |
-| `glob` | Glob's throne-room speech and his defeat | a spoiled child king mid-tantrum |
-| `minyar` | his taunt and his defeat | whiny, wound-up, about to tell on you |
-| `demonder` | his taunt and his defeat | gruff, amused, cracks his knuckles |
-| `clubbo` | his taunt and his defeat | enormous, slow, oddly good-natured |
+| Speaker | Voice | Reads | Direction |
+|---------|-------|-------|-----------|
+| `narrator` | **George** | the opening tale, the three region blurbs | steady and warm — a bedtime-story reader |
+| `glob` | **Brian** | Glob's throne-room speech and his defeat | low stability, high style: theatrical, swinging from boast to shriek |
+| `minyar` | **Bill** | his taunt and his defeat | wound right up — rushed, cracking, indignant |
+| `demonder` | **Bill** | his taunt and his defeat | steady and amused — he thinks this is fun |
+| `clubbo` | **Bill** | his taunt and his defeat | slowed and flattened — short blunt bursts |
+
+Three voices across five speakers: the two you hear for a stretch get their own
+timbre, and the henchmen share Bill separated by delivery. They appear one per
+region and never share a scene, so they don't collide. If you'd rather one had his
+own voice, put another name in his `voice` field and re-run just that block —
+`node tools/generate-voice.js clubbo`.
 
 ### How it plays
 

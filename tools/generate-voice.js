@@ -125,9 +125,12 @@ async function resolveVoice(spec, speakerName) {
   if (byId) return byId.voice_id;
   const byName = voices.find(v => (v.name || '').toLowerCase() === spec.toLowerCase());
   if (byName) return byName.voice_id;
+  // Name it, don't just say no — the premade voices come and go between accounts.
+  const names = voices.map(v => v.name).filter(Boolean).sort();
   throw new Error(
-    `voice "${spec}" (for ${speakerName}) is not in your account.\n` +
-    '   Run `node tools/generate-voice.js --list` to see what is.');
+    `voice "${spec}" (cast as ${speakerName}) is not in your account.\n` +
+    `   Available: ${names.join(', ') || '(none)'}\n` +
+    '   Put one of those names, or a voice ID, in tools/voice-cast.json.');
 }
 
 // ── generate ───────────────────────────────────────────────────
