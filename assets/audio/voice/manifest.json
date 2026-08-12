@@ -1,1 +1,25 @@
-[]
+[
+  "intro_0",
+  "intro_1",
+  "intro_2",
+  "intro_3",
+  "intro_4",
+  "intro_5",
+  "glob_intro_0",
+  "glob_intro_1",
+  "glob_intro_2",
+  "glob_intro_3",
+  "glob_defeat_0",
+  "glob_defeat_1",
+  "glob_defeat_2",
+  "glob_defeat_3",
+  "minyar_taunt_0",
+  "minyar_defeat_0",
+  "demonder_taunt_0",
+  "demonder_defeat_0",
+  "clubbo_taunt_0",
+  "clubbo_defeat_0",
+  "region_land",
+  "region_sea",
+  "region_sky"
+]
