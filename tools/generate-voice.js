@@ -7,6 +7,7 @@
 //   node tools/generate-voice.js               # generate anything missing
 //   node tools/generate-voice.js --force       # re-record everything
 //   node tools/generate-voice.js intro         # just this block (or one line id)
+//   node tools/generate-voice.js glob minyar    # just these speakers
 //   node tools/generate-voice.js --design      # try to build the voices from
 //                                              # the descriptions in voice-cast.json
 //
@@ -97,6 +98,11 @@ const explain = (res) => {
   try {
     const d = JSON.parse(res.body.toString()).detail;
     if (typeof d === 'string') return d;
+    // a 422 comes back as an array of field errors — name the field and the rule,
+    // rather than dumping the raw envelope
+    if (Array.isArray(d)) {
+      return d.map(e => `${(e.loc || []).slice(1).join('.') || 'body'}: ${e.msg}`).join('; ');
+    }
     if (d && d.message) return `${d.status || ''} ${d.message}`.trim();
   } catch {}
   return res.body.toString().slice(0, 200);
@@ -185,21 +191,33 @@ function writeManifest(lines) {
 // Voice Design has moved around between API versions, so probe the documented
 // shapes rather than assume one. If none answer, say so plainly — the same
 // descriptions can be pasted into the Voice Design UI by hand.
-async function design() {
+async function design(force) {
   const attempts = [
     { preview: '/v1/text-to-voice/design', create: '/v1/text-to-voice' },
     { preview: '/v1/text-to-voice/create-previews', create: '/v1/text-to-voice/create-voice-from-preview' },
   ];
-  const sample = 'Once upon a time, in the bright realm of Liitokala, the creatures sang the land awake.';
+  // Preview each voice reading its OWN dialogue: it is the truest test of the
+  // casting, and it sidesteps the endpoint's minimum — a single henchman line is
+  // under the 100 characters it insists on, but both of them together are not.
+  const MIN_SAMPLE = 100, MAX_SAMPLE = 800;
+  const lines = storyLines();
+  const sampleFor = (speaker) => {
+    const mine = lines.filter(l => speakerFor(l.block).name === speaker).map(l => l.text);
+    let s = mine.join(' ').trim() ||
+      'In the bright realm of Liitokala every creature was wished into being by the Heartspring, and the land was full of song.';
+    while (s.length < MIN_SAMPLE) s = `${s} ${s}`.trim();
+    if (s.length > MAX_SAMPLE) s = s.slice(0, MAX_SAMPLE).replace(/\s+\S*$/, '');
+    return s;
+  };
   let changed = false;
 
   for (const [name, sp] of Object.entries(CAST.speakers)) {
-    if (sp.voice) { console.log(`· ${name}: already has a voice, skipped`); continue; }
+    if (sp.voice && !force) { console.log(`· ${name}: already cast as ${sp.voice} (--force to redesign)`); continue; }
     let made = null, lastErr = '';
     for (const a of attempts) {
       const res = await api('POST', a.preview, {
         voice_description: sp.description,
-        text: sample,
+        text: sampleFor(name),
         model_id: 'eleven_ttv_v3',
       });
       if (res.status === 404) { lastErr = '404'; continue; }
@@ -263,14 +281,15 @@ async function main() {
     return;
   }
 
-  if (args.includes('--design')) return design();
+  if (args.includes('--design')) return design(args.includes('--force'));
 
   let todo = only.length
-    ? lines.filter(l => only.includes(l.id) || only.includes(l.block))
+    ? lines.filter(l => only.includes(l.id) || only.includes(l.block) || only.includes(speakerFor(l.block).name))
     : lines;
   if (only.length && !todo.length) {
     console.error(`❌ Nothing matches ${only.join(', ')}.`);
-    console.error(`   Blocks: ${[...new Set(lines.map(l => l.block))].join(', ')}`);
+    console.error(`   Blocks:   ${[...new Set(lines.map(l => l.block))].join(', ')}`);
+    console.error(`   Speakers: ${[...new Set(lines.map(l => speakerFor(l.block).name))].join(', ')}`);
     console.error('   Or use --lines to see every id.');
     process.exit(1);
   }

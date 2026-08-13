@@ -15,10 +15,15 @@
     "more variable between takes; higher = steadier. The narrator wants steadiness,",
     "the tantrum-throwing villains do not.",
     "",
-    "Cast: George narrates, Brian is Glob, and the three henchmen have their own",
-    "voices — Callum, Harry and Charlie. Short names are fine here: the lookup",
-    "matches the leading name, so \"George\" finds \"George - Warm, Captivating",
-    "Storyteller\"."
+    "Cast: George narrates. The villains are recast as monsters — Glob a whining,",
+    "shrieking boy-tyrant, Minyar a snivelling minion, Demonder a demon, Clubbo an",
+    "ogre. Short names work: the lookup matches the part before the \" - \".",
+    "",
+    "NOTE: every voice in the library is a normal human. Settings can make one",
+    "rant, rasp or lumber, but they cannot make it a monster. For genuinely",
+    "inhuman voices use Voice Design with the descriptions below:",
+    "    node tools/generate-voice.js --design --force",
+    "which overwrites each `voice` field on success and leaves it alone on failure."
   ],
   "model_id": "eleven_multilingual_v2",
   "speakers": {
@@ -30,50 +35,53 @@
         "similarity_boost": 0.75,
         "style": 0.3,
         "use_speaker_boost": true
-      }
+      },
+      "designed_alternative": "pXoVw0W4ZXaQ2ehMEDpS",
+      "casting_note": "--design --force redesigned every speaker, the narrator included, but only the villains were re-recorded — so the nine narrator lines on disk are still George. Kept as George so this file matches the audio. To try the designed narrator instead, move designed_alternative into voice and run: node tools/generate-voice.js narrator --force"
     },
     "glob": {
-      "voice": "Brian",
-      "description": "A spoiled child king throwing a royal tantrum — petulant, gleeful and utterly self-important, the voice of someone who has never once been told no. Bratty and theatrical, swinging from sing-song boasting to outraged shrieking mid-sentence. Comic villainy for children, never genuinely frightening.",
+      "voice": "eGiTfMXLZeGWL0s8KYTo",
+      "description": "An evil boy-king with a voice that curdles — whining and wheedling one moment, shrieking with spite the next. Nasal, grating, self-pitying and cruel, a spoiled brat with real menace under the tantrum. Rises to a strangled screech when he does not get his way. Storybook villain: horrible, but funny-horrible, never truly frightening.",
       "settings": {
-        "stability": 0.3,
-        "similarity_boost": 0.7,
-        "style": 0.7,
+        "stability": 0.2,
+        "similarity_boost": 0.65,
+        "style": 0.85,
         "use_speaker_boost": true
-      }
+      },
+      "casting_note": "Charlie pushed to the edge: very low stability and very high style, so he rants and cracks instead of narrating."
     },
     "minyar": {
-      "voice": "Callum",
-      "description": "A whiny, wound-up little bully mid-tantrum — nasal, fast, indignant, forever on the edge of stamping a foot and telling on you. Comic and childish rather than menacing.",
+      "voice": "e8gUCg4StJWaBsCMBa5l",
+      "description": "A snivelling, grubby little minion — a nasal whining rasp, wheedling and resentful, the voice of a small nasty creature that bullies anything smaller and grovels to anything bigger. Grumbling, muttering, spiteful.",
       "settings": {
-        "stability": 0.3,
-        "similarity_boost": 0.7,
-        "style": 0.65,
+        "stability": 0.25,
+        "similarity_boost": 0.65,
+        "style": 0.8,
         "use_speaker_boost": true
       },
-      "casting_note": "Callum's husky trickster read, wound right up: low stability and high style so he rushes and cracks."
+      "casting_note": "Callum's husky trickster, wound up and soured into a whinging minion."
     },
     "demonder": {
-      "voice": "Harry",
-      "description": "A gruff, swaggering brawler who thinks this is all a bit of fun — low, gravelly, amused, the sort who cracks his knuckles and grins. Confident and unhurried, tough but never nasty.",
+      "voice": "lSXuDul4eexruYXBafbb",
+      "description": "A demon — a deep, scorched, gravelly growl from somewhere far too large, with a rasp of smoke behind every word. Slow, certain and pitiless, amused by you the way a fire is amused by paper. Menacing but theatrical, a storybook demon rather than a horror one.",
       "settings": {
-        "stability": 0.5,
-        "similarity_boost": 0.75,
-        "style": 0.45,
+        "stability": 0.4,
+        "similarity_boost": 0.7,
+        "style": 0.6,
         "use_speaker_boost": true
       },
-      "casting_note": "Harry's warrior weight, pulled back to amused rather than raging — he thinks this is fun."
+      "casting_note": "Adam is the most dominant, firm voice in the roster — the closest a human library voice gets to a demon."
     },
     "clubbo": {
-      "voice": "Charlie",
-      "description": "An enormous, slow, simple-minded crusher — very deep, booming and rumbling, speaking in short blunt bursts with big pauses. Dim and weirdly good-natured underneath all the smashing. Lumbering, not evil.",
+      "voice": "RhUxRPdJ58JXqcfRw9GA",
+      "description": "An ogre — an enormous, rumbling, gravel-throated bellow, thick and slow and dim. Words come out in heavy blunt lumps with big gaps between them, like boulders dropped one at a time. Stupid, brutish and pleased with himself.",
       "settings": {
-        "stability": 0.75,
-        "similarity_boost": 0.8,
-        "style": 0.2,
+        "stability": 0.8,
+        "similarity_boost": 0.75,
+        "style": 0.15,
         "use_speaker_boost": true
       },
-      "casting_note": "Charlie is deep but energetic, so high stability and low style flatten him into slow blunt bursts."
+      "casting_note": "Brian is the deepest, most resonant voice available; high stability and near-zero style slow him into ogre-sized lumps."
     }
   },
   "casting": {

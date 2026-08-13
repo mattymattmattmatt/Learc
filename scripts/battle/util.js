@@ -209,6 +209,19 @@ fetch('assets/audio/voice/manifest.json')
 
 export const hasVoice = id => voiceIds.has(id);
 
+/* Per-line trim, measured with tools/measure-sfx.html's method. The designed
+   villain voices came back up to 9 dB hotter than George — Minyar shouts at
+   -14 dB against the narrator's -22.5 — which reads as the mix breaking rather
+   than as drama. These pull the loud ones down to about 3 dB above the
+   narrator: present and forward, not startling. Anything unlisted plays as
+   recorded. */
+const VOICE_GAIN = {
+  minyar_taunt_0: 0.56, minyar_defeat_0: 0.54,
+  glob_defeat_1: 0.72, clubbo_taunt_0: 0.72,
+  glob_defeat_2: 0.79, glob_intro_0: 0.8, glob_defeat_0: 0.82, glob_intro_3: 0.84,
+  glob_intro_2: 0.97, glob_intro_1: 0.98,
+};
+
 /* Music sits under the narration, so pull it down while someone is talking. */
 function duck(on) {
   if (!curEl || muted) return;
@@ -222,7 +235,7 @@ export function narrate(id) {
   if (!id || muted || !voiceIds.has(id)) return;
   try {
     const a = new Audio(VOICE(id));
-    a.volume = 1;
+    a.volume = clamp(VOICE_GAIN[id] ?? 1, 0, 1);
     narrEl = a;
     duck(true);
     const done = () => { if (narrEl === a) { narrEl = null; duck(false); } };
@@ -405,6 +418,8 @@ export const S = {
   wailLock:     cue('wail_lock', () => tone({ f: 1180, dur: 0.09, type: 'sine', vol: 0.14, release: 0.1 }), 0.37),
   strikeGreen:  cue('strike_green', () => { noise({ dur: 0.1, vol: 0.2, lp: 2200 }); tone({ f: 200, f2: 80, dur: 0.14, type: 'square', vol: 0.22 }); }, 0.56),
   drawSignal:   cue('draw_signal', () => { tone({ f: 1320, dur: 0.09, type: 'square', vol: 0.24 }); }, 0.97),
+  /* fired on a timer while the reel is turning, so it ratchets */
+  reelTick:     cue('reel_tick', () => tone({ f: 420, f2: 300, dur: 0.03, type: 'square', vol: 0.1 }), 0.35),
   reelLand:     cue('reel_land', () => { noise({ dur: 0.18, vol: 0.2, lp: 1600, hp: 300 }); tone({ f: 700, f2: 1100, dur: 0.12, delay: 0.08, type: 'triangle', vol: 0.18 }); }, 0.96),
   ropeJump:     cue('rope_jump', () => noise({ dur: 0.08, vol: 0.14, lp: 2200, hp: 400 }), 0.4),
   ropePass:     cue('rope_pass', () => noise({ dur: 0.1, vol: 0.16, lp: 4000, hp: 900 }), 0.41),

@@ -19,7 +19,7 @@ export default {
 
       // ── tuning (pressure knobs cap at dp=9; only the goal climbs past that) ──
       const dp        = Math.min(d, 9);
-      const goal      = 4 + Math.round(d * 0.4);             // fish to land (~7 on Normal)
+      const goal      = 2 + Math.round(d * 0.5);             // fish to land (4 on Normal)
       const zoneHF    = clamp(0.24 - dp * 0.013, 0.12, 0.24); // grip height (fraction of column)
       const fishF     = 0.3 + dp * 0.025;                    // fish speed (kept below grip speed so it's trackable)
       const retargetN = () => clamp(1.0 - dp * 0.06, 0.38, 1.0) * rand(0.7, 1.5);
@@ -60,7 +60,7 @@ export default {
       heroImg.src = petImg(ctx.hero);
 
       // ── state ──
-      let zoneY = 0, zoneVy = 0, holding = false;
+      let zoneY = 0, zoneVy = 0, holding = false, reelAcc = 0;
       let fishY = 0, fishTargetY = 0, fishMul = 1, retargetT = 0, fishWobble = 0;
       let c = 0, e = 0, score = 0, done = false, msg = '', msgT = 0, flash = 0, shake = 0, bob = 0;
       const bubbles = Array.from({ length: 9 }, () => ({ x: rand(0, 1), y: rand(0, 1), s: rand(2, 6), v: rand(0.04, 0.12) }));
@@ -121,6 +121,13 @@ export default {
         const targetV = holding ? -UPV : DOWNV;
         zoneVy += (targetV - zoneVy) * Math.min(1, dt * RESP);
         zoneY += zoneVy * dt;
+
+        // the reel ratchets while you wind up — faster the harder it's turning,
+        // and silent on the way back down, so holding *sounds* like reeling
+        if (holding && zoneVy < -colH * 0.15) {
+          reelAcc -= dt * (0.6 + Math.abs(zoneVy) / colH);
+          if (reelAcc <= 0) { reelAcc = 0.085; S.reelTick(); }
+        } else reelAcc = 0;
         if (zoneY < colTop + zoneH / 2) { zoneY = colTop + zoneH / 2; zoneVy = Math.max(0, zoneVy); }
         if (zoneY > colBot - zoneH / 2) { zoneY = colBot - zoneH / 2; zoneVy = Math.min(0, zoneVy); }
 

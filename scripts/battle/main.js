@@ -25,9 +25,17 @@ import { SPINS_BY_MODE, modelRoster, modelInfo, modelUrl } from './collection.js
 import { openModelViewer } from './viewer.js';
 
 const APP = byId('app');
-/* every screen change funnels through here, so the transition sweep lives here
-   too — quiet by design, and silent until whoosh.mp3 is generated */
-const show = html => { APP.innerHTML = html; S.whoosh(); };
+/* Every screen change funnels through here, so the transition sweep lives here
+   too — quiet by design, and silent until whoosh.mp3 is generated.
+
+   It also cuts any narration still speaking. Demonder's designed taunt runs
+   thirteen seconds; without this it carries on over the fight that follows. */
+let sceneN = 0;
+const show = html => { APP.innerHTML = html; sceneN++; stopNarration(); S.whoosh(); };
+
+/* A line spoken after a beat — but only if we're still on the screen that asked
+   for it, so tapping straight through doesn't start a voice on the next one. */
+const narrateSoon = (id, ms) => { const n = sceneN; setTimeout(() => { if (sceneN === n) narrate(id); }, ms); };
 
 /* ── battle music: one track per champion/henchman (id.mp3, underscores→hyphens
    to match the existing asset-naming convention) + one per region ── */
@@ -227,7 +235,7 @@ function screenSelect() {
 function screenRegionIntro(ri) {
   const r = REGIONS[ri];
   playMusic(REGION_MUSIC[r.theme], 0.24);
-  setTimeout(() => narrate(`region_${r.key}`), 500);
+  narrateSoon(`region_${r.key}`, 500);
   show(`
     <div class="screen region-intro theme-${r.theme}">
       <div class="ri-card">
@@ -625,7 +633,7 @@ function screenBossIntro() {
       </div>
     </div>`);
   setTimeout(() => sfx(bm.sfx, 0.75), 60);   // the henchman's roar (like the champions)
-  setTimeout(() => narrate(`${entry.id}_taunt_0`), 1400);   // …then the taunt on the card
+  narrateSoon(`${entry.id}_taunt_0`, 1400);   // …then the taunt on the card
   byId('begin').onclick = () => startBossFight(entry, bm);
   byId('back').onclick = () => screenMap();
 }
