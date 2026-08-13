@@ -98,6 +98,11 @@ const explain = (res) => {
   try {
     const d = JSON.parse(res.body.toString()).detail;
     if (typeof d === 'string') return d;
+    // a 422 comes back as an array of field errors — name the field and the rule,
+    // rather than dumping the raw envelope
+    if (Array.isArray(d)) {
+      return d.map(e => `${(e.loc || []).slice(1).join('.') || 'body'}: ${e.msg}`).join('; ');
+    }
     if (d && d.message) return `${d.status || ''} ${d.message}`.trim();
   } catch {}
   return res.body.toString().slice(0, 200);
@@ -191,7 +196,19 @@ async function design(force) {
     { preview: '/v1/text-to-voice/design', create: '/v1/text-to-voice' },
     { preview: '/v1/text-to-voice/create-previews', create: '/v1/text-to-voice/create-voice-from-preview' },
   ];
-  const sample = 'Once upon a time, in the bright realm of Liitokala, the creatures sang the land awake.';
+  // Preview each voice reading its OWN dialogue: it is the truest test of the
+  // casting, and it sidesteps the endpoint's minimum — a single henchman line is
+  // under the 100 characters it insists on, but both of them together are not.
+  const MIN_SAMPLE = 100, MAX_SAMPLE = 800;
+  const lines = storyLines();
+  const sampleFor = (speaker) => {
+    const mine = lines.filter(l => speakerFor(l.block).name === speaker).map(l => l.text);
+    let s = mine.join(' ').trim() ||
+      'In the bright realm of Liitokala every creature was wished into being by the Heartspring, and the land was full of song.';
+    while (s.length < MIN_SAMPLE) s = `${s} ${s}`.trim();
+    if (s.length > MAX_SAMPLE) s = s.slice(0, MAX_SAMPLE).replace(/\s+\S*$/, '');
+    return s;
+  };
   let changed = false;
 
   for (const [name, sp] of Object.entries(CAST.speakers)) {
@@ -200,7 +217,7 @@ async function design(force) {
     for (const a of attempts) {
       const res = await api('POST', a.preview, {
         voice_description: sp.description,
-        text: sample,
+        text: sampleFor(name),
         model_id: 'eleven_ttv_v3',
       });
       if (res.status === 404) { lastErr = '404'; continue; }
