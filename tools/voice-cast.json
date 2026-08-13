@@ -28,14 +28,16 @@
   "model_id": "eleven_multilingual_v2",
   "speakers": {
     "narrator": {
-      "voice": "pXoVw0W4ZXaQ2ehMEDpS",
+      "voice": "George",
       "description": "A warm, unhurried storyteller reading a children's picture book aloud at bedtime. Kind and a little wondrous, with a gentle smile behind the voice. Clear enough for a six-year-old to follow, never syrupy, never sinister. Mid-range, softly resonant, unhurried pacing with room to breathe between images.",
       "settings": {
         "stability": 0.55,
         "similarity_boost": 0.75,
         "style": 0.3,
         "use_speaker_boost": true
-      }
+      },
+      "designed_alternative": "pXoVw0W4ZXaQ2ehMEDpS",
+      "casting_note": "--design --force redesigned every speaker, the narrator included, but only the villains were re-recorded — so the nine narrator lines on disk are still George. Kept as George so this file matches the audio. To try the designed narrator instead, move designed_alternative into voice and run: node tools/generate-voice.js narrator --force"
     },
     "glob": {
       "voice": "eGiTfMXLZeGWL0s8KYTo",
