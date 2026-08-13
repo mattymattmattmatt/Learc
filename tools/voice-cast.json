@@ -28,7 +28,7 @@
   "model_id": "eleven_multilingual_v2",
   "speakers": {
     "narrator": {
-      "voice": "George",
+      "voice": "pXoVw0W4ZXaQ2ehMEDpS",
       "description": "A warm, unhurried storyteller reading a children's picture book aloud at bedtime. Kind and a little wondrous, with a gentle smile behind the voice. Clear enough for a six-year-old to follow, never syrupy, never sinister. Mid-range, softly resonant, unhurried pacing with room to breathe between images.",
       "settings": {
         "stability": 0.55,
@@ -38,7 +38,7 @@
       }
     },
     "glob": {
-      "voice": "Charlie",
+      "voice": "eGiTfMXLZeGWL0s8KYTo",
       "description": "An evil boy-king with a voice that curdles — whining and wheedling one moment, shrieking with spite the next. Nasal, grating, self-pitying and cruel, a spoiled brat with real menace under the tantrum. Rises to a strangled screech when he does not get his way. Storybook villain: horrible, but funny-horrible, never truly frightening.",
       "settings": {
         "stability": 0.2,
@@ -49,7 +49,7 @@
       "casting_note": "Charlie pushed to the edge: very low stability and very high style, so he rants and cracks instead of narrating."
     },
     "minyar": {
-      "voice": "Callum",
+      "voice": "e8gUCg4StJWaBsCMBa5l",
       "description": "A snivelling, grubby little minion — a nasal whining rasp, wheedling and resentful, the voice of a small nasty creature that bullies anything smaller and grovels to anything bigger. Grumbling, muttering, spiteful.",
       "settings": {
         "stability": 0.25,
@@ -60,7 +60,7 @@
       "casting_note": "Callum's husky trickster, wound up and soured into a whinging minion."
     },
     "demonder": {
-      "voice": "Adam",
+      "voice": "lSXuDul4eexruYXBafbb",
       "description": "A demon — a deep, scorched, gravelly growl from somewhere far too large, with a rasp of smoke behind every word. Slow, certain and pitiless, amused by you the way a fire is amused by paper. Menacing but theatrical, a storybook demon rather than a horror one.",
       "settings": {
         "stability": 0.4,
@@ -71,7 +71,7 @@
       "casting_note": "Adam is the most dominant, firm voice in the roster — the closest a human library voice gets to a demon."
     },
     "clubbo": {
-      "voice": "Brian",
+      "voice": "RhUxRPdJ58JXqcfRw9GA",
       "description": "An ogre — an enormous, rumbling, gravel-throated bellow, thick and slow and dim. Words come out in heavy blunt lumps with big gaps between them, like boulders dropped one at a time. Stupid, brutish and pleased with himself.",
       "settings": {
         "stability": 0.8,

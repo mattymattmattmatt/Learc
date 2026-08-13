@@ -33,6 +33,7 @@
   "paddle_bounce",
   "pedal",
   "reel_land",
+  "reel_tick",
   "region_clear",
   "reload",
   "rope_jump",
