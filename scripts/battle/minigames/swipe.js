@@ -14,7 +14,7 @@ export default {
     return new Promise(resolve => {
       const need = 9 + Math.min(ctx.difficulty, 11);    // clean swipes to win
       const perArrow = clamp(1600 - ctx.difficulty * 120, 460, 1600);  // ms allowed
-      let hits = 0, misses = 0, done = false, cur = null, timer = null, deadline = 0, pending = null;
+      let hits = 0, misses = 0, done = false, cur = null, timer = null, deadline = 0;
 
       area.innerHTML = `
         ${stageHTML(ctx, 'sw')}
@@ -34,10 +34,6 @@ export default {
         clearTimeout(timer);
         timer = setTimeout(() => judge(null), perArrow);
         S.arrowShow();
-        // A swipe thrown during the gap before this arrow existed is not a
-        // wasted input — it's a fast player already reacting. Judge it now,
-        // against the arrow that just appeared, instead of having eaten it.
-        if (pending !== null) { const dir = pending; pending = null; judge(dir); }
       }
       // shrink the timer bar
       let raf = 0;
@@ -50,30 +46,47 @@ export default {
       animate();
 
       function judge(dir) {
-        if (done) return;
-        if (cur == null) { pending = dir; return; }   // between arrows — hold it, don't drop it
+        if (done || cur == null) return;
         const ok = dir === cur;
         clearTimeout(timer);
-        const wasCur = cur; cur = null;
+        cur = null;
         if (ok) { hits++; hitEl.textContent = hits; hitFlash(foeEl); S.swipeOk(); buzz(14); }
         else { misses++; missEl.textContent = `❌ ${misses}/3`; hitFlash(heroEl); S.bad(); buzz(50); }
         if (hits >= need) return end(true);
         if (misses >= 3) return end(false);
-        setTimeout(nextArrow, 180);
+        // Straight into the next arrow. Any pause here is a window where the
+        // player can swipe at nothing, and those swipes were being thrown away.
+        nextArrow();
       }
 
-      // swipe detection
-      let sx = 0, sy = 0, tracking = false;
-      const down = e => { tracking = true; sx = e.clientX; sy = e.clientY; e.preventDefault(); };
-      const upH = e => {
-        if (!tracking) return; tracking = false;
+      /* Swipe detection. Two rules keep this honest:
+         - the direction is locked in the moment the finger passes the
+           threshold, not when it lifts, so a swipe counts against the arrow
+           the player was actually looking at;
+         - one press produces at most one judgement (`fired`), so a long or
+           sloppy drag can never resolve two arrows. */
+      let sx = 0, sy = 0, tracking = false, fired = false;
+      const down = e => {
+        tracking = true; fired = false; sx = e.clientX; sy = e.clientY;
+        if (pad.setPointerCapture) { try { pad.setPointerCapture(e.pointerId); } catch (_) {} }
+        e.preventDefault();
+      };
+      const move = e => {
+        if (!tracking || fired) return;
         const dx = e.clientX - sx, dy = e.clientY - sy;
         const adx = Math.abs(dx), ady = Math.abs(dy);
-        if (Math.max(adx, ady) < 24) return;     // too small — ignore (no penalty)
+        if (Math.max(adx, ady) < 24) return;     // still ambiguous — keep watching
+        fired = true;
         judge(adx > ady ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
+      };
+      const upH = e => {
+        if (!tracking) return;
+        move(e);                                 // catch a flick that never sent a move
+        tracking = false;
       };
       const cancel = () => { tracking = false; };          // interrupted swipe — no penalty
       pad.addEventListener('pointerdown', down);
+      window.addEventListener('pointermove', move);
       window.addEventListener('pointerup', upH);
       window.addEventListener('pointercancel', cancel);
 
@@ -81,6 +94,7 @@ export default {
         if (done) return; done = true;
         clearTimeout(timer); cancelAnimationFrame(raf);
         pad.removeEventListener('pointerdown', down);
+        window.removeEventListener('pointermove', move);
         window.removeEventListener('pointerup', upH); window.removeEventListener('pointercancel', cancel);
         if (!win) sfx(ctx.foe.sfx, 0.7);
         resolve({ win, stars: win ? (misses === 0 ? 3 : 2) : 1 });
