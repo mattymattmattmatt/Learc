@@ -7,6 +7,7 @@
 //   node tools/generate-voice.js               # generate anything missing
 //   node tools/generate-voice.js --force       # re-record everything
 //   node tools/generate-voice.js intro         # just this block (or one line id)
+//   node tools/generate-voice.js glob minyar    # just these speakers
 //   node tools/generate-voice.js --design      # try to build the voices from
 //                                              # the descriptions in voice-cast.json
 //
@@ -185,7 +186,7 @@ function writeManifest(lines) {
 // Voice Design has moved around between API versions, so probe the documented
 // shapes rather than assume one. If none answer, say so plainly — the same
 // descriptions can be pasted into the Voice Design UI by hand.
-async function design() {
+async function design(force) {
   const attempts = [
     { preview: '/v1/text-to-voice/design', create: '/v1/text-to-voice' },
     { preview: '/v1/text-to-voice/create-previews', create: '/v1/text-to-voice/create-voice-from-preview' },
@@ -194,7 +195,7 @@ async function design() {
   let changed = false;
 
   for (const [name, sp] of Object.entries(CAST.speakers)) {
-    if (sp.voice) { console.log(`· ${name}: already has a voice, skipped`); continue; }
+    if (sp.voice && !force) { console.log(`· ${name}: already cast as ${sp.voice} (--force to redesign)`); continue; }
     let made = null, lastErr = '';
     for (const a of attempts) {
       const res = await api('POST', a.preview, {
@@ -263,14 +264,15 @@ async function main() {
     return;
   }
 
-  if (args.includes('--design')) return design();
+  if (args.includes('--design')) return design(args.includes('--force'));
 
   let todo = only.length
-    ? lines.filter(l => only.includes(l.id) || only.includes(l.block))
+    ? lines.filter(l => only.includes(l.id) || only.includes(l.block) || only.includes(speakerFor(l.block).name))
     : lines;
   if (only.length && !todo.length) {
     console.error(`❌ Nothing matches ${only.join(', ')}.`);
-    console.error(`   Blocks: ${[...new Set(lines.map(l => l.block))].join(', ')}`);
+    console.error(`   Blocks:   ${[...new Set(lines.map(l => l.block))].join(', ')}`);
+    console.error(`   Speakers: ${[...new Set(lines.map(l => speakerFor(l.block).name))].join(', ')}`);
     console.error('   Or use --lines to see every id.');
     process.exit(1);
   }

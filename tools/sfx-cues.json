@@ -287,5 +287,9 @@
   "link_snap": {
     "cap": 0.4,
     "prompt": "A binding link snapping apart — a taut sharp pop of breaking cord with a bright metallic ring, freeing, crisp, very short"
+  },
+  "reel_tick": {
+    "cap": 0.2,
+    "prompt": "One click of a fishing reel's ratchet — a single crisp mechanical tick of a pawl over a gear tooth, woody and bright, played over and over as the reel turns, clean and present, dry, no reverb, very short"
   }
 }

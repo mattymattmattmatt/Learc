@@ -398,6 +398,14 @@ html,body{height:100%;width:100%;overflow:hidden;background:var(--bg1);color:var
   border:3px solid rgba(255,255,255,.85);box-shadow:0 0 12px rgba(0,0,0,.3);}
 .sl-foe img{width:84%;height:84%;object-fit:contain;}
 .sl-foe.hit{animation:hit .3s ease;}
+/* Roger Dodger's dodge: a quick tilt-and-blur as he snaps aside, and the
+   reticle turns green the moment he is out of charges — that is the tell that
+   says "hit him NOW". */
+.sl-foe.dodge{animation:sl-dodge .3s ease;}
+@keyframes sl-dodge{0%{transform:scale(1) rotate(0)}40%{transform:scale(.88) rotate(-14deg);filter:blur(1.5px)}100%{transform:scale(1) rotate(0)}}
+.sl-reticle.spent{border-color:rgba(95,212,122,.95);box-shadow:0 0 14px rgba(95,212,122,.85);animation:sl-open .6s ease-in-out infinite alternate;}
+.sl-reticle.spent::before,.sl-reticle.spent::after{background:rgba(95,212,122,.95);}
+@keyframes sl-open{from{transform:translate(-50%,-50%) scale(1)}to{transform:translate(-50%,-50%) scale(1.12)}}
 .sl-reticle{position:absolute;transform:translate(-50%,-50%);border:3px solid rgba(255,90,134,.9);border-radius:50%;z-index:4;pointer-events:none;box-shadow:0 0 10px rgba(255,90,134,.7);}
 .sl-reticle::before,.sl-reticle::after{content:'';position:absolute;background:rgba(255,90,134,.9);}
 .sl-reticle::before{left:50%;top:-9px;bottom:-9px;width:2px;transform:translateX(-50%);}

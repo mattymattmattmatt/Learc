@@ -11,7 +11,7 @@ export default {
     return new Promise(resolve => {
       const goal = 9 + Math.min(ctx.difficulty, 10);   // capped — clip + reload throughput is the limit
       const TIME = 20, CLIP = 6;
-      let score = 0, ammo = CLIP, reloading = false, left = TIME, done = false;
+      let score = 0, ammo = CLIP, left = TIME, done = false;
 
       area.innerHTML = `
         <div class="ss-hud"><span>🎯 <b id="sc">0</b>/${goal}</span>
@@ -23,7 +23,7 @@ export default {
       const ammoEl = area.querySelector('#ammo'), tf = area.querySelector('#tf');
       const cross = area.querySelector('#cross');
 
-      const drawAmmo = () => { ammoEl.innerHTML = reloading ? '<span class="ss-reload">RELOADING…</span>' : ('🔸'.repeat(ammo) + '▫️'.repeat(CLIP - ammo)); };
+      const drawAmmo = () => { ammoEl.innerHTML = '🔸'.repeat(ammo) + '▫️'.repeat(CLIP - ammo); };
       drawAmmo();
 
       let W = 0, H = 0;
@@ -51,8 +51,6 @@ export default {
       }
 
       const fireAt = (cx, cy) => {
-        if (reloading) { return; }
-        if (ammo <= 0) { startReload(); return; }
         ammo--; drawAmmo(); S.shoot(); buzz(18);
         cross.hidden = false; cross.style.left = cx + 'px'; cross.style.top = cy + 'px';
         cross.classList.remove('fire'); void cross.offsetWidth; cross.classList.add('fire');
@@ -72,8 +70,9 @@ export default {
         if (ammo <= 0) startReload();
       };
       function startReload() {
-        if (reloading) return; reloading = true; drawAmmo(); S.reload();
-        setTimeout(() => { ammo = CLIP; reloading = false; drawAmmo(); }, 1000);
+        // Instant: the clip clacks over and you keep shooting. The one-second
+        // stall it used to impose read as the game taking the controls off you.
+        ammo = CLIP; drawAmmo(); S.reload();
       }
 
       const onDown = e => { e.preventDefault(); const r = field.getBoundingClientRect(); fireAt(e.clientX - r.left, e.clientY - r.top); };

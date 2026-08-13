@@ -405,6 +405,8 @@ export const S = {
   wailLock:     cue('wail_lock', () => tone({ f: 1180, dur: 0.09, type: 'sine', vol: 0.14, release: 0.1 }), 0.37),
   strikeGreen:  cue('strike_green', () => { noise({ dur: 0.1, vol: 0.2, lp: 2200 }); tone({ f: 200, f2: 80, dur: 0.14, type: 'square', vol: 0.22 }); }, 0.56),
   drawSignal:   cue('draw_signal', () => { tone({ f: 1320, dur: 0.09, type: 'square', vol: 0.24 }); }, 0.97),
+  /* fired on a timer while the reel is turning, so it ratchets */
+  reelTick:     cue('reel_tick', () => tone({ f: 420, f2: 300, dur: 0.03, type: 'square', vol: 0.1 }), 0.35),
   reelLand:     cue('reel_land', () => { noise({ dur: 0.18, vol: 0.2, lp: 1600, hp: 300 }); tone({ f: 700, f2: 1100, dur: 0.12, delay: 0.08, type: 'triangle', vol: 0.18 }); }, 0.96),
   ropeJump:     cue('rope_jump', () => noise({ dur: 0.08, vol: 0.14, lp: 2200, hp: 400 }), 0.4),
   ropePass:     cue('rope_pass', () => noise({ dur: 0.1, vol: 0.16, lp: 4000, hp: 900 }), 0.41),
