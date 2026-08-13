@@ -14,7 +14,7 @@ export default {
     return new Promise(resolve => {
       const need = 9 + Math.min(ctx.difficulty, 11);    // clean swipes to win
       const perArrow = clamp(1600 - ctx.difficulty * 120, 460, 1600);  // ms allowed
-      let hits = 0, misses = 0, done = false, cur = null, timer = null, deadline = 0;
+      let hits = 0, misses = 0, done = false, cur = null, timer = null, deadline = 0, pending = null;
 
       area.innerHTML = `
         ${stageHTML(ctx, 'sw')}
@@ -34,6 +34,10 @@ export default {
         clearTimeout(timer);
         timer = setTimeout(() => judge(null), perArrow);
         S.arrowShow();
+        // A swipe thrown during the gap before this arrow existed is not a
+        // wasted input — it's a fast player already reacting. Judge it now,
+        // against the arrow that just appeared, instead of having eaten it.
+        if (pending !== null) { const dir = pending; pending = null; judge(dir); }
       }
       // shrink the timer bar
       let raf = 0;
@@ -46,7 +50,8 @@ export default {
       animate();
 
       function judge(dir) {
-        if (done || cur == null) return;
+        if (done) return;
+        if (cur == null) { pending = dir; return; }   // between arrows — hold it, don't drop it
         const ok = dir === cur;
         clearTimeout(timer);
         const wasCur = cur; cur = null;
